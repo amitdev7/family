@@ -1,0 +1,7 @@
+# Vercel Deployment Ignore
+.env*.local
+.env
+sources/
+supabase/
+tests/
+*.md
