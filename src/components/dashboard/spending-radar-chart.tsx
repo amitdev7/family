@@ -13,33 +13,38 @@ interface SpendingRadarChartProps {
 }
 
 const DEFAULT_AXES = [
-  { label: "Food", current: 85, avg: 65, amount: 24500, emoji: "🍕", color: "#D4F835" },
-  { label: "Bills", current: 90, avg: 85, amount: 16800, emoji: "💡", color: "#38bdf8" },
-  { label: "Sporting goods", current: 60, avg: 70, amount: 5200, emoji: "🏸", color: "#f43f5e" },
-  { label: "Home goods", current: 75, avg: 55, amount: 8400, emoji: "🛋️", color: "#a855f7" },
-  { label: "Clothing", current: 80, avg: 75, amount: 10200, emoji: "👕", color: "#fb923c" },
-  { label: "Other", current: 70, avg: 60, amount: 4800, emoji: "📦", color: "#10b981" },
+  { label: "Food", current: 0, avg: 0, amount: 0, emoji: "🍕", color: "#D4F835" },
+  { label: "Bills", current: 0, avg: 0, amount: 0, emoji: "💡", color: "#38bdf8" },
+  { label: "Shopping", current: 0, avg: 0, amount: 0, emoji: "🛍️", color: "#f43f5e" },
+  { label: "Transport", current: 0, avg: 0, amount: 0, emoji: "🚗", color: "#a855f7" },
+  { label: "Health", current: 0, avg: 0, amount: 0, emoji: "🩺", color: "#fb923c" },
+  { label: "Other", current: 0, avg: 0, amount: 0, emoji: "📦", color: "#10b981" },
 ];
 
 export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"radar" | "donut">("radar");
 
-  // Map incoming categorySpending or use DEFAULT_AXES
+  // Map incoming categorySpending or use 0 defaults
   const axes = DEFAULT_AXES.map((axis, i) => {
-    if (categorySpending && categorySpending[i]) {
+    if (categorySpending && categorySpending[i] && categorySpending[i].totalAmount > 0) {
       const match = categorySpending[i];
-      const maxAmount = 30000;
-      const normalized = Math.min(95, Math.max(30, (match.totalAmount / maxAmount) * 100));
+      const maxAmount = Math.max(1, ...categorySpending.map((c) => c.totalAmount));
+      const normalized = Math.min(95, Math.max(15, (match.totalAmount / maxAmount) * 100));
       return {
         ...axis,
         label: match.categoryName,
         current: normalized,
-        avg: Math.min(90, Math.max(35, normalized * 0.85)),
+        avg: Math.round(normalized * 0.8),
         amount: match.totalAmount,
       };
     }
-    return axis;
+    return {
+      ...axis,
+      current: 0,
+      avg: 0,
+      amount: 0,
+    };
   });
 
   const totalSpentAll = axes.reduce((acc, curr) => acc + curr.amount, 0);

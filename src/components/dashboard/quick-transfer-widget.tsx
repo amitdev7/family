@@ -26,10 +26,16 @@ export function QuickTransferWidget({
   onAddMemberClick,
   onAddExpenseClick,
 }: QuickTransferWidgetProps) {
-  const [selectedId, setSelectedId] = useState<string>("1");
+  const [selectedId, setSelectedId] = useState<string>(() => members?.[0]?.user_id || "1");
   const [amount, setAmount] = useState<string>("1000");
   const [isSending, setIsSending] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (members && members.length > 0 && !members.some((m) => m.user_id === selectedId)) {
+      setSelectedId(members[0].user_id);
+    }
+  }, [members, selectedId]);
 
   const displayList =
     members && members.length > 0

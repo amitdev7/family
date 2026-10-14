@@ -4,9 +4,6 @@ import React, { useState } from "react";
 import {
   Mic,
   Calendar,
-  Tv,
-  Wifi,
-  Home,
   Zap,
   CheckCircle2,
 } from "lucide-react";
@@ -14,39 +11,17 @@ import { AppLayout } from "@/components/layout/app-layout";
 import { Modal } from "@/components/ui/modal";
 import { formatINR } from "@/lib/formatters";
 
-// 3 Figma Recurring Bills matching image_20261014_111556.jpg right
-const DEFAULT_BILL_ITEMS = [
-  {
-    id: "rec-1",
-    name: "Airtel Xstream Fiber",
-    subtitle: "Broadband • Monthly",
-    amount: 999,
-    nextDue: "Next due: 18 Oct • 2 days",
-    status: "Active",
-    icon: Wifi,
-    iconBg: "bg-black text-white",
-  },
-  {
-    id: "rec-2",
-    name: "Netflix • Streaming",
-    subtitle: "Monthly • Premium Plan",
-    amount: 649,
-    nextDue: "Next due: 22 Oct • 6 days",
-    status: "Active",
-    icon: Tv,
-    iconBg: "bg-red-600 text-white",
-  },
-  {
-    id: "rec-3",
-    name: "Rent • Apartment",
-    subtitle: "Monthly",
-    amount: 35000,
-    nextDue: "Next due: 1 Nov • 16 days",
-    status: "Paused",
-    icon: Home,
-    iconBg: "bg-black text-emerald-400",
-  },
-];
+// Clean slate: recurring subscriptions array starts empty
+const DEFAULT_BILL_ITEMS: Array<{
+  id: string;
+  name: string;
+  subtitle: string;
+  amount: number;
+  nextDue: string;
+  status: string;
+  icon: any;
+  iconBg: string;
+}> = [];
 
 export default function RecurringPage() {
   const [bills, setBills] = useState(DEFAULT_BILL_ITEMS);
@@ -128,9 +103,9 @@ export default function RecurringPage() {
           </div>
         </div>
 
-        {/* Black Status Capsule Pill matching Figma */}
+        {/* Dynamic Status Capsule Pill */}
         <div className="py-2.5 px-4 rounded-full bg-[#0E0E10] text-white text-xs font-semibold text-center shadow-xs">
-          3 Active • 1 Paused • Next bill in 2 days
+          {bills.length} Total • {bills.filter((b) => b.status === "Active").length} Active • {bills.filter((b) => b.status === "Paused").length} Paused
         </div>
 
         {/* Toast Feedback */}
@@ -141,9 +116,27 @@ export default function RecurringPage() {
           </div>
         )}
 
-        {/* Bill Cards matching Figma */}
-        <div className="space-y-4">
-          {bills.map((bill) => {
+        {/* Bill Cards or Clean Zero State */}
+        {bills.length === 0 ? (
+          <div className="rounded-[28px] bg-card border border-border/80 p-8 sm:p-10 text-center space-y-3">
+            <div className="h-14 w-14 rounded-2xl bg-[#D4F835]/15 text-black dark:text-[#D4F835] flex items-center justify-center mx-auto text-2xl font-bold">
+              ⚡
+            </div>
+            <h3 className="font-extrabold text-base text-foreground">No Recurring Subscriptions Yet</h3>
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+              Add your broadband, OTT streaming, house rent, or electricity bills to track monthly due dates automatically.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsAddOpen(true)}
+              className="px-5 py-2.5 rounded-full bg-[#D4F835] text-black font-extrabold text-xs shadow-md cursor-pointer hover:bg-[#c6ea27] transition-all"
+            >
+              + Add First Recurring Bill
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {bills.map((bill) => {
             const Icon = bill.icon;
             const isActive = bill.status === "Active";
 
@@ -200,6 +193,7 @@ export default function RecurringPage() {
             );
           })}
         </div>
+      )}
 
         {/* Record Now Black Button with Microphone icon matching Figma */}
         <div className="space-y-3 pt-2">

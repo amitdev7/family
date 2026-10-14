@@ -33,7 +33,7 @@ export default function SettingsPage() {
   const [currentUserId, setCurrentUserId] = useState<string>("");
 
   // Edit Household
-  const [displayName, setDisplayName] = useState("Sharma Residence");
+  const [displayName, setDisplayName] = useState("My Household");
   const [isEditingName, setIsEditingName] = useState(false);
 
   // Add Member Form

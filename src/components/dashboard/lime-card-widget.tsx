@@ -21,8 +21,8 @@ interface LimeCardWidgetProps {
 }
 
 export function LimeCardWidget({
-  balance = 85230.2,
-  creditLimit = 22000,
+  balance = 0,
+  creditLimit = 0,
   creditUsed = 0,
   cardName = "Household",
   onAddCardClick,
@@ -93,7 +93,7 @@ export function LimeCardWidget({
         {/* Peeking Background Card: Platina */}
         <div className="absolute top-0 left-3 right-3 h-14 rounded-2xl bg-[#E5E7EB] dark:bg-zinc-800 text-muted-foreground px-4 py-2 flex items-center justify-between text-xs font-semibold shadow-xs">
           <span className="font-bold">Platina Primary</span>
-          <span className="font-mono">₹500.25</span>
+          <span className="font-mono">{formatINR(balance)}</span>
         </div>
 
         {/* Foreground Electric Lime VISA Card */}
@@ -181,7 +181,7 @@ export function LimeCardWidget({
       <div className="space-y-2 py-1 text-xs font-semibold">
         <div className="flex items-center justify-between text-muted-foreground">
           <span>Card Holder</span>
-          <span className="text-foreground font-bold">Amit Sharma (Admin)</span>
+          <span className="text-foreground font-bold">{cardName} (Primary)</span>
         </div>
         <div className="flex items-center justify-between text-muted-foreground">
           <span>Credit limit</span>

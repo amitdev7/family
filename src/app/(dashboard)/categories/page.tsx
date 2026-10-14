@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { DataService } from "@/lib/data-service";
-import { Category } from "@/lib/types";
+import { Category, Expense } from "@/lib/types";
+import { formatINR } from "@/lib/formatters";
 
 const COLOR_SWATCHES = [
   { name: "Lime", hex: "#D4F835", bg: "bg-[#D4F835]" },
@@ -36,48 +37,9 @@ const ICON_CHOICES = [
   { name: "shopping", icon: ShoppingBag },
 ];
 
-// 4 Figma Cards data matching image_20261014_111556.jpg center
-const DEFAULT_CARDS = [
-  {
-    name: "Groceries & Supermarket",
-    count: 32,
-    amount: "₹24,500",
-    trend: "+12% vs last month",
-    trendType: "up",
-    icon: ShoppingCart,
-    bg: "bg-[#D4F835] text-black",
-  },
-  {
-    name: "Shopping & Apparel",
-    count: 18,
-    amount: "₹10,200",
-    trend: "-5% vs last month",
-    trendType: "down",
-    icon: ShoppingBag,
-    bg: "bg-pink-400 text-white",
-  },
-  {
-    name: "Fuel & Transport",
-    count: 14,
-    amount: "₹16,800",
-    trend: "No change",
-    trendType: "neutral",
-    icon: Car,
-    bg: "bg-blue-500 text-white",
-  },
-  {
-    name: "Health & Medical",
-    count: 6,
-    amount: "₹5,400",
-    trend: "+8% vs last month",
-    trendType: "up",
-    icon: Heart,
-    bg: "bg-purple-500 text-white",
-  },
-];
-
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [search, setSearch] = useState("");
   const [selectedColor, setSelectedColor] = useState(COLOR_SWATCHES[0].hex);
   const [selectedIcon, setSelectedIcon] = useState("cart");
@@ -86,8 +48,12 @@ export default function CategoriesPage() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const loadData = async () => {
-    const list = await DataService.getCategories();
-    setCategories(list);
+    const [cats, expsRes] = await Promise.all([
+      DataService.getCategories(),
+      DataService.getExpenses({ pageSize: 1000 }),
+    ]);
+    setCategories(cats);
+    setExpenses(expsRes.expenses);
   };
 
   useEffect(() => {
@@ -114,7 +80,25 @@ export default function CategoriesPage() {
     }
   };
 
-  const filteredCards = DEFAULT_CARDS.filter((c) =>
+  const categoryCards = categories.map((cat, idx) => {
+    const catExpenses = expenses.filter((e) => e.category_id === cat.id);
+    const totalAmount = catExpenses.reduce((sum, e) => sum + e.amount, 0);
+    const count = catExpenses.length;
+    const icons = [ShoppingCart, ShoppingBag, Car, Heart, Home, Utensils];
+    const IconComponent = icons[idx % icons.length];
+    return {
+      id: cat.id,
+      name: cat.name,
+      count,
+      amount: formatINR(totalAmount),
+      trend: count > 0 ? `${count} transaction${count === 1 ? "" : "s"}` : "No transactions yet",
+      trendType: count > 0 ? "up" : "neutral",
+      icon: IconComponent,
+      bg: idx % 2 === 0 ? "bg-[#D4F835] text-black" : "bg-secondary text-foreground",
+    };
+  });
+
+  const filteredCards = categoryCards.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 

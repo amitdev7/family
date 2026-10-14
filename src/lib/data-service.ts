@@ -31,8 +31,8 @@ import {
 } from "./calculations/financials";
 import { createClient, isSupabaseConfigured } from "./supabase/client";
 
-// Storage key for clean production state (v2 has zero fake dummy data)
-const DEMO_STORAGE_KEY = "our_home_demo_state_v2";
+// Storage key for clean production state (zero fake dummy data)
+const DEMO_STORAGE_KEY = "familyflow_clean_v5";
 const DEVICE_USER_KEY = "family_device_active_user_id";
 const USER_IDENTIFIED_KEY = "family_user_has_selected_identity";
 
@@ -790,14 +790,6 @@ export class DataService {
     };
   }
 
-  static async clearAllData(): Promise<void> {
-    this.state.expenses = [];
-    this.state.receivedMoney = [];
-    this.state.recurring = [];
-    this.state.activityLogs = [];
-    saveDemoState(this.state);
-  }
-
   static async getRecurringExpenses(): Promise<RecurringExpense[]> {
     if (isSupabaseConfigured()) {
       const supabase = createClient();
@@ -910,7 +902,7 @@ export class DataService {
     const spentThisYear = calculateYearSpending(expenses, targetDate);
 
     // Household overall budget
-    const overallBudget = budgets.find((b) => b.category_id === null)?.amount || 100000;
+    const overallBudget = budgets.find((b) => b.category_id === null)?.amount || 0;
     const { remaining, utilizationPercent } = calculateBudgetMetrics(spentThisMonth, overallBudget);
 
     // Category budgets map
@@ -979,6 +971,26 @@ export class DataService {
 
   static exportExpensesCSV(expenses?: Expense[]): string {
     return this.exportExpensesToCSV(expenses || this.state.expenses);
+  }
+
+  static async clearAllData(): Promise<void> {
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      await Promise.all([
+        supabase.from("expenses").delete().neq("id", "00000000-0000-0000-0000-000000000000"),
+        supabase.from("received_money").delete().neq("id", "00000000-0000-0000-0000-000000000000"),
+        supabase.from("activity_logs").delete().neq("id", "00000000-0000-0000-0000-000000000000"),
+      ]);
+    }
+    this.state.expenses = [];
+    this.state.receivedMoney = [];
+    this.state.recurring = [];
+    this.state.activityLogs = [];
+    saveDemoState(this.state);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("household-expense-updated"));
+      window.dispatchEvent(new Event("expense-saved"));
+    }
   }
 }
 

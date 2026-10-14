@@ -11,7 +11,7 @@ import {
 
 export const DEMO_HOUSEHOLD: Household = {
   id: "11111111-1111-1111-1111-111111111111",
-  name: "Sharma Family Home",
+  name: "Family Home",
   currency: "INR",
   created_at: "2026-01-01T00:00:00Z",
 };
@@ -127,16 +127,7 @@ export const DEMO_CATEGORIES: Category[] = [
   },
 ];
 
-export const DEMO_BUDGETS: Budget[] = [
-  {
-    id: "b-overall",
-    household_id: "11111111-1111-1111-1111-111111111111",
-    category_id: null,
-    amount: 90000,
-    period: "monthly",
-    period_start: "2026-10-01",
-  },
-];
+export const DEMO_BUDGETS: Budget[] = [];
 
 // Clean slate: Zero fake transactions or dummy logs
 export const DEMO_RECURRING: RecurringExpense[] = [];
