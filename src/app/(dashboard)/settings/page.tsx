@@ -206,7 +206,7 @@ export default function SettingsPage() {
               </span>
               <div className="flex items-center justify-between p-3 rounded-2xl bg-secondary/50 border border-border cursor-pointer">
                 <span className="font-bold text-sm text-foreground">
-                  INR • Indian Rupee (₹)
+                  {household?.currency || "INR"} • Indian Rupee (₹)
                 </span>
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </div>
