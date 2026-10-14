@@ -179,7 +179,7 @@ export function DashboardHeroBanner({
           </div>
           <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 mt-1">
             <TrendingUp className="h-3 w-3" />
-            <span>+12.4% vs last mo</span>
+            <span>{totalBalance >= 0 ? "Safe Positive Liquidity" : "Deficit Warning"}</span>
           </div>
         </div>
 

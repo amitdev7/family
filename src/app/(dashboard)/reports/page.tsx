@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Printer, Calendar, TrendingUp, AlertCircle, BarChart3 } from "lucide-react";
+import { Printer, TrendingUp, BarChart3 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember, DashboardMetrics, Category, Expense } from "@/lib/types";
@@ -29,7 +29,7 @@ export default function ReportsPage() {
         DataService.getDashboardMetrics(),
         DataService.getMembers(),
         DataService.getCategories(),
-        DataService.getExpenses({ limit: 500 }),
+        DataService.getExpenses(),
       ]);
       setMetrics(dashMetrics);
       setMembers(mems);
@@ -148,6 +148,19 @@ export default function ReportsPage() {
     return { rows, getHeatColor, maxSpend };
   }, [categories, expenses]);
 
+  if (isLoading || !metrics) {
+    return (
+      <AppLayout title="Reports & Analytics">
+        <div className="max-w-2xl mx-auto space-y-6 animate-pulse pb-12">
+          <div className="h-10 w-48 rounded-xl bg-card border border-border/80" />
+          <div className="h-44 rounded-[28px] bg-card border border-border/80" />
+          <div className="h-64 rounded-[28px] bg-card border border-border/80" />
+          <div className="h-64 rounded-[28px] bg-card border border-border/80" />
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout title="Reports & Analytics">
       <div className="max-w-2xl mx-auto space-y-6 select-none pb-12">
@@ -261,12 +274,13 @@ export default function ReportsPage() {
                     <td className="py-3 px-2 text-foreground font-mono font-bold">{row.amount}</td>
                     <td className="py-3 px-2">
                       <span
-                        className={`inline-flex items-center gap-0.5 text-xs font-bold ${row.change === "—"
-                          ? "text-muted-foreground"
-                          : row.isUp
+                        className={`inline-flex items-center gap-0.5 text-xs font-bold ${
+                          row.change === "—"
+                            ? "text-muted-foreground"
+                            : row.isUp
                             ? "text-emerald-600 dark:text-emerald-400"
                             : "text-rose-500"
-                          }`}
+                        }`}
                       >
                         {row.change}
                       </span>
@@ -332,8 +346,9 @@ export default function ReportsPage() {
                       >
                         {spend > 0 && (
                           <span
-                            className={`text-[9px] font-mono font-bold ${bg === "#0E0E10" ? "text-white" : "text-black"
-                              }`}
+                            className={`text-[9px] font-mono font-bold ${
+                              bg === "#0E0E10" ? "text-white" : "text-black"
+                            }`}
                           >
                             {spend >= 1000 ? `₹${Math.round(spend / 1000)}k` : `₹${Math.round(spend)}`}
                           </span>

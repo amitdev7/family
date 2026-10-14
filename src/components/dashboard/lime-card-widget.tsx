@@ -21,8 +21,8 @@ interface LimeCardWidgetProps {
 }
 
 export function LimeCardWidget({
-  balance = 85230.2,
-  creditLimit = 22000,
+  balance = 0,
+  creditLimit = 0,
   creditUsed = 0,
   cardName = "Household",
   onAddCardClick,
@@ -64,10 +64,11 @@ export function LimeCardWidget({
             Virtual Family Card
           </h3>
           <span
-            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-colors ${isFrozen
-              ? "bg-rose-500/10 text-rose-500 border-rose-500/30"
-              : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
-              }`}
+            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-colors ${
+              isFrozen
+                ? "bg-rose-500/10 text-rose-500 border-rose-500/30"
+                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+            }`}
           >
             {isFrozen ? "Frozen ❄️" : "Active ⚡"}
           </span>
@@ -92,7 +93,7 @@ export function LimeCardWidget({
         {/* Peeking Background Card: Platina */}
         <div className="absolute top-0 left-3 right-3 h-14 rounded-2xl bg-[#E5E7EB] dark:bg-zinc-800 text-muted-foreground px-4 py-2 flex items-center justify-between text-xs font-semibold shadow-xs">
           <span className="font-bold">Platina Primary</span>
-          <span className="font-mono">₹500.25</span>
+          <span className="font-mono">{formatINR(balance)}</span>
         </div>
 
         {/* Foreground Electric Lime VISA Card */}
@@ -104,10 +105,11 @@ export function LimeCardWidget({
             transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
             transition: "transform 0.15s ease-out",
           }}
-          className={`relative z-10 rounded-[24px] p-5.5 text-black shadow-xl hover:shadow-2xl cursor-pointer group overflow-hidden border border-black/10 ${isFrozen
-            ? "bg-gradient-to-br from-zinc-300 via-zinc-400 to-zinc-500 text-zinc-900"
-            : "bg-gradient-to-br from-[#D4F835] via-[#cbf02d] to-[#bde520]"
-            }`}
+          className={`relative z-10 rounded-[24px] p-5.5 text-black shadow-xl hover:shadow-2xl cursor-pointer group overflow-hidden border border-black/10 ${
+            isFrozen
+              ? "bg-gradient-to-br from-zinc-300 via-zinc-400 to-zinc-500 text-zinc-900"
+              : "bg-gradient-to-br from-[#D4F835] via-[#cbf02d] to-[#bde520]"
+          }`}
           title="Click to copy card number"
         >
           {/* Subtle card grain / glare overlay */}
@@ -179,7 +181,7 @@ export function LimeCardWidget({
       <div className="space-y-2 py-1 text-xs font-semibold">
         <div className="flex items-center justify-between text-muted-foreground">
           <span>Card Holder</span>
-          <span className="text-foreground font-bold">Amit Sharma (Admin)</span>
+          <span className="text-foreground font-bold">{cardName} (Primary)</span>
         </div>
         <div className="flex items-center justify-between text-muted-foreground">
           <span>Credit limit</span>
@@ -206,10 +208,11 @@ export function LimeCardWidget({
         <button
           type="button"
           onClick={() => setIsFrozen(!isFrozen)}
-          className={`py-2.5 rounded-full font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer border ${isFrozen
-            ? "bg-rose-500/10 text-rose-500 border-rose-500/30 hover:bg-rose-500/20"
-            : "bg-secondary text-foreground border-border hover:bg-secondary/80"
-            }`}
+          className={`py-2.5 rounded-full font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer border ${
+            isFrozen
+              ? "bg-rose-500/10 text-rose-500 border-rose-500/30 hover:bg-rose-500/20"
+              : "bg-secondary text-foreground border-border hover:bg-secondary/80"
+          }`}
         >
           {isFrozen ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
           <span>{isFrozen ? "Unfreeze" : "Freeze Card"}</span>

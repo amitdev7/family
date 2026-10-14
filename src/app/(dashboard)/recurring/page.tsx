@@ -4,9 +4,6 @@ import React, { useState } from "react";
 import {
   Mic,
   Calendar,
-  Tv,
-  Wifi,
-  Home,
   Zap,
   CheckCircle2,
 } from "lucide-react";
@@ -140,63 +137,63 @@ export default function RecurringPage() {
         ) : (
           <div className="space-y-4">
             {bills.map((bill) => {
-              const Icon = bill.icon;
-              const isActive = bill.status === "Active";
+            const Icon = bill.icon;
+            const isActive = bill.status === "Active";
 
-              return (
-                <div
-                  key={bill.id}
-                  className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs space-y-4 hover:border-border transition-colors"
-                >
-                  {/* Top Info Row */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3.5">
-                      <div
-                        className={`h-12 w-12 rounded-2xl flex items-center justify-center font-bold shadow-xs ${bill.iconBg}`}
-                      >
-                        <Icon className="h-6 w-6" />
-                      </div>
-
-                      <div>
-                        <h3 className="font-extrabold text-base text-foreground leading-snug">
-                          {bill.name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {bill.subtitle}
-                        </p>
-                      </div>
+            return (
+              <div
+                key={bill.id}
+                className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs space-y-4 hover:border-border transition-colors"
+              >
+                {/* Top Info Row */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className={`h-12 w-12 rounded-2xl flex items-center justify-center font-bold shadow-xs ${bill.iconBg}`}
+                    >
+                      <Icon className="h-6 w-6" />
                     </div>
 
-                    <div className="text-right">
-                      <span className="font-black text-lg text-foreground">
-                        {formatINR(bill.amount)}
-                      </span>
+                    <div>
+                      <h3 className="font-extrabold text-base text-foreground leading-snug">
+                        {bill.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {bill.subtitle}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Bottom Status Row */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border/60">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                      <Calendar className="h-3.5 w-3.5" />
-                      <span>{bill.nextDue}</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleToggleActive(bill.id)}
-                      className={`px-3 py-0.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${isActive
-                        ? "bg-[#D4F835] text-black shadow-2xs"
-                        : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-                        }`}
-                    >
-                      {bill.status}
-                    </button>
+                  <div className="text-right">
+                    <span className="font-black text-lg text-foreground">
+                      {formatINR(bill.amount)}
+                    </span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+
+                {/* Bottom Status Row */}
+                <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>{bill.nextDue}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleToggleActive(bill.id)}
+                    className={`px-3 py-0.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${isActive
+                      ? "bg-[#D4F835] text-black shadow-2xs"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                      }`}
+                  >
+                    {bill.status}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
         {/* Record Now Black Button with Microphone icon matching Figma */}
         <div className="space-y-3 pt-2">

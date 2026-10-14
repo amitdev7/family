@@ -9,23 +9,20 @@ interface BudgetLineChartProps {
 }
 
 const DEFAULT_POINTS_MONTH = [
-  { date: "18 Dec", amount: 3200 },
-  { date: "25 Dec", amount: 4900 },
-  { date: "1 Jan", amount: 1200 },
-  { date: "8 Jan", amount: 3800 },
-  { date: "15 Jan", amount: 5900 },
-  { date: "22 Jan", amount: 6800 },
-  { date: "29 Jan", amount: 4800 },
+  { date: "Week 1", amount: 0 },
+  { date: "Week 2", amount: 0 },
+  { date: "Week 3", amount: 0 },
+  { date: "Week 4", amount: 0 },
 ];
 
 const DEFAULT_POINTS_WEEK = [
-  { date: "Mon", amount: 800 },
-  { date: "Tue", amount: 1400 },
-  { date: "Wed", amount: 2100 },
-  { date: "Thu", amount: 1900 },
-  { date: "Fri", amount: 3200 },
-  { date: "Sat", amount: 4500 },
-  { date: "Sun", amount: 2800 },
+  { date: "Mon", amount: 0 },
+  { date: "Tue", amount: 0 },
+  { date: "Wed", amount: 0 },
+  { date: "Thu", amount: 0 },
+  { date: "Fri", amount: 0 },
+  { date: "Sat", amount: 0 },
+  { date: "Sun", amount: 0 },
 ];
 
 export function BudgetLineChart({ dataPoints }: BudgetLineChartProps) {
@@ -97,7 +94,7 @@ export function BudgetLineChart({ dataPoints }: BudgetLineChartProps) {
         </span>
         <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
           <TrendingUp className="h-3 w-3" />
-          <span>Under budget by 18%</span>
+          <span>Real-time Active Ledger</span>
         </span>
       </div>
 
@@ -199,8 +196,9 @@ export function BudgetLineChart({ dataPoints }: BudgetLineChartProps) {
               x={pt.x}
               y={height - 6}
               textAnchor="middle"
-              className={`text-[9px] font-bold select-none cursor-pointer transition-colors ${i === hoveredIndex ? "fill-[#0E0E10] dark:fill-[#D4F835]" : "fill-muted-foreground"
-                }`}
+              className={`text-[9px] font-bold select-none cursor-pointer transition-colors ${
+                i === hoveredIndex ? "fill-[#0E0E10] dark:fill-[#D4F835]" : "fill-muted-foreground"
+              }`}
               onMouseEnter={() => setHoveredIndex(i)}
             >
               {pt.date}

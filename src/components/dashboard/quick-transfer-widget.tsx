@@ -26,30 +26,36 @@ export function QuickTransferWidget({
   onAddMemberClick,
   onAddExpenseClick,
 }: QuickTransferWidgetProps) {
-  const [selectedId, setSelectedId] = useState<string>("1");
+  const [selectedId, setSelectedId] = useState<string>(() => members?.[0]?.user_id || "1");
   const [amount, setAmount] = useState<string>("1000");
   const [isSending, setIsSending] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (members && members.length > 0 && !members.some((m) => m.user_id === selectedId)) {
+      setSelectedId(members[0].user_id);
+    }
+  }, [members, selectedId]);
+
   const displayList =
     members && members.length > 0
       ? members.map((m, idx) => ({
-        id: m.user_id,
-        name: m.display_name.split(" ")[0],
-        role: m.relationship || m.role || "Member",
-        emoji:
-          m.relationship === "Father"
-            ? "👑"
-            : m.relationship === "Mother"
+          id: m.user_id,
+          name: m.display_name.split(" ")[0],
+          role: m.relationship || m.role || "Member",
+          emoji:
+            m.relationship === "Father"
+              ? "👑"
+              : m.relationship === "Mother"
               ? "🌸"
               : m.relationship === "Son"
-                ? "🎓"
-                : m.relationship === "Daughter"
-                  ? "🎨"
-                  : "👤",
-        bg: DEMO_AVATARS[idx % DEMO_AVATARS.length].bg,
-        initial: m.display_name.slice(0, 1).toUpperCase(),
-      }))
+              ? "🎓"
+              : m.relationship === "Daughter"
+              ? "🎨"
+              : "👤",
+          bg: DEMO_AVATARS[idx % DEMO_AVATARS.length].bg,
+          initial: m.display_name.slice(0, 1).toUpperCase(),
+        }))
       : DEMO_AVATARS;
 
   const selectedPerson = displayList.find((p) => p.id === selectedId) || displayList[0];
@@ -92,11 +98,13 @@ export function QuickTransferWidget({
                 <button
                   type="button"
                   onClick={() => setSelectedId(person.id)}
-                  className={`relative flex h-13 w-13 rounded-2xl items-center justify-center font-black text-sm transition-all cursor-pointer ${person.bg
-                    } ${isSelected
+                  className={`relative flex h-13 w-13 rounded-2xl items-center justify-center font-black text-sm transition-all cursor-pointer ${
+                    person.bg
+                  } ${
+                    isSelected
                       ? "ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-md"
                       : "hover:scale-105 opacity-85 hover:opacity-100"
-                    }`}
+                  }`}
                   title={`${person.name} (${person.role})`}
                 >
                   <span>{person.initial}</span>
@@ -144,10 +152,11 @@ export function QuickTransferWidget({
               key={val}
               type="button"
               onClick={() => setAmount(val)}
-              className={`flex-1 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer border ${amount === val
-                ? "bg-[#D4F835] text-black border-transparent shadow-xs"
-                : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary"
-                }`}
+              className={`flex-1 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                amount === val
+                  ? "bg-[#D4F835] text-black border-transparent shadow-xs"
+                  : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary"
+              }`}
             >
               ₹{val}
             </button>
