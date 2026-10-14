@@ -21,8 +21,8 @@ export const DEMO_MEMBERS: HouseholdMember[] = [
     id: "mem-1",
     household_id: "11111111-1111-1111-1111-111111111111",
     user_id: "usr-amit",
-    display_name: "Amit Sharma",
-    relationship: "Father",
+    display_name: "Amit",
+    relationship: "Member",
     email: "amit@family.local",
     role: "admin",
     color: "#2563eb",
@@ -31,26 +31,27 @@ export const DEMO_MEMBERS: HouseholdMember[] = [
   {
     id: "mem-2",
     household_id: "11111111-1111-1111-1111-111111111111",
-    user_id: "usr-priya",
-    display_name: "Priya Sharma",
-    relationship: "Mother",
-    email: "priya@family.local",
-    role: "admin",
+    user_id: "usr-ajay",
+    display_name: "Ajay",
+    relationship: "Member",
+    email: "ajay@family.local",
+    role: "member",
     color: "#ec4899",
     joined_at: "2026-01-01T00:00:00Z",
   },
   {
     id: "mem-3",
     household_id: "11111111-1111-1111-1111-111111111111",
-    user_id: "usr-rohan",
-    display_name: "Rohan Sharma",
-    relationship: "Son",
-    email: "rohan@family.local",
+    user_id: "usr-chhotu",
+    display_name: "Chhotu",
+    relationship: "Member",
+    email: "chhotu@family.local",
     role: "member",
     color: "#10b981",
     joined_at: "2026-01-05T00:00:00Z",
   },
 ];
+
 
 export const DEMO_CATEGORIES: Category[] = [
   {
