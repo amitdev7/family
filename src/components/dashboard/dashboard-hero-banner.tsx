@@ -8,6 +8,7 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Plus,
+  ArrowLeftRight,
   TrendingUp,
   Sparkles,
   Calendar,
@@ -25,6 +26,7 @@ interface DashboardHeroBannerProps {
   moneyLeft?: number;
   onAddExpenseClick: () => void;
   onReceiveMoneyClick: () => void;
+  onSwitchUserClick?: () => void;
 }
 
 export function DashboardHeroBanner({
@@ -35,8 +37,8 @@ export function DashboardHeroBanner({
   moneyLeft = 0,
   onAddExpenseClick,
   onReceiveMoneyClick,
+  onSwitchUserClick,
 }: DashboardHeroBannerProps) {
-
   const [greeting, setGreeting] = useState("Good day");
   const [greetingEmoji, setGreetingEmoji] = useState("✨");
   const [currentTime, setCurrentTime] = useState("");

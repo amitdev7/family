@@ -8,7 +8,7 @@ import {
   ReceiptText,
   Plus,
   BarChart2,
-  PieChart,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +49,7 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
         <span>Expenses</span>
       </Link>
 
-      {/* 3. Center Elevated Quick Add Button */}
+      {/* 3. Center Elevated Quick Add Button matching Figma */}
       <div className="-mt-7 flex flex-col items-center">
         <button
           type="button"
@@ -72,23 +72,24 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
             : "text-zinc-400 hover:text-white"
         )}
       >
-        <PieChart className={cn("h-5 w-5 mb-0.5", pathname.startsWith("/budgets") ? "stroke-[2.5]" : "stroke-[1.8]")} />
+        <BarChart2 className={cn("h-5 w-5 mb-0.5", pathname.startsWith("/budgets") ? "stroke-[2.5]" : "stroke-[1.8]")} />
         <span>Budgets</span>
       </Link>
 
-      {/* 5. Reports */}
+      {/* 5. Settings */}
       <Link
-        href="/reports"
+        href="/settings"
         className={cn(
           "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-colors",
-          pathname.startsWith("/reports")
+          pathname.startsWith("/settings")
             ? "text-[#D4F835]"
             : "text-zinc-400 hover:text-white"
         )}
       >
-        <BarChart2 className={cn("h-5 w-5 mb-0.5", pathname.startsWith("/reports") ? "stroke-[2.5]" : "stroke-[1.8]")} />
-        <span>Reports</span>
+        <Settings className={cn("h-5 w-5 mb-0.5", pathname.startsWith("/settings") ? "stroke-[2.5]" : "stroke-[1.8]")} />
+        <span>Settings</span>
       </Link>
     </nav>
   );
 }
+

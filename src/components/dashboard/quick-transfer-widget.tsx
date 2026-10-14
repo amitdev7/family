@@ -2,11 +2,12 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Check, Send, CheckCircle2 } from "lucide-react";
+import { Plus, Check, Send, CheckCircle2 } from "lucide-react";
 import { HouseholdMember } from "@/lib/types";
 
 interface QuickTransferWidgetProps {
   members?: HouseholdMember[];
+  onAddMemberClick?: () => void;
   onAddExpenseClick?: () => void;
 }
 
@@ -20,9 +21,9 @@ const PRESET_AMOUNTS = ["500", "1000", "2000", "5000"];
 
 export function QuickTransferWidget({
   members,
+  onAddMemberClick,
   onAddExpenseClick,
 }: QuickTransferWidgetProps) {
-
   const [selectedId, setSelectedId] = useState<string>(() => members?.[0]?.user_id || "usr-amit");
   const [amount, setAmount] = useState<string>("1000");
   const [isSending, setIsSending] = useState(false);
