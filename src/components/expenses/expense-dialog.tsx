@@ -1,349 +1,332 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  X,
-  Calendar,
-  UploadCloud,
-  Check,
-  Zap,
-  Banknote,
-  CreditCard,
-  Building,
-  ChevronDown,
-} from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import { Expense, Category, HouseholdMember } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Expense, Category, HouseholdMember, PAYMENT_METHODS, PaymentMethod } from "@/lib/types";
 import { DataService } from "@/lib/data-service";
-import { formatINR } from "@/lib/formatters";
+import { expenseFormSchema } from "@/lib/validations";
+import { Upload, AlertCircle, FileText } from "lucide-react";
 
 interface ExpenseDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSaved?: (expense: Expense) => void;
   expenseToEdit?: Expense | null;
-  initialExpense?: Expense | null;
 }
-
-const PAYMENT_METHOD_PILLS = [
-  { name: "UPI", icon: Zap, label: "UPI" },
-  { name: "Cash", icon: Banknote, label: "Cash" },
-  { name: "Credit Card", icon: CreditCard, label: "Credit Card" },
-  { name: "Debit Card", icon: CreditCard, label: "Debit Card" },
-  { name: "Net Banking", icon: Building, label: "Net Banking" },
-];
 
 export function ExpenseDialog({
   isOpen,
   onClose,
   onSaved,
   expenseToEdit,
-  initialExpense,
 }: ExpenseDialogProps) {
-  const activeExpense = expenseToEdit || initialExpense;
-
   const [categories, setCategories] = useState<Category[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
 
-  // Form fields matching Figma image_20261014_111601.jpg
-  const [amount, setAmount] = useState<string>("1250.00");
+  // Form state
+  const [amount, setAmount] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
-  const [description, setDescription] = useState<string>("Weekly groceries from supermarket");
-  const [paidByUserId, setPaidByUserId] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<string>("UPI");
   const [expenseDate, setExpenseDate] = useState<string>("");
-  const [notes, setNotes] = useState<string>("Added milk, vegetables, fruits for the week...");
-  const [receiptFile, setReceiptFile] = useState<string | null>("supermarket_receipt.pdf");
-
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [paidByUserId, setPaidByUserId] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("UPI");
+  const [notes, setNotes] = useState<string>("");
 
   useEffect(() => {
     DataService.getCategories().then((cats) => {
       setCategories(cats);
-      if (cats.length > 0 && !categoryId) setCategoryId(cats[0].id);
+      if (!categoryId && cats.length > 0) {
+        setCategoryId(cats[0].id);
+      }
     });
     DataService.getMembers().then((mems) => {
       setMembers(mems);
-      const curr = DataService.getCurrentUser();
-      if (!paidByUserId) setPaidByUserId(curr?.user_id || mems[0]?.user_id || "");
+      if (!paidByUserId && mems.length > 0) {
+        setPaidByUserId(DataService.getCurrentUser().user_id || mems[0].user_id);
+      }
     });
   }, []);
 
   useEffect(() => {
-    if (activeExpense) {
-      setAmount(activeExpense.amount.toString());
-      setDescription(activeExpense.description);
-      setCategoryId(activeExpense.category_id);
-      setPaidByUserId(activeExpense.paid_by_user_id);
-      setPaymentMethod(activeExpense.payment_method);
-      setExpenseDate(activeExpense.expense_date);
-      setNotes(activeExpense.notes || "");
-      setReceiptFile(activeExpense.receipt_path || null);
+    if (expenseToEdit) {
+      setAmount(expenseToEdit.amount.toString());
+      setDescription(expenseToEdit.description);
+      setCategoryId(expenseToEdit.category_id);
+      setExpenseDate(expenseToEdit.expense_date);
+      setPaidByUserId(expenseToEdit.paid_by_user_id);
+      setPaymentMethod(expenseToEdit.payment_method);
+      setNotes(expenseToEdit.notes || "");
+      setReceiptFileName(expenseToEdit.receipt_path ? "Attached Receipt" : null);
     } else {
       setAmount("");
       setDescription("");
-      setExpenseDate(new Date().toISOString().slice(0, 10));
+      setExpenseDate(new Date().toISOString().split("T")[0]);
       setNotes("");
-      setReceiptFile(null);
+      setReceiptFileName(null);
+      if (members.length > 0) {
+        setPaidByUserId(DataService.getCurrentUser().user_id || members[0].user_id);
+      }
+      if (categories.length > 0) {
+        setCategoryId(categories[0].id);
+      }
       setPaymentMethod("UPI");
     }
-    setError(null);
-  }, [activeExpense, isOpen]);
+    setErrors({});
+  }, [expenseToEdit, isOpen, members, categories]);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
-      setError("Please enter a valid amount");
-      return;
-    }
-    if (!description.trim()) {
-      setError("Please enter a description");
+    setErrors({});
+
+    const formData = {
+      amount,
+      description,
+      category_id: categoryId,
+      expense_date: expenseDate,
+      paid_by_user_id: paidByUserId,
+      payment_method: paymentMethod,
+      notes: notes || undefined,
+      receipt_path: receiptFileName ? "mock-receipt.pdf" : undefined,
+    };
+
+    const validation = expenseFormSchema.safeParse(formData);
+    if (!validation.success) {
+      const fieldErrors: Record<string, string> = {};
+      validation.error.issues.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
       return;
     }
 
     try {
-      setIsSaving(true);
-      setError(null);
-
-      let saved: Expense;
-      if (activeExpense) {
-        saved = await DataService.updateExpense(activeExpense.id, {
-          amount: numAmount,
-          description: description.trim(),
-          category_id: categoryId,
-          paid_by_user_id: paidByUserId,
-          payment_method: paymentMethod,
-          expense_date: expenseDate,
-          notes: notes.trim() || null,
-          receipt_path: receiptFile,
-        });
+      setIsLoading(true);
+      let result: Expense;
+      if (expenseToEdit) {
+        result = await DataService.updateExpense(expenseToEdit.id, validation.data);
       } else {
-        saved = await DataService.addExpense({
-          amount: numAmount,
-          description: description.trim(),
-          category_id: categoryId,
-          paid_by_user_id: paidByUserId,
-          payment_method: paymentMethod,
-          expense_date: expenseDate,
-          notes: notes.trim() || null,
-          receipt_path: receiptFile,
+        result = await DataService.addExpense({
+          amount: validation.data.amount,
+          description: validation.data.description,
+          category_id: validation.data.category_id,
+          expense_date: validation.data.expense_date,
+          paid_by_user_id: validation.data.paid_by_user_id,
+          created_by_user_id: DataService.getCurrentUser().user_id,
+          payment_method: validation.data.payment_method,
+          notes: validation.data.notes,
+          receipt_path: validation.data.receipt_path,
         });
       }
-
-      if (onSaved) onSaved(saved);
+      if (onSaved) {
+        onSaved(result);
+      }
       onClose();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save expense");
+      setErrors({ form: err instanceof Error ? err.message : "Failed to save expense. Please try again." });
     } finally {
-      setIsSaving(false);
+      setIsLoading(false);
     }
   };
 
-  const selectedMember = members.find((m) => m.user_id === paidByUserId);
-  const initials = selectedMember?.display_name
-    ? selectedMember.display_name.slice(0, 2).toUpperCase()
-    : "AS";
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 10 * 1024 * 1024) {
+        setErrors((prev) => ({ ...prev, receipt: "File size exceeds 10MB limit." }));
+        return;
+      }
+      setReceiptFileName(file.name);
+    }
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      maxWidth="md"
-      className="p-6 sm:p-8 rounded-[32px] bg-card border-0 shadow-2xl max-h-[90vh] overflow-y-auto select-none"
+      title={expenseToEdit ? "Edit Expense" : "Record New Expense"}
+      description="Add transaction details to keep your household finances accurate and updated."
+      maxWidth="lg"
     >
-      {/* Header matching Figma image_20261014_111601.jpg */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-black text-foreground tracking-tight">
-          Expense Dialog
-        </h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-3 rounded-xl bg-destructive/10 text-destructive text-xs font-semibold">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSave} className="space-y-4">
-        {/* Amount (INR) Input matching Figma */}
-        <div>
-          <label className="block text-xs font-bold text-foreground mb-1.5">
-            Amount (INR)
-          </label>
-          <div className="flex items-center px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border focus-within:ring-2 focus-within:ring-[#D4F835] focus-within:bg-card">
-            <span className="text-base font-extrabold text-foreground mr-2">₹</span>
-            <input
-              type="number"
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              required
-              className="w-full bg-transparent text-base font-extrabold text-foreground focus:outline-none"
-            />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {errors.form && (
+          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{errors.form}</span>
           </div>
-        </div>
+        )}
 
-        {/* Category Dropdown */}
-        <div>
-          <label className="block text-xs font-bold text-foreground mb-1.5">
-            Category
-          </label>
-          <div className="relative">
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full appearance-none px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
-            >
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-xs font-bold text-foreground mb-1.5">
-            Description
-          </label>
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="e.g. Weekly groceries from supermarket"
-            required
-            className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-          />
-        </div>
-
-        {/* Paid by Dropdown with Initial Circle matching Figma */}
-        <div>
-          <label className="block text-xs font-bold text-foreground mb-1.5">
-            Paid by
-          </label>
-          <div className="relative">
-            <select
-              value={paidByUserId}
-              onChange={(e) => setPaidByUserId(e.target.value)}
-              className="w-full appearance-none pl-12 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
-            >
-              {members.map((m) => (
-                <option key={m.id} value={m.user_id}>
-                  {m.display_name} ({m.relationship || "Member"})
-                </option>
-              ))}
-            </select>
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-[#D4F835] text-black font-bold text-[10px] flex items-center justify-center pointer-events-none">
-              {initials}
+        {/* Amount & Date Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
+              Amount (₹ INR) <span className="text-destructive">*</span>
+            </label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-2.5 text-sm font-bold text-muted-foreground">₹</span>
+              <Input
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className={`pl-8 text-base font-semibold ${errors.amount ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                autoFocus={!expenseToEdit}
+              />
             </div>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            {errors.amount && <p className="text-xs text-destructive mt-1">{errors.amount}</p>}
           </div>
-        </div>
 
-        {/* Payment Method Pills matching Figma */}
-        <div>
-          <label className="block text-xs font-bold text-foreground mb-1.5">
-            Payment Method
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {PAYMENT_METHOD_PILLS.map((pill) => {
-              const Icon = pill.icon;
-              const isSelected = paymentMethod === pill.name;
-
-              return (
-                <button
-                  key={pill.name}
-                  type="button"
-                  onClick={() => setPaymentMethod(pill.name)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isSelected
-                    ? "bg-[#D4F835] text-black shadow-xs ring-2 ring-black/10"
-                    : "bg-secondary/70 text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    }`}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  <span>{pill.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Date Row */}
-        <div>
-          <label className="block text-xs font-bold text-foreground mb-1.5">
-            Date
-          </label>
-          <div className="relative">
-            <input
+          <div>
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
+              Expense Date <span className="text-destructive">*</span>
+            </label>
+            <Input
               type="date"
               value={expenseDate}
               onChange={(e) => setExpenseDate(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              className={errors.expense_date ? "border-destructive" : ""}
             />
-            <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            {errors.expense_date && <p className="text-xs text-destructive mt-1">{errors.expense_date}</p>}
           </div>
         </div>
 
-        {/* Receipt Upload Dropzone matching Figma */}
+        {/* Description / Title */}
         <div>
-          <label className="block text-xs font-bold text-foreground mb-1.5">
-            Receipt
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
+            Description / Item Name <span className="text-destructive">*</span>
           </label>
-          <div
-            onClick={() => setReceiptFile(receiptFile ? null : "attached_receipt.pdf")}
-            className="rounded-2xl border-2 border-dashed border-[#D4F835] bg-[#D4F835]/5 hover:bg-[#D4F835]/10 p-4 text-center cursor-pointer transition-colors"
+          <Input
+            type="text"
+            placeholder="e.g. DMart Monthly Provisions, BESCOM Bill, Dining"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className={errors.description ? "border-destructive" : ""}
+          />
+          {errors.description && <p className="text-xs text-destructive mt-1">{errors.description}</p>}
+        </div>
+
+        {/* Category & Payment Method Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
+              Category <span className="text-destructive">*</span>
+            </label>
+            <Select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className={errors.category_id ? "border-destructive" : ""}
+            >
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </Select>
+            {errors.category_id && <p className="text-xs text-destructive mt-1">{errors.category_id}</p>}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
+              Payment Method <span className="text-destructive">*</span>
+            </label>
+            <Select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+            >
+              {PAYMENT_METHODS.map((method) => (
+                <option key={method} value={method}>
+                  {method}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </div>
+
+        {/* Paid By Family Member */}
+        <div>
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
+            Paid By Family Member <span className="text-destructive">*</span>
+          </label>
+          <Select
+            value={paidByUserId}
+            onChange={(e) => setPaidByUserId(e.target.value)}
+            className={errors.paid_by_user_id ? "border-destructive" : ""}
           >
-            <div className="flex flex-col items-center justify-center">
-              <UploadCloud className="h-6 w-6 text-[#D4F835] mb-1" />
-              <p className="font-bold text-xs text-foreground">
-                {receiptFile ? `Receipt attached: ${receiptFile}` : "Upload receipt"}
-              </p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                PDF, JPG or PNG • Max 5MB
-              </p>
-            </div>
-          </div>
+            {members.map((member) => (
+              <option key={member.id} value={member.user_id}>
+                {member.display_name} ({member.relationship || member.role})
+              </option>
+            ))}
+          </Select>
+          {errors.paid_by_user_id && <p className="text-xs text-destructive mt-1">{errors.paid_by_user_id}</p>}
         </div>
 
-        {/* Notes */}
+        {/* Optional Notes */}
         <div>
-          <label className="block text-xs font-bold text-foreground mb-1.5">
-            Notes
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
+            Notes (Optional)
           </label>
-          <textarea
+          <Textarea
+            rows={2}
+            placeholder="Add store location, invoice number, or extra context..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            rows={2}
-            placeholder="Add optional notes..."
-            className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
           />
         </div>
 
-        {/* Save Black Pill Button matching Figma */}
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="w-full py-3.5 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-extrabold text-sm transition-colors cursor-pointer shadow-md disabled:opacity-50"
-          >
-            {isSaving ? "Saving Expense..." : "Save"}
-          </button>
+        {/* Optional Receipt Upload */}
+        <div>
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
+            Receipt Attachment (Optional)
+          </label>
+          <div className="flex items-center gap-3">
+            <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors">
+              <Upload className="h-4 w-4 text-primary" />
+              <span>{receiptFileName ? "Change File" : "Upload Receipt"}</span>
+              <input
+                type="file"
+                accept="image/*,application/pdf"
+                className="hidden"
+                onChange={handleReceiptChange}
+              />
+            </label>
+            {receiptFileName && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground truncate">
+                <FileText className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                <span className="truncate max-w-[200px]">{receiptFileName}</span>
+                <button
+                  type="button"
+                  onClick={() => setReceiptFileName(null)}
+                  className="text-destructive hover:underline text-[11px] ml-1"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+          </div>
+          {errors.receipt && <p className="text-xs text-destructive mt-1">{errors.receipt}</p>}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+          <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="submit" isLoading={isLoading}>
+            {expenseToEdit ? "Save Changes" : "Record Expense"}
+          </Button>
         </div>
       </form>
     </Modal>
   );
 }
-

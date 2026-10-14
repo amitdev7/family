@@ -1,155 +1,143 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
+import { Users, UserPlus, Check, Sparkles, HeartHandshake, ShieldCheck } from "lucide-react";
 
 const RELATIONSHIP_OPTIONS = [
   "Father",
   "Mother",
   "Son",
   "Daughter",
-  "Self",
-  "Spouse",
+  "Grandfather",
+  "Grandmother",
   "Brother",
   "Sister",
-  "Grandparent",
+  "Uncle",
+  "Aunt",
+  "Partner / Spouse",
+  "Roommate",
   "Other",
 ];
 
-const AVATAR_COLORS = [
-  { name: "Blue", hex: "#3b82f6", bgClass: "bg-blue-500", textClass: "text-white" },
-  { name: "Pink", hex: "#f472b6", bgClass: "bg-pink-400", textClass: "text-white" },
-  { name: "Lime", hex: "#D4F835", bgClass: "bg-[#D4F835]", textClass: "text-black" },
-  { name: "Orange", hex: "#fb923c", bgClass: "bg-orange-400", textClass: "text-white" },
-  { name: "Black", hex: "#0E0E10", bgClass: "bg-[#0E0E10]", textClass: "text-white" },
-];
-
-// 4 Figma Cards styles matching image_20261014_111553.jpg
-const MEMBER_CARD_STYLES = [
-  {
-    bg: "bg-[#3b82f6]",
-    text: "text-white",
-    avatarBg: "bg-[#2563eb] text-white",
-    pillBg: "bg-white/25 text-white",
-    border: "border-blue-400",
-  },
-  {
-    bg: "bg-[#f472b6]",
-    text: "text-white",
-    avatarBg: "bg-[#ec4899] text-white",
-    pillBg: "bg-white/25 text-white",
-    border: "border-pink-300",
-  },
-  {
-    bg: "bg-[#4ade80]",
-    text: "text-black",
-    avatarBg: "bg-[#D4F835] text-black",
-    pillBg: "bg-white/70 text-black",
-    border: "border-emerald-300",
-  },
-  {
-    bg: "bg-[#fb923c]",
-    text: "text-white",
-    avatarBg: "bg-[#f97316] text-white",
-    pillBg: "bg-white/25 text-white",
-    border: "border-orange-300",
-  },
+const COLOR_OPTIONS = [
+  "#2563eb", // Blue
+  "#ec4899", // Pink
+  "#10b981", // Emerald
+  "#8b5cf6", // Purple
+  "#f97316", // Orange
+  "#06b6d4", // Cyan
+  "#eab308", // Yellow
+  "#ef4444", // Red
+  "#14b8a6", // Teal
+  "#6366f1", // Indigo
 ];
 
 interface WhoAreYouModalProps {
-  isOpen?: boolean;
+  forceOpen?: boolean;
   onClose?: () => void;
 }
 
-export function WhoAreYouModal({
-  isOpen: controlledIsOpen,
-  onClose,
-}: WhoAreYouModalProps) {
+export function WhoAreYouModal({ forceOpen, onClose }: WhoAreYouModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [activeUserId, setActiveUserId] = useState<string>("");
+  const [tab, setTab] = useState<"select" | "create">("select");
 
-  // Add Details Form
+  // New member form state
   const [name, setName] = useState("");
   const [relationship, setRelationship] = useState("Father");
-  const [selectedColor, setSelectedColor] = useState(AVATAR_COLORS[0].hex);
+  const [color, setColor] = useState(COLOR_OPTIONS[0]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadMembers = async () => {
-    const list = await DataService.getMembers();
-    setMembers(list);
-    const current = DataService.getCurrentUser();
-    setSelectedUserId(current?.user_id || (list[0]?.user_id ?? ""));
+  const refreshData = async () => {
+    const mems = await DataService.getMembers();
+    setMembers(mems);
+    const curr = DataService.getCurrentUser();
+    setActiveUserId(curr.user_id);
   };
 
   useEffect(() => {
-    loadMembers();
+    refreshData();
 
-    // Check if new user has identified on this device
-    const identified = DataService.hasUserIdentified();
-    if (!identified) {
+    // Check if user has identified themselves on this browser/device
+    const hasIdentified = DataService.hasUserIdentified();
+    if (!hasIdentified || forceOpen) {
       setIsOpen(true);
+      // If no members exist or explicitly forced into create
+      if (!hasIdentified) {
+        setTab("select");
+      }
     }
 
-    const handleOpen = () => {
-      loadMembers();
+    const handleOpenModal = () => {
+      refreshData();
       setIsOpen(true);
     };
 
-    window.addEventListener("open-who-are-you", handleOpen);
-    return () => window.removeEventListener("open-who-are-you", handleOpen);
-  }, []);
+    const handleUserChanged = () => {
+      refreshData();
+    };
 
-  useEffect(() => {
-    if (controlledIsOpen !== undefined) {
-      setIsOpen(controlledIsOpen);
-    }
-  }, [controlledIsOpen]);
+    window.addEventListener("open-who-are-you", handleOpenModal);
+    window.addEventListener("household-user-changed", handleUserChanged);
+
+    return () => {
+      window.removeEventListener("open-who-are-you", handleOpenModal);
+      window.removeEventListener("household-user-changed", handleUserChanged);
+    };
+  }, [forceOpen]);
 
   const handleSelectMember = (userId: string) => {
-    setSelectedUserId(userId);
-  };
-
-  const handleClose = () => {
-    if (!DataService.hasUserIdentified() && members.length > 0) {
-      DataService.selectActiveUser(selectedUserId || members[0].user_id);
-    }
+    DataService.selectActiveUser(userId);
+    setActiveUserId(userId);
     setIsOpen(false);
     if (onClose) onClose();
   };
 
-  const handleContinue = async () => {
-    // If the user entered custom details in "Add Details", create member
-    if (name.trim()) {
-      try {
-        setIsSaving(true);
-        setError(null);
-        const newMember = await DataService.addMember({
-          display_name: name.trim(),
-          relationship,
-          color: selectedColor,
-          role: "member",
-        });
-        DataService.selectActiveUser(newMember.user_id);
-        setName("");
-        handleClose();
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to add family member");
-      } finally {
-        setIsSaving(false);
-      }
+  const handleCreateMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!name.trim()) {
+      setError("Please enter your name");
       return;
     }
 
-    // Otherwise, select the currently highlighted member
-    if (selectedUserId) {
-      DataService.selectActiveUser(selectedUserId);
-      handleClose();
+    try {
+      setIsSaving(true);
+      const newMember = await DataService.addMember({
+        name: name.trim(),
+        relationship: relationship.trim(),
+        color,
+        role: "member",
+      });
+      setActiveUserId(newMember.user_id);
+      setName("");
+      setIsOpen(false);
+      if (onClose) onClose();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save profile");
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleClose = () => {
+    // If the user has never identified themselves, pick the first member as default so they can browse
+    if (!DataService.hasUserIdentified() && members.length > 0) {
+      DataService.selectActiveUser(members[0].user_id);
+    }
+    setIsOpen(false);
+    if (onClose) onClose();
   };
 
   return (
@@ -157,174 +145,200 @@ export function WhoAreYouModal({
       isOpen={isOpen}
       onClose={handleClose}
       maxWidth="md"
-      className="p-0 overflow-hidden rounded-[32px] border-0 shadow-2xl bg-card"
+      className="p-0 overflow-hidden"
     >
-      <div className="p-6 sm:p-8 space-y-6">
-        {/* Top Header matching Figma image_20261014_111553.jpg */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              Who are you?
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5 font-medium">
-              Select your family member
-            </p>
-          </div>
+      <div className="bg-gradient-to-br from-primary/15 via-primary/5 to-background p-6 border-b border-border text-center relative">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md mb-3">
+          <HeartHandshake className="h-7 w-7" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+          Who are you in this home?
+        </h2>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+          Choose your family profile or add yourself so expenses and activity are credited accurately to you.
+        </p>
+
+        {/* Tab switch pills */}
+        <div className="mt-5 inline-flex p-1 rounded-xl bg-muted/80 border border-border/60">
           <button
             type="button"
-            onClick={handleClose}
-            className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            title="Close"
+            onClick={() => {
+              setTab("select");
+              setError(null);
+            }}
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${tab === "select"
+              ? "bg-card text-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
           >
-            <X className="h-4 w-4" />
+            <Users className="h-3.5 w-3.5" />
+            <span>Existing Member</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTab("create");
+              setError(null);
+            }}
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${tab === "create"
+              ? "bg-card text-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            <span>I am New / Add Details</span>
           </button>
         </div>
+      </div>
 
-        {/* 2x2 Colored Family Cards Grid from Figma */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {members.slice(0, 4).map((member, idx) => {
-            const isSelected = member.user_id === selectedUserId;
-            const style = MEMBER_CARD_STYLES[idx % MEMBER_CARD_STYLES.length];
-            const initials = member.display_name
-              .split(" ")
-              .map((n) => n[0])
-              .slice(0, 2)
-              .join("")
-              .toUpperCase();
+      <div className="p-6">
+        {tab === "select" ? (
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Tap your profile to continue:
+            </p>
 
-            return (
-              <button
-                key={member.id}
-                type="button"
-                onClick={() => handleSelectMember(member.user_id)}
-                className={`relative flex items-center gap-3.5 p-4 rounded-2xl transition-all duration-200 text-left cursor-pointer shadow-sm ${style.bg} ${style.text} ${isSelected
-                  ? "ring-4 ring-black/40 scale-[1.02] shadow-md"
-                  : "hover:scale-[1.01] opacity-95"
-                  }`}
-              >
-                {/* Avatar Initial Circle */}
-                <div
-                  className={`h-11 w-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-xs ${style.avatarBg}`}
-                >
-                  {initials}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-base truncate leading-tight">
-                    {member.display_name}
-                  </h3>
-                  <div className="mt-1">
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-xs ${style.pillBg}`}
-                    >
-                      {member.relationship || "Member"}
-                    </span>
-                  </div>
-                </div>
-
-                {isSelected && (
-                  <div className="absolute top-3 right-3 h-5 w-5 rounded-full bg-white text-black flex items-center justify-center shadow-xs">
-                    <Check className="h-3 w-3 stroke-[3]" />
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Add Details Section */}
-        <div className="pt-2 border-t border-border/60 space-y-3.5">
-          <h4 className="font-bold text-base text-foreground">
-            Add Details
-          </h4>
-
-          {error && (
-            <div className="p-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-medium">
-              {error}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1">
+              {members.map((m) => {
+                const isSelected = m.user_id === activeUserId;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => handleSelectMember(m.user_id)}
+                    className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all relative ${isSelected
+                      ? "border-primary bg-primary/10 shadow-xs ring-1 ring-primary"
+                      : "border-border bg-card/70 hover:bg-muted/60 hover:border-border/80"
+                      }`}
+                  >
+                    <Avatar name={m.display_name} src={m.avatar_url} size="md" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-sm text-foreground truncate">
+                          {m.display_name}
+                        </span>
+                        {isSelected && (
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            <Check className="h-2.5 w-2.5 stroke-[3]" />
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {m.relationship && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-medium">
+                            {m.relationship}
+                          </Badge>
+                        )}
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                          {m.role}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground/70 font-mono block truncate mt-0.5">
+                        ID: {m.user_id.slice(0, 14)}...
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-          )}
 
-          {/* Name Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <label className="text-xs font-bold text-foreground w-20 shrink-0">
-              Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter full name"
-              className="flex-1 px-4 py-2 rounded-xl bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-            />
+            <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+              <span>Not in this list?</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setTab("create")}
+                className="gap-1.5 text-xs"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                <span>Add Your Details</span>
+              </Button>
+            </div>
           </div>
+        ) : (
+          <form onSubmit={handleCreateMember} className="space-y-4">
+            {error && (
+              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs">
+                {error}
+              </div>
+            )}
 
-          {/* Relationship & Avatar Color Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <label className="text-xs font-bold text-foreground w-20 shrink-0">
-                Relationship
+            <div>
+              <label className="block text-xs font-semibold text-foreground mb-1.5">
+                Your Full Name *
               </label>
-              <select
+              <Input
+                type="text"
+                required
+                placeholder="e.g. Ramesh Sharma"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-foreground mb-1.5">
+                Family Role / Relation *
+              </label>
+              <Select
                 value={relationship}
                 onChange={(e) => setRelationship(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-secondary/50 border border-border text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
               >
                 {RELATIONSHIP_OPTIONS.map((rel) => (
                   <option key={rel} value={rel}>
                     {rel}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
-            {/* Avatar Color Swatches */}
-            <div className="flex items-center gap-2 sm:pl-2">
-              <span className="text-xs font-medium text-muted-foreground mr-1">
-                Avatar Color
-              </span>
-              <div className="flex items-center gap-1.5">
-                {AVATAR_COLORS.map((col) => (
+            <div>
+              <label className="block text-xs font-semibold text-foreground mb-1.5">
+                Profile Color
+              </label>
+              <div className="flex flex-wrap gap-2 mb-1">
+                {COLOR_OPTIONS.map((hex) => (
                   <button
-                    key={col.hex}
+                    key={hex}
                     type="button"
-                    onClick={() => setSelectedColor(col.hex)}
-                    className={`h-6 w-6 rounded-full flex items-center justify-center transition-transform cursor-pointer ${col.bgClass} ${selectedColor === col.hex
-                      ? "scale-110 ring-2 ring-black dark:ring-white"
+                    onClick={() => setColor(hex)}
+                    className={`h-7 w-7 rounded-full transition-all ${color === hex
+                      ? "scale-110 ring-2 ring-primary ring-offset-2"
                       : "hover:scale-105 opacity-80"
                       }`}
-                    title={col.name}
-                  >
-                    {selectedColor === col.hex && (
-                      <Check className={`h-3 w-3 stroke-[3] ${col.textClass}`} />
-                    )}
-                  </button>
+                    style={{ backgroundColor: hex }}
+                  />
                 ))}
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Footer Buttons: Cancel & Continue -> */}
-        <div className="flex items-center gap-3 pt-2">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex-1 py-3 px-4 rounded-full border border-border text-sm font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={isSaving}
-            className="flex-1 py-3 px-4 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] text-black text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-          >
-            <span>Continue</span>
-            <span>→</span>
-          </button>
-        </div>
+            <div className="p-3 rounded-xl bg-muted/40 border border-border text-[11px] text-muted-foreground flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span>
+                A permanent, unique user ID will be generated to securely track all your family expenses.
+              </span>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setTab("select")}
+                disabled={isSaving}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" isLoading={isSaving} className="gap-1.5">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Save & Set As My Profile</span>
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
     </Modal>
   );
 }
-
