@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8faf9;
+  --foreground: #12211c;
+  --card: #ffffff;
+  --card-foreground: #12211c;
+  --popover: #ffffff;
+  --popover-foreground: #12211c;
+  --primary: #124334;
+  --primary-hover: #0c3327;
+  --primary-foreground: #ffffff;
+  --secondary: #eef4f1;
+  --secondary-foreground: #13382b;
+  --muted: #edf2ef;
+  --muted-foreground: #556c63;
+  --accent: #e2ede7;
+  --accent-foreground: #0d382a;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #d8e2dd;
+  --input: #d8e2dd;
+  --ring: #124334;
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: #0d1311;
+  --foreground: #edf2ef;
+  --card: #141c19;
+  --card-foreground: #edf2ef;
+  --popover: #141c19;
+  --popover-foreground: #edf2ef;
+  --primary: #2d7a5b;
+  --primary-hover: #368d6a;
+  --primary-foreground: #ffffff;
+  --secondary: #1a2420;
+  --secondary-foreground: #e5ede9;
+  --muted: #18231f;
+  --muted-foreground: #83978f;
+  --accent: #1f2d27;
+  --accent-foreground: #e5ede9;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #23312a;
+  --input: #23312a;
+  --ring: #2d7a5b;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+  }
+}
+
+/* Custom scrollbars for tables and dialogs */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
