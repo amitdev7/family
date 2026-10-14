@@ -190,3 +190,33 @@ export interface DashboardMetrics {
   monthlyTrend: MonthlyTrendItem[];
   upcomingRecurring: RecurringExpense[];
 }
+
+export interface MoneySummary {
+  totalReceived: number;
+  totalSpent: number;
+  moneyLeft: number;
+  recentReceived: ReceivedMoney[];
+  byMember?: Array<{
+    memberId: string;
+    memberName: string;
+    relationship: string;
+    amount: number;
+    percentage: number;
+  }>;
+  byCategory?: Array<{
+    categoryId: string;
+    categoryName: string;
+    color: string;
+    icon: string;
+    allocated: number;
+    spent: number;
+    left: number;
+  }>;
+  bySender?: Array<{
+    senderName: string;
+    relationship?: string;
+    totalAmount: number;
+    count: number;
+  }>;
+}
+
