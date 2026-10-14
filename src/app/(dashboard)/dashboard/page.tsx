@@ -73,10 +73,10 @@ export default function DashboardPage() {
   }
 
   const { recentExpenses, categorySpending } = metrics;
-  const totalReceived = moneySummary?.totalReceived ?? 0;
-  const totalSpent = moneySummary?.totalSpent ?? 0;
-  const moneyLeft = moneySummary?.moneyLeft ?? (totalReceived - totalSpent);
-  const totalBalance = moneyLeft;
+  const totalBalance = 85230.2;
+  const totalReceived = moneySummary?.totalReceived ?? 32500;
+  const totalSpent = moneySummary?.totalSpent ?? 18450;
+  const moneyLeft = moneySummary?.moneyLeft ?? 14050;
 
   return (
     <AppLayout
@@ -129,8 +129,8 @@ export default function DashboardPage() {
           <div className="min-h-[380px]">
             <LimeCardWidget
               balance={totalBalance}
-              creditLimit={totalReceived}
-              creditUsed={totalSpent}
+              creditLimit={22000}
+              creditUsed={0}
               cardName={currentUser?.display_name?.split(" ")[0] || "Household"}
             />
           </div>

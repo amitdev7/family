@@ -790,6 +790,14 @@ export class DataService {
     };
   }
 
+  static async clearAllData(): Promise<void> {
+    this.state.expenses = [];
+    this.state.receivedMoney = [];
+    this.state.recurring = [];
+    this.state.activityLogs = [];
+    saveDemoState(this.state);
+  }
+
   static async getRecurringExpenses(): Promise<RecurringExpense[]> {
     if (isSupabaseConfigured()) {
       const supabase = createClient();
