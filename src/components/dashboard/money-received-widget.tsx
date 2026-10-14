@@ -2,12 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  Plus,
-  Wallet,
-  Banknote,
-  CheckCircle2,
-} from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Plus, Wallet, ChevronRight, X } from "lucide-react";
 import { DataService } from "@/lib/data-service";
 import { formatINR } from "@/lib/formatters";
 import { Modal } from "@/components/ui/modal";
@@ -91,279 +86,314 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
     }
   };
 
-  const percentLeft =
-    totalReceived > 0
-      ? Math.max(0, Math.min(100, Math.round((moneyLeft / totalReceived) * 100)))
-      : 0;
+  const percentLeft = totalReceived > 0
+    ? Math.max(0, Math.min(100, Math.round((moneyLeft / totalReceived) * 100)))
+    : 0;
 
-  const roleEmojiMap: Record<string, string> = {
-    Father: "👑",
-    Mother: "🌸",
-    Son: "🎓",
-    Daughter: "🎨",
-    Parent: "🏡",
-  };
+  const lastInflow = recentReceived[0];
 
   return (
     <>
-      <div className="rounded-[28px] bg-gradient-to-b from-[#141418] via-[#0E0E10] to-[#0A0A0C] border border-zinc-800 p-6 shadow-2xl flex flex-col justify-between h-full select-none relative overflow-hidden group card-hover-lift">
-        {/* Ambient Top Glow */}
-        <div className="absolute -top-16 -right-16 w-40 h-40 bg-[#D4F835]/15 rounded-full blur-3xl pointer-events-none group-hover:bg-[#D4F835]/25 transition-all" />
+      <div className="rounded-[28px] bg-gradient-to-b from-[#121216] via-[#0E0E10] to-[#0A0A0C] border border-zinc-800/80 p-6 shadow-2xl flex flex-col justify-between h-full select-none relative overflow-hidden group hover:border-[#D4F835]/40 transition-all duration-300">
+        {/* Ambient Glow */}
+        <div className="absolute -top-16 -right-16 w-36 h-36 bg-[#D4F835]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#D4F835]/20 transition-all" />
 
         {/* Top Header */}
-        <div>
-          <div className="flex items-center justify-between mb-3 relative z-10">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-xs">
-                <Wallet className="h-4 w-4" />
-              </div>
-              <h3 className="font-bold text-lg text-white tracking-tight">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-md">
+              <Wallet className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-base text-white tracking-tight">
                 Money Received
               </h3>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#D4F835] text-black font-extrabold text-xs hover:bg-[#c5ea28] transition-all cursor-pointer shadow-xs active:scale-95"
-            >
-              <Plus className="h-3.5 w-3.5 stroke-[3]" />
-              <span>+ Receive</span>
-            </button>
-          </div>
-
-          {/* Subtitle */}
-          <p className="text-xs text-zinc-400 relative z-10 mb-4">
-            Family member pocket money &amp; expense allowance tracker
-          </p>
-        </div>
-
-        {/* Fuel Gauge Card */}
-        <div className="relative z-10 p-4 rounded-2xl bg-white/5 border border-white/10 my-2 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-              Remaining Balance
-            </span>
-            <span
-              className={`text-xs font-black px-2 py-0.5 rounded-full ${
-                percentLeft > 40
-                  ? "bg-[#D4F835]/20 text-[#D4F835]"
-                  : percentLeft > 20
-                  ? "bg-amber-400/20 text-amber-300"
-                  : "bg-rose-500/20 text-rose-400"
-              }`}
-            >
-              {percentLeft}% Left
-            </span>
-          </div>
-
-          {/* Money Left Big Text */}
-          <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
-            {formatINR(moneyLeft)}
-          </div>
-
-          {/* Dual Fuel Gauge Progress Bar */}
-          <div className="space-y-1">
-            <div className="h-2.5 rounded-full bg-zinc-800 overflow-hidden flex">
-              <div
-                className={`h-full transition-all duration-700 ${
-                  percentLeft > 40
-                    ? "bg-[#D4F835]"
-                    : percentLeft > 20
-                    ? "bg-amber-400"
-                    : "bg-rose-500"
-                }`}
-                style={{ width: `${percentLeft}%` }}
-              />
-            </div>
-            <div className="flex items-center justify-between text-[10px] text-zinc-400 font-semibold pt-0.5">
-              <span>Spent: {formatINR(totalSpent)}</span>
-              <span>Total Inflow: {formatINR(totalReceived)}</span>
+              <p className="text-[11px] font-semibold text-zinc-400">
+                Inflow &amp; Cash Balance
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Recent Inflow Mini Feed */}
-        <div className="relative z-10 space-y-2 my-2">
-          <div className="flex items-center justify-between text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            <span>Recent Inflows</span>
-            <Link
-              href="/budgets"
-              className="text-[#D4F835] hover:underline normal-case text-xs"
-            >
-              View planner &gt;
-            </Link>
-          </div>
-
-          {recentReceived.length === 0 ? (
-            <p className="text-xs text-zinc-500 py-3 text-center">
-              No received money logged yet.
-            </p>
-          ) : (
-            recentReceived.slice(0, 2).map((item) => {
-              const emoji = roleEmojiMap[item.relationship || ""] || "👤";
-              return (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/5 text-xs"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">{emoji}</span>
-                    <div>
-                      <p className="font-bold text-white text-xs truncate max-w-[120px]">
-                        {item.from_member_name}
-                      </p>
-                      <p className="text-[10px] text-zinc-400">
-                        {item.date} • {item.payment_method || "Cash"}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="font-mono font-black text-emerald-400 text-xs">
-                    +{formatINR(item.amount)}
-                  </span>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Footer Info */}
-        <div className="relative z-10 pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-zinc-400 font-semibold">
-          <span className="flex items-center gap-1">
-            <Banknote className="h-3 w-3 text-[#D4F835]" />
-            <span>Cash prioritized</span>
+          <span className="px-2.5 py-1 rounded-full bg-[#D4F835]/15 text-[#D4F835] border border-[#D4F835]/30 text-[10px] font-extrabold uppercase tracking-wider">
+            {percentLeft}% Left
           </span>
-          <Link href="/budgets" className="text-white hover:text-[#D4F835] font-bold">
-            Budget Center &gt;
+        </div>
+
+        {/* Main Money Left Stat */}
+        <div className="my-2 space-y-1">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+            Available Money Left
+          </p>
+          <div className="flex items-baseline gap-2">
+            <span
+              className={`text-3xl sm:text-4xl font-black tracking-tight ${moneyLeft >= 0 ? "text-[#D4F835]" : "text-rose-400"
+                }`}
+            >
+              {formatINR(moneyLeft)}
+            </span>
+            <span className="text-xs font-semibold text-zinc-400">
+              unspent
+            </span>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="h-2 w-full rounded-full bg-zinc-800/80 overflow-hidden mt-3">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${moneyLeft >= 0
+                ? "bg-gradient-to-r from-emerald-400 to-[#D4F835]"
+                : "bg-rose-500"
+                }`}
+              style={{ width: `${percentLeft}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Dual Inflow & Outflow Pods */}
+        <div className="grid grid-cols-2 gap-2.5 my-3">
+          <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 flex items-center gap-2.5">
+            <div className="h-7 w-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+              <ArrowDownLeft className="h-3.5 w-3.5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] font-semibold text-zinc-400 block truncate">
+                Received
+              </span>
+              <span className="text-xs sm:text-sm font-extrabold text-white truncate block">
+                {formatINR(totalReceived)}
+              </span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 flex items-center gap-2.5">
+            <div className="h-7 w-7 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] font-semibold text-zinc-400 block truncate">
+                Spent
+              </span>
+              <span className="text-xs sm:text-sm font-extrabold text-white truncate block">
+                {formatINR(totalSpent)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Last Provider Footnote */}
+        {lastInflow ? (
+          <div className="text-[11px] font-medium text-zinc-400 flex items-center justify-between pt-1">
+            <span className="truncate">
+              From <strong className="text-white">{lastInflow.from_member_name}</strong> ({lastInflow.relationship || "Family"})
+            </span>
+            <span className="font-bold text-white shrink-0 ml-2">
+              +{formatINR(lastInflow.amount)}
+            </span>
+          </div>
+        ) : (
+          <div className="text-[11px] font-medium text-zinc-500 text-center py-0.5">
+            Zero fake transactions • Record your first funds
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2.5 mt-3 pt-2 border-t border-zinc-800/60">
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="py-2.5 px-3 rounded-full bg-[#D4F835] hover:bg-[#bce028] text-black text-xs font-black transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <Plus className="h-3.5 w-3.5 stroke-[3]" />
+            <span>Receive Money</span>
+          </button>
+
+          <Link
+            href="/budgets"
+            className="py-2.5 px-3 rounded-full bg-zinc-800/90 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 text-center"
+          >
+            <span>Breakdown</span>
+            <ChevronRight className="h-3.5 w-3.5 text-zinc-400" />
           </Link>
         </div>
       </div>
 
       {/* Receive Money Modal */}
-      {isModalOpen && (
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Log Received Money from Family"
-        >
-          <form onSubmit={handleSave} className="p-4 sm:p-6 space-y-4">
-            <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>
-                Money received will be added to your balance and tracked against household spending.
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        maxWidth="md"
+        hideCloseButton={true}
+        className="p-6 sm:p-8 rounded-[32px] bg-card border-0 shadow-2xl max-h-[90vh] overflow-y-auto select-none"
+      >
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold">
+              <Wallet className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-foreground tracking-tight">
+                Receive Money from Family
+              </h3>
+              <p className="text-xs text-muted-foreground font-semibold">
+                Record pocket money, allowance, or funds given to you
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="h-8 w-8 rounded-full bg-secondary hover:bg-secondary/80 text-foreground flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSave} className="space-y-4">
+          {/* Member Provider Picker */}
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1.5">
+              Who gave you this money?
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {members.map((m) => {
+                const isSelected = fromMemberId === m.id || fromMemberId === m.user_id;
+                return (
+                  <button
+                    key={m.id || m.user_id}
+                    type="button"
+                    onClick={() => setFromMemberId(m.id || m.user_id)}
+                    className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-2 ${isSelected
+                      ? "border-[#D4F835] bg-[#D4F835]/15 text-foreground ring-1 ring-[#D4F835]"
+                      : "border-border bg-secondary/40 text-muted-foreground hover:bg-secondary"
+                      }`}
+                  >
+                    <div className="h-7 w-7 rounded-full bg-[#0E0E10] text-[#D4F835] dark:bg-white dark:text-black flex items-center justify-center text-xs font-black shrink-0">
+                      {m.display_name.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-foreground truncate">
+                        {m.display_name}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground truncate">
+                        {m.relationship || "Member"}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Amount Input */}
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1.5">
+              Amount Received (₹ INR)
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base font-black text-foreground">
+                ₹
               </span>
-            </div>
-
-            {/* From Family Member */}
-            <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
-                Received From Family Member
-              </label>
-              <select
-                value={fromMemberId}
-                onChange={(e) => setFromMemberId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-              >
-                {members.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.display_name} ({m.relationship || m.role})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Intended Category */}
-            <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
-                Intended Category (Optional)
-              </label>
-              <select
-                value={selectedCategoryId}
-                onChange={(e) => setSelectedCategoryId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-              >
-                <option value="all">General / Pocket Money</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Amount */}
-            <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
-                Amount Received (₹)
-              </label>
               <input
                 type="number"
-                step="0.01"
+                step="1"
+                min="1"
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="e.g. 5000"
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-base font-black text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                placeholder="5000"
+                className="w-full pl-9 pr-4 py-3 rounded-2xl bg-secondary/50 border border-border text-lg font-black text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
               />
             </div>
 
-            {/* Payment Method - Cash Default */}
-            <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
-                Payment Method (Default: Cash)
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {["Cash", "UPI", "Bank"].map((method) => (
-                  <button
-                    key={method}
-                    type="button"
-                    onClick={() => setPaymentMethod(method)}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                      paymentMethod === method
-                        ? "bg-[#D4F835] text-black border-transparent shadow-xs"
-                        : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
+            {/* Quick Amount Presets */}
+            <div className="flex gap-2 mt-2">
+              {[500, 1000, 2000, 5000, 10000].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setAmount(preset.toString())}
+                  className="px-2.5 py-1 rounded-full bg-secondary text-[11px] font-bold text-muted-foreground hover:text-foreground hover:bg-secondary/80 cursor-pointer transition-colors"
+                >
+                  +₹{preset}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Category Scope */}
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1.5">
+              What can this money be spent on?
+            </label>
+            <select
+              value={selectedCategoryId}
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
+            >
+              <option value="all">General / All Categories (Unrestricted)</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Payment Method - Default to Cash */}
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1.5">
+              Payment Method Received
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {["Cash", "UPI", "Bank Transfer"].map((method) => (
+                <button
+                  key={method}
+                  type="button"
+                  onClick={() => setPaymentMethod(method)}
+                  className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${paymentMethod === method
+                    ? "border-[#D4F835] bg-[#D4F835] text-black"
+                    : "border-border bg-secondary/40 text-muted-foreground hover:text-foreground"
                     }`}
-                  >
-                    {method === "Cash" ? "💵 Cash" : method === "UPI" ? "⚡ UPI" : "🏦 Bank"}
-                  </button>
-                ))}
-              </div>
+                >
+                  {method}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {/* Notes / Reason */}
-            <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
-                Notes / Purpose (Optional)
-              </label>
-              <input
-                type="text"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g. Monthly allowance, grocery money, gift"
-                className="w-full px-4 py-2 rounded-2xl bg-secondary border border-border text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-              />
-            </div>
+          {/* Purpose / Note */}
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1.5">
+              Purpose / Note (Optional)
+            </label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="e.g. Monthly pocket money, college books, food..."
+              className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+            />
+          </div>
 
-            {/* Actions */}
-            <div className="pt-2 flex items-center gap-3">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="flex-1 py-3 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-xs transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
-              >
-                {isSaving ? "Saving..." : "+ Record Received Money"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="px-5 py-3 rounded-full bg-secondary text-foreground hover:bg-secondary/80 font-bold text-xs cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
+          {/* Actions */}
+          <div className="grid grid-cols-2 gap-3 pt-3">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="w-full py-3 rounded-full border border-border text-xs font-bold text-foreground hover:bg-secondary cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="w-full py-3 rounded-full bg-[#D4F835] hover:bg-[#bce028] text-black text-xs font-black transition-all shadow-md cursor-pointer disabled:opacity-50"
+            >
+              {isSaving ? "Saving..." : "Record Funds"}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </>
   );
 }

@@ -1,38 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown, TrendingUp } from "lucide-react";
-import { formatINR } from "@/lib/formatters";
+import { ChevronDown } from "lucide-react";
 
 interface BudgetLineChartProps {
   dataPoints?: Array<{ date: string; amount: number }>;
 }
 
-const DEFAULT_POINTS_MONTH = [
-  { date: "18 Dec", amount: 3200 },
-  { date: "25 Dec", amount: 4900 },
-  { date: "1 Jan", amount: 1200 },
-  { date: "8 Jan", amount: 3800 },
-  { date: "15 Jan", amount: 5900 },
-  { date: "22 Jan", amount: 6800 },
-  { date: "29 Jan", amount: 4800 },
+const DEFAULT_POINTS = [
+  { date: "18 dec", amount: 3200 },
+  { date: "25 dec", amount: 4900 },
+  { date: "1 jan", amount: 200 },
+  { date: "8 jan", amount: 3800 },
+  { date: "15 jan", amount: 5900 },
+  { date: "22 jan", amount: 6800 },
+  { date: "29 jan", amount: 4800 },
 ];
 
-const DEFAULT_POINTS_WEEK = [
-  { date: "Mon", amount: 800 },
-  { date: "Tue", amount: 1400 },
-  { date: "Wed", amount: 2100 },
-  { date: "Thu", amount: 1900 },
-  { date: "Fri", amount: 3200 },
-  { date: "Sat", amount: 4500 },
-  { date: "Sun", amount: 2800 },
-];
-
-export function BudgetLineChart({ dataPoints }: BudgetLineChartProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState<"Month" | "Week">("Month");
-  const [hoveredIndex, setHoveredIndex] = useState<number>(4);
-
-  const activePoints = dataPoints || (selectedPeriod === "Month" ? DEFAULT_POINTS_MONTH : DEFAULT_POINTS_WEEK);
+export function BudgetLineChart({ dataPoints = DEFAULT_POINTS }: BudgetLineChartProps) {
+  const [selectedPointIndex, setSelectedPointIndex] = useState<number>(4); // Highlight 15 jan / peak
+  const [selectedPeriod, setSelectedPeriod] = useState("Month");
 
   const width = 340;
   const height = 180;
@@ -43,16 +30,16 @@ export function BudgetLineChart({ dataPoints }: BudgetLineChartProps) {
 
   const innerWidth = width - paddingLeft - paddingRight;
   const innerHeight = height - paddingTop - paddingBottom;
-  const maxVal = selectedPeriod === "Month" ? 7000 : 5000;
+  const maxVal = 7000;
 
-  // Compute (x, y) coordinates
-  const points = activePoints.map((p, i) => {
-    const x = paddingLeft + (i / (activePoints.length - 1)) * innerWidth;
+  // Compute (x, y) coordinates for each point
+  const points = dataPoints.map((p, i) => {
+    const x = paddingLeft + (i / (dataPoints.length - 1)) * innerWidth;
     const y = paddingTop + innerHeight - (p.amount / maxVal) * innerHeight;
     return { ...p, x, y };
   });
 
-  // Smooth cubic bezier path
+  // Generate smooth cubic bezier SVG path
   let pathD = `M ${points[0].x} ${points[0].y}`;
   for (let i = 0; i < points.length - 1; i++) {
     const current = points[i];
@@ -61,135 +48,92 @@ export function BudgetLineChart({ dataPoints }: BudgetLineChartProps) {
     pathD += ` C ${controlX} ${current.y}, ${controlX} ${next.y}, ${next.x} ${next.y}`;
   }
 
-  // Area path for gradient fill
-  const areaD = `${pathD} L ${points[points.length - 1].x} ${paddingTop + innerHeight} L ${points[0].x} ${paddingTop + innerHeight} Z`;
-
-  const activePoint = points[hoveredIndex] || points[3];
+  const activePoint = points[selectedPointIndex] || points[3];
 
   return (
-    <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs flex flex-col justify-between h-full select-none card-hover-lift">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <h3 className="font-bold text-lg text-foreground tracking-tight">
-            Budget Spending Curve
-          </h3>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            Safe Zone
-          </span>
-        </div>
+    <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs flex flex-col justify-between h-full select-none">
+      {/* Header matching Figma image_20261014_111154.jpg */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-lg text-foreground tracking-tight">
+          Budget
+        </h3>
 
-        {/* Period Dropdown Toggle */}
+        {/* Dropdown Pill */}
         <button
           type="button"
           onClick={() => setSelectedPeriod((prev) => (prev === "Month" ? "Week" : "Month"))}
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary text-foreground text-xs font-semibold hover:bg-secondary/80 cursor-pointer transition-colors shadow-2xs border border-border/60"
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/80 text-foreground text-xs font-semibold hover:bg-secondary cursor-pointer transition-colors shadow-2xs"
         >
           <span>{selectedPeriod}</span>
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
         </button>
       </div>
 
-      {/* Subtitle with Trend Indicator */}
-      <div className="flex items-center justify-between text-xs py-1">
-        <span className="text-muted-foreground text-[11px]">
-          Target Ceiling: <strong className="text-foreground">{formatINR(maxVal)}</strong>
-        </span>
-        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-          <TrendingUp className="h-3 w-3" />
-          <span>Under budget by 18%</span>
-        </span>
-      </div>
-
-      {/* Line Graph with SVG Area Gradient and Scrubber */}
-      <div className="relative w-full flex items-center justify-center my-2">
+      {/* Line Graph */}
+      <div className="relative w-full flex items-center justify-center">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto overflow-visible"
         >
-          <defs>
-            <linearGradient id="budgetAreaGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#D4F835" stopOpacity="0.45" />
-              <stop offset="85%" stopColor="#D4F835" stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
-
-          {/* Horizontal Grid lines */}
-          {[0, 1000, 2000, 3000, 4000, 5000, 6000, 7000]
-            .filter((v) => v <= maxVal)
-            .map((val) => {
-              const y = paddingTop + innerHeight - (val / maxVal) * innerHeight;
-              return (
-                <g key={val}>
-                  <line
-                    x1={paddingLeft}
-                    y1={y}
-                    x2={width - paddingRight}
-                    y2={y}
-                    stroke="currentColor"
-                    className="text-border/40"
-                    strokeDasharray="2 3"
-                    strokeWidth="0.8"
-                  />
-                  <text
-                    x={paddingLeft - 6}
-                    y={y + 3}
-                    textAnchor="end"
-                    className="text-[9px] fill-muted-foreground font-medium select-none"
-                  >
-                    {val === 0 ? "0" : `${val / 1000}k`}
-                  </text>
-                </g>
-              );
-            })}
-
-          {/* Gradient Area Fill */}
-          <path d={areaD} fill="url(#budgetAreaGradient)" />
+          {/* Horizontal Grid lines (0 to 7k) */}
+          {[0, 1000, 2000, 3000, 4000, 5000, 6000, 7000].map((val) => {
+            const y = paddingTop + innerHeight - (val / maxVal) * innerHeight;
+            return (
+              <g key={val}>
+                <line
+                  x1={paddingLeft}
+                  y1={y}
+                  x2={width - paddingRight}
+                  y2={y}
+                  stroke="currentColor"
+                  className="text-border/40"
+                  strokeDasharray="2 3"
+                  strokeWidth="0.8"
+                />
+                <text
+                  x={paddingLeft - 6}
+                  y={y + 3}
+                  textAnchor="end"
+                  className="text-[9px] fill-muted-foreground font-medium select-none"
+                >
+                  {val === 0 ? "0" : `${val / 1000}k`}
+                </text>
+              </g>
+            );
+          })}
 
           {/* Smooth Spline Curve */}
           <path
             d={pathD}
             fill="none"
             stroke="#0E0E10"
-            strokeWidth="2.2"
+            strokeWidth="2"
             strokeLinecap="round"
             className="dark:stroke-white transition-all duration-300"
           />
 
-          {/* Vertical Guideline at active hovered point */}
-          <line
-            x1={activePoint.x}
-            y1={paddingTop}
-            x2={activePoint.x}
-            y2={paddingTop + innerHeight}
-            stroke="#D4F835"
-            strokeWidth="1.2"
-            strokeDasharray="3 3"
-            className="transition-all duration-150"
-          />
-
-          {/* Clickable and Hoverable Points */}
+          {/* Interactive clickable points */}
           {points.map((pt, i) => (
             <circle
               key={i}
               cx={pt.x}
               cy={pt.y}
-              r="6"
+              r="4"
               fill="transparent"
               className="cursor-pointer"
-              onMouseEnter={() => setHoveredIndex(i)}
+              onClick={() => setSelectedPointIndex(i)}
             />
           ))}
 
-          {/* Highlight Dot: Electric Lime with Black Ring */}
+          {/* Highlight Dot: Electric Lime with Black Ring matching Figma */}
           <circle
             cx={activePoint.x}
             cy={activePoint.y}
-            r="6.5"
+            r="6"
             fill="#D4F835"
             stroke="#0E0E10"
             strokeWidth="2.5"
-            className="transition-all duration-150 filter drop-shadow-md"
+            className="transition-all duration-300 filter drop-shadow-xs"
           />
 
           {/* X-Axis Date Labels */}
@@ -199,37 +143,33 @@ export function BudgetLineChart({ dataPoints }: BudgetLineChartProps) {
               x={pt.x}
               y={height - 6}
               textAnchor="middle"
-              className={`text-[9px] font-bold select-none cursor-pointer transition-colors ${
-                i === hoveredIndex ? "fill-[#0E0E10] dark:fill-[#D4F835]" : "fill-muted-foreground"
-              }`}
-              onMouseEnter={() => setHoveredIndex(i)}
+              className={`text-[9px] font-semibold select-none cursor-pointer ${i === selectedPointIndex
+                ? "fill-foreground font-bold"
+                : "fill-muted-foreground"
+                }`}
+              onClick={() => setSelectedPointIndex(i)}
             >
               {pt.date}
             </text>
           ))}
         </svg>
 
-        {/* Noir Tooltip Bubble tracking the active dot */}
+        {/* Noir Tooltip Bubble with arrow pointing to highlighted dot */}
         <div
-          className="absolute z-20 pointer-events-none transition-all duration-200 -translate-x-1/2"
+          className="absolute z-20 pointer-events-none transition-all duration-300 -translate-x-1/2"
           style={{
             left: `${(activePoint.x / width) * 100}%`,
-            top: `${Math.max(0, (activePoint.y / height) * 100 - 32)}%`,
+            top: `${Math.max(0, (activePoint.y / height) * 100 - 30)}%`,
           }}
         >
-          <div className="relative px-3 py-1 rounded-xl bg-[#0E0E10] text-white text-[11px] font-black shadow-2xl whitespace-nowrap border border-white/10">
-            <span>{activePoint.date}: </span>
-            <span className="text-[#D4F835] font-mono">{formatINR(activePoint.amount)}</span>
+          <div className="relative px-3 py-1 rounded-xl bg-[#0E0E10] text-white text-[11px] font-extrabold shadow-xl whitespace-nowrap">
+            ₹26,590.40
             {/* Arrow beak */}
             <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 border-4 border-transparent border-t-[#0E0E10]" />
           </div>
         </div>
       </div>
-
-      {/* Footer Info */}
-      <div className="pt-2 border-t border-border/50 text-[11px] text-muted-foreground text-center font-semibold">
-        Hover along the curve to inspect daily household expenses
-      </div>
     </div>
   );
 }
+

@@ -31,45 +31,6 @@ const PAYMENT_METHOD_PILLS = [
   { name: "Net Banking", icon: Building, label: "Net Banking" },
 ];
 
-const PRESET_EXPENSE_AMOUNTS = [100, 250, 500, 1000, 2000, 5000];
-
-const ROLE_EMOJI_MAP: Record<string, string> = {
-  Father: "👑",
-  Mother: "🌸",
-  Son: "🎓",
-  Daughter: "🎨",
-  Parent: "🏡",
-  Child: "🧸",
-  Admin: "⚡",
-  Grandpa: "👴",
-  Grandma: "👵",
-};
-
-const CATEGORY_EMOJI_MAP: Record<string, string> = {
-  groceries: "🛒",
-  food: "🍔",
-  dining: "🍕",
-  transport: "🚗",
-  utilities: "⚡",
-  bills: "💡",
-  shopping: "🛍️",
-  healthcare: "🩺",
-  health: "💊",
-  entertainment: "🎬",
-  education: "📚",
-  travel: "✈️",
-  personal: "💈",
-};
-
-function getCategoryEmoji(name?: string) {
-  if (!name) return "📦";
-  const lower = name.toLowerCase();
-  for (const [key, emoji] of Object.entries(CATEGORY_EMOJI_MAP)) {
-    if (lower.includes(key)) return emoji;
-  }
-  return "🏷️";
-}
-
 export function ExpenseDialog({
   isOpen,
   onClose,
@@ -230,20 +191,6 @@ export function ExpenseDialog({
               className="w-full bg-transparent text-base font-extrabold text-foreground focus:outline-none"
             />
           </div>
-
-          {/* Quick preset chips */}
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {PRESET_EXPENSE_AMOUNTS.map((val) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => setAmount(val.toString())}
-                className="px-2.5 py-1 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground font-bold text-[11px] transition-colors cursor-pointer"
-              >
-                +₹{val >= 1000 ? `${val / 1000}k` : val}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Category Dropdown */}
@@ -259,7 +206,7 @@ export function ExpenseDialog({
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {getCategoryEmoji(c.name)} {c.name}
+                  {c.name}
                 </option>
               ))}
             </select>
@@ -293,14 +240,11 @@ export function ExpenseDialog({
               onChange={(e) => setPaidByUserId(e.target.value)}
               className="w-full appearance-none pl-12 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
             >
-              {members.map((m) => {
-                const roleEmoji = ROLE_EMOJI_MAP[m.relationship || ""] || "👤";
-                return (
-                  <option key={m.id} value={m.user_id}>
-                    {roleEmoji} {m.display_name} ({m.relationship || "Member"})
-                  </option>
-                );
-              })}
+              {members.map((m) => (
+                <option key={m.id} value={m.user_id}>
+                  {m.display_name} ({m.relationship || "Member"})
+                </option>
+              ))}
             </select>
             <div className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-[#D4F835] text-black font-bold text-[10px] flex items-center justify-center pointer-events-none">
               {initials}
