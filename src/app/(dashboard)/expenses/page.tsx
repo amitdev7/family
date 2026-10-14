@@ -1,42 +1,49 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
+  ChevronDown,
   Download,
-  Plus,
-  Eye,
-  Edit2,
-  Trash2,
+  SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
-  Filter,
-  ShoppingCart,
+  Eye,
+  Trash2,
+  Edit2,
+  Calendar,
+  CreditCard,
+  ShoppingBag,
   Utensils,
-  Fuel,
-  HeartPulse,
-  Home,
-  Receipt,
   Zap,
+  Car,
+  HeartPulse,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { ExpenseDialog } from "@/components/expenses/expense-dialog";
 import { ExpenseDetailsModal } from "@/components/expenses/expense-details-modal";
-import { DeleteExpenseDialog } from "@/components/expenses/delete-dialog";
+import { DeleteDialog } from "@/components/expenses/delete-dialog";
 import { DataService } from "@/lib/data-service";
-import { Expense, Category, HouseholdMember, PaymentMethod } from "@/lib/types";
-import { formatINR, formatDate } from "@/lib/formatters";
+import { Expense, Category, HouseholdMember } from "@/lib/types";
+import { formatINR } from "@/lib/formatters";
 
-type SortOption = "date_desc" | "date_asc" | "amount_desc" | "amount_asc";
+const MERCHANT_ICONS: Record<string, { bg: string; text: string; icon: any }> = {
+  groceries: { bg: "bg-emerald-100 text-emerald-600", text: "Groceries", icon: ShoppingBag },
+  food: { bg: "bg-orange-100 text-orange-600", text: "Food & Dining", icon: Utensils },
+  transport: { bg: "bg-blue-100 text-blue-600", text: "Transport", icon: Car },
+  utilities: { bg: "bg-red-100 text-red-600", text: "Utilities", icon: Zap },
+  shopping: { bg: "bg-pink-100 text-pink-600", text: "Shopping", icon: ShoppingBag },
+  healthcare: { bg: "bg-teal-100 text-teal-600", text: "Healthcare", icon: HeartPulse },
+};
 
-function getMerchantIcon(description: string) {
-  const d = description.toLowerCase();
-  if (d.includes("grocery") || d.includes("dmart") || d.includes("zepto") || d.includes("supermarket")) return ShoppingCart;
-  if (d.includes("swiggy") || d.includes("food") || d.includes("dinner") || d.includes("lunch")) return Utensils;
-  if (d.includes("petrol") || d.includes("fuel") || d.includes("transport") || d.includes("uber")) return Fuel;
-  if (d.includes("pharmacy") || d.includes("doctor") || d.includes("medical")) return HeartPulse;
-  if (d.includes("rent") || d.includes("home") || d.includes("apartment")) return Home;
-  return Receipt;
+function getCategoryIcon(catName?: string) {
+  const name = (catName || "").toLowerCase();
+  for (const key of Object.keys(MERCHANT_ICONS)) {
+    if (name.includes(key)) {
+      return MERCHANT_ICONS[key];
+    }
+  }
+  return { bg: "bg-lime-100 text-lime-700", text: catName || "Other", icon: ShoppingBag };
 }
 
 export default function ExpensesPage() {
@@ -44,47 +51,39 @@ export default function ExpensesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
 
-  // Filters state
+  // Filters matching Figma
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedMember, setSelectedMember] = useState("all");
-  const [selectedMethod, setSelectedMethod] = useState<string>("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("date_desc");
+  const [selectedMethod, setSelectedMethod] = useState("all");
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
-  // Dialogs state
-  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  // Modals
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
-  const [expenseToView, setExpenseToView] = useState<Expense | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
 
-  const loadExpenses = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await DataService.getExpenses({
         search: search.trim() || undefined,
-        categoryId: selectedCategory !== "all" ? selectedCategory : undefined,
-        paidByUserId: selectedMember !== "all" ? selectedMember : undefined,
-        paymentMethod: selectedMethod !== "all" ? (selectedMethod as PaymentMethod) : undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-        sortBy,
+        categoryId: selectedCategory === "all" ? undefined : selectedCategory,
+        paidByUserId: selectedMember === "all" ? undefined : selectedMember,
+        paymentMethod: selectedMethod === "all" ? undefined : selectedMethod,
         page,
         pageSize,
       });
       setExpenses(res.expenses);
       setTotalCount(res.totalCount);
-      setTotalPages(res.totalPages);
     } finally {
       setIsLoading(false);
     }
-  }, [search, selectedCategory, selectedMember, selectedMethod, startDate, endDate, sortBy, page, pageSize]);
+  }, [search, selectedCategory, selectedMember, selectedMethod, page, pageSize]);
 
   useEffect(() => {
     DataService.getCategories().then(setCategories);
@@ -92,62 +91,54 @@ export default function ExpensesPage() {
   }, []);
 
   useEffect(() => {
-    loadExpenses();
-  }, [loadExpenses]);
+    loadData();
+  }, [loadData]);
 
-  const handleExportCSV = async () => {
-    const csvContent = await DataService.exportExpensesCSV();
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const handleExportCSV = () => {
+    const csv = DataService.exportExpensesToCSV(expenses);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `expenses_ledger_${new Date().toISOString().split("T")[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `expenses_ledger_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  const handleConfirmDelete = async () => {
-    if (expenseToDelete) {
-      await DataService.deleteExpense(expenseToDelete.id);
-      setExpenseToDelete(null);
-      loadExpenses();
-    }
-  };
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <AppLayout
       title="Expenses Ledger"
-      subtitle="Complete ledger of all family expenses with real-time sync"
-      onAddExpenseClick={() => setIsAddExpenseOpen(true)}
+      onAddExpenseClick={() => setIsAddOpen(true)}
     >
-      <div className="space-y-6">
-        {/* Header Title with Lime Bar */}
+      <div className="space-y-6 select-none">
+        {/* Title Header with Lime Underline Accent from Figma image_20261014_111612.jpg */}
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
             Expenses Ledger Table
           </h2>
-          <div className="h-1.5 w-16 bg-[#D4F835] rounded-full mt-2" />
+          <div className="h-1 w-14 bg-[#D4F835] rounded-full mt-2" />
         </div>
 
         {/* Search Bar matching Figma */}
-        <div className="relative">
+        <div className="relative max-w-xl">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search transactions..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full h-12 pl-11 pr-4 rounded-full bg-card border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] shadow-2xs"
+            placeholder="Search transactions..."
+            className="w-full pl-11 pr-4 py-2.5 rounded-full bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
           />
         </div>
 
-        {/* Filter Pills Row matching Figma */}
+        {/* Filter Pills Row matching Figma image_20261014_111612.jpg */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Category Filter */}
+          {/* Category Dropdown Pill */}
           <div className="relative">
             <select
               value={selectedCategory}
@@ -155,21 +146,19 @@ export default function ExpensesPage() {
                 setSelectedCategory(e.target.value);
                 setPage(1);
               }}
-              className="h-10 px-4 rounded-full bg-card border border-border text-xs font-bold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835] shadow-2xs appearance-none pr-8"
+              className="appearance-none pl-4 pr-8 py-2 rounded-full bg-card border border-border text-xs font-semibold text-foreground hover:bg-secondary cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
             >
               <option value="all">Category • All</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
-                  Category • {c.name}
+                  {c.name}
                 </option>
               ))}
             </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground text-[10px]">
-              ▼
-            </span>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           </div>
 
-          {/* Member Filter */}
+          {/* Member Dropdown Pill */}
           <div className="relative">
             <select
               value={selectedMember}
@@ -177,21 +166,19 @@ export default function ExpensesPage() {
                 setSelectedMember(e.target.value);
                 setPage(1);
               }}
-              className="h-10 px-4 rounded-full bg-card border border-border text-xs font-bold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835] shadow-2xs appearance-none pr-8"
+              className="appearance-none pl-4 pr-8 py-2 rounded-full bg-card border border-border text-xs font-semibold text-foreground hover:bg-secondary cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
             >
               <option value="all">Member • All members</option>
               {members.map((m) => (
                 <option key={m.id} value={m.user_id}>
-                  Member • {m.display_name} ({m.relationship || m.role})
+                  {m.display_name}
                 </option>
               ))}
             </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground text-[10px]">
-              ▼
-            </span>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           </div>
 
-          {/* Payment Method Filter */}
+          {/* Payment Method Dropdown Pill */}
           <div className="relative">
             <select
               value={selectedMethod}
@@ -199,156 +186,163 @@ export default function ExpensesPage() {
                 setSelectedMethod(e.target.value);
                 setPage(1);
               }}
-              className="h-10 px-4 rounded-full bg-card border border-border text-xs font-bold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835] shadow-2xs appearance-none pr-8"
+              className="appearance-none pl-4 pr-8 py-2 rounded-full bg-card border border-border text-xs font-semibold text-foreground hover:bg-secondary cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
             >
               <option value="all">Payment • All methods</option>
               <option value="UPI">UPI</option>
-              <option value="Cash">Cash</option>
               <option value="Credit Card">Credit Card</option>
               <option value="Debit Card">Debit Card</option>
               <option value="Net Banking">Net Banking</option>
+              <option value="Cash">Cash</option>
             </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground text-[10px]">
-              ▼
-            </span>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           </div>
 
-          {/* CSV Export Button */}
+          {/* CSV Export Pill */}
           <button
             type="button"
             onClick={handleExportCSV}
-            className="h-10 px-4 rounded-full bg-[#0E0E10] hover:bg-black/85 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs ml-auto cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 text-xs font-bold cursor-pointer transition-colors shadow-xs"
           >
             <Download className="h-3.5 w-3.5" />
             <span>CSV</span>
           </button>
 
-          {/* Add Expense Button */}
-          <button
-            type="button"
-            onClick={() => setIsAddExpenseOpen(true)}
-            className="h-10 px-4 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] active:scale-95 text-black text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
-          >
-            <Plus className="h-4 w-4 stroke-[2.5]" />
-            <span>Add Expense</span>
-          </button>
+          {/* Reset Filters Pill */}
+          {(search || selectedCategory !== "all" || selectedMember !== "all" || selectedMethod !== "all") && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setSelectedCategory("all");
+                setSelectedMember("all");
+                setSelectedMethod("all");
+                setPage(1);
+              }}
+              className="px-3.5 py-2 rounded-full bg-secondary text-muted-foreground hover:text-foreground text-xs font-semibold transition-colors cursor-pointer"
+            >
+              Reset Filters
+            </button>
+          )}
         </div>
 
-        {/* Ledger Table Container */}
-        <div className="rounded-[28px] bg-card border border-border overflow-hidden shadow-xs">
-          <div className="overflow-x-auto w-full">
-            <table className="w-full text-left text-xs border-collapse">
+        {/* Ledger Table Container matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border/80 shadow-xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-border text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider bg-muted/30">
-                  <th className="py-4 px-5">DATE</th>
-                  <th className="py-4 px-5">MERCHANT</th>
-                  <th className="py-4 px-5">CATEGORY</th>
-                  <th className="py-4 px-5">MEMBER</th>
-                  <th className="py-4 px-5">PAYMENT METHOD</th>
-                  <th className="py-4 px-5 text-right">AMOUNT</th>
-                  <th className="py-4 px-4 text-center">ACTIONS</th>
+                <tr className="border-b border-border/70 text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
+                  <th className="py-4 px-6">DATE</th>
+                  <th className="py-4 px-6">MERCHANT</th>
+                  <th className="py-4 px-6">CATEGORY</th>
+                  <th className="py-4 px-6">MEMBER</th>
+                  <th className="py-4 px-6">PAYMENT METHOD</th>
+                  <th className="py-4 px-6 text-right">AMOUNT</th>
+                  <th className="py-4 px-6 text-center">ACTIONS</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-muted-foreground">
-                      Loading transactions...
+                    <td colSpan={7} className="py-12 text-center text-sm text-muted-foreground">
+                      Loading ledger entries...
                     </td>
                   </tr>
                 ) : expenses.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-muted-foreground">
-                      No expenses match your filters.
+                    <td colSpan={7} className="py-12 text-center text-sm text-muted-foreground">
+                      No matching expenses found.
                     </td>
                   </tr>
                 ) : (
                   expenses.map((expense) => {
-                    const MerchantIcon = getMerchantIcon(expense.description);
+                    const iconMeta = getCategoryIcon(expense.category?.name);
+                    const Icon = iconMeta.icon;
 
                     return (
                       <tr
                         key={expense.id}
-                        className="hover:bg-muted/40 transition-colors group cursor-pointer"
-                        onClick={() => setExpenseToView(expense)}
+                        className="group hover:bg-secondary/40 transition-colors"
                       >
                         {/* Date */}
-                        <td className="py-4 px-5 text-muted-foreground font-semibold whitespace-nowrap">
-                          {formatDate(expense.expense_date)}
+                        <td className="py-4 px-6 text-xs font-medium text-muted-foreground whitespace-nowrap">
+                          {expense.expense_date}
                         </td>
 
-                        {/* Merchant / Description */}
-                        <td className="py-4 px-5 font-extrabold text-foreground whitespace-nowrap">
+                        {/* Merchant */}
+                        <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
-                            <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-foreground shrink-0 shadow-2xs">
-                              <MerchantIcon className="h-4 w-4" />
+                            <div
+                              className={`h-9 w-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs ${iconMeta.bg}`}
+                            >
+                              <Icon className="h-4 w-4" />
                             </div>
-                            <span className="truncate max-w-[200px]">{expense.description}</span>
+                            <span className="font-bold text-sm text-foreground truncate max-w-[180px]">
+                              {expense.description}
+                            </span>
                           </div>
                         </td>
 
                         {/* Category */}
-                        <td className="py-4 px-5 text-foreground font-semibold whitespace-nowrap">
-                          {expense.category?.name || "General"}
+                        <td className="py-4 px-6">
+                          <span className="inline-block px-3 py-1 rounded-full bg-secondary/70 text-foreground text-xs font-semibold">
+                            {expense.category?.name || "General"}
+                          </span>
                         </td>
 
                         {/* Member */}
-                        <td className="py-4 px-5 whitespace-nowrap">
+                        <td className="py-4 px-6">
                           <div className="flex items-center gap-2">
-                            <div
-                              className="h-6 w-6 rounded-full text-black font-extrabold text-[10px] flex items-center justify-center shadow-2xs shrink-0"
-                              style={{ backgroundColor: expense.paid_by?.color || "#D4F835" }}
-                            >
-                              {expense.paid_by?.display_name ? expense.paid_by.display_name.charAt(0) : "A"}
+                            <div className="h-6 w-6 rounded-full bg-[#D4F835] text-black font-bold text-[10px] flex items-center justify-center shrink-0">
+                              {expense.paid_by?.display_name?.slice(0, 1).toUpperCase() || "F"}
                             </div>
-                            <span className="font-semibold text-foreground">
-                              {expense.paid_by?.display_name || "Member"}
+                            <span className="text-xs font-medium text-foreground">
+                              {expense.paid_by?.display_name || "Family Member"}
                             </span>
                           </div>
                         </td>
 
                         {/* Payment Method */}
-                        <td className="py-4 px-5 whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted font-bold text-[11px] text-foreground">
-                            <Zap className="h-3 w-3 text-[#B8DC14]" />
+                        <td className="py-4 px-6">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary text-xs font-medium text-foreground">
+                            <CreditCard className="h-3 w-3 text-muted-foreground" />
                             <span>{expense.payment_method}</span>
                           </span>
                         </td>
 
-                        {/* Amount in Bold */}
-                        <td className="py-4 px-5 text-right font-black text-sm text-foreground whitespace-nowrap">
-                          - {formatINR(expense.amount)}
+                        {/* Amount */}
+                        <td className="py-4 px-6 text-right">
+                          <span className="font-extrabold text-sm text-foreground whitespace-nowrap">
+                            - {formatINR(expense.amount)}
+                          </span>
                         </td>
 
                         {/* Actions */}
-                        <td
-                          className="py-4 px-4 text-center whitespace-nowrap"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="flex items-center justify-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <td className="py-4 px-6 text-center">
+                          <div className="flex items-center justify-center gap-1">
                             <button
                               type="button"
-                              onClick={() => setExpenseToView(expense)}
-                              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                              title="View details"
+                              onClick={() => setSelectedExpense(expense)}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                              title="View Details"
                             >
-                              <Eye className="h-3.5 w-3.5" />
+                              <Eye className="h-4 w-4" />
                             </button>
                             <button
                               type="button"
                               onClick={() => setExpenseToEdit(expense)}
-                              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                              title="Edit expense"
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                              title="Edit Expense"
                             >
-                              <Edit2 className="h-3.5 w-3.5" />
+                              <Edit2 className="h-4 w-4" />
                             </button>
                             <button
                               type="button"
                               onClick={() => setExpenseToDelete(expense)}
-                              className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
-                              title="Delete expense"
+                              className="p-1.5 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                              title="Delete Expense"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
                         </td>
@@ -361,35 +355,34 @@ export default function ExpensesPage() {
           </div>
 
           {/* Pagination Footer matching Figma */}
-          <div className="p-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="py-4 px-6 border-t border-border/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-muted-foreground">
             <div>
               Showing {expenses.length > 0 ? (page - 1) * pageSize + 1 : 0}-
               {Math.min(page * pageSize, totalCount)} of {totalCount} transactions
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="h-8 w-8 rounded-full border border-border flex items-center justify-center hover:bg-muted disabled:opacity-40 cursor-pointer"
+                className="p-1.5 rounded-full hover:bg-secondary disabled:opacity-30 cursor-pointer"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
 
-              {Array.from({ length: totalPages }).map((_, i) => {
+              {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
                 const pageNum = i + 1;
-                const isCurrent = pageNum === page;
+                const isActive = pageNum === page;
                 return (
                   <button
                     key={pageNum}
                     type="button"
                     onClick={() => setPage(pageNum)}
-                    className={`h-8 w-8 rounded-full font-bold text-xs flex items-center justify-center transition-all cursor-pointer ${
-                      isCurrent
-                        ? "bg-[#D4F835] text-black shadow-xs font-black"
-                        : "hover:bg-muted text-foreground"
-                    }`}
+                    className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs transition-colors cursor-pointer ${isActive
+                      ? "bg-[#D4F835] text-black shadow-xs"
+                      : "hover:bg-secondary text-foreground"
+                      }`}
                   >
                     {pageNum}
                   </button>
@@ -400,63 +393,70 @@ export default function ExpensesPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="h-8 w-8 rounded-full border border-border flex items-center justify-center hover:bg-muted disabled:opacity-40 cursor-pointer"
+                className="p-1.5 rounded-full hover:bg-secondary disabled:opacity-30 cursor-pointer"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>
         </div>
+
+        {/* Expense Modals */}
+        {isAddOpen && (
+          <ExpenseDialog
+            isOpen={isAddOpen}
+            onClose={() => setIsAddOpen(false)}
+            onSaved={() => {
+              setIsAddOpen(false);
+              loadData();
+            }}
+          />
+        )}
+
+        {expenseToEdit && (
+          <ExpenseDialog
+            isOpen={Boolean(expenseToEdit)}
+            initialExpense={expenseToEdit}
+            onClose={() => setExpenseToEdit(null)}
+            onSaved={() => {
+              setExpenseToEdit(null);
+              loadData();
+            }}
+          />
+        )}
+
+        {selectedExpense && (
+          <ExpenseDetailsModal
+            isOpen={Boolean(selectedExpense)}
+            expense={selectedExpense}
+            onClose={() => setSelectedExpense(null)}
+            onEdit={(exp) => {
+              setSelectedExpense(null);
+              setExpenseToEdit(exp);
+            }}
+            onDelete={(exp) => {
+              setSelectedExpense(null);
+              setExpenseToDelete(exp);
+            }}
+          />
+        )}
+
+        {expenseToDelete && (
+          <DeleteDialog
+            isOpen={Boolean(expenseToDelete)}
+            expenseDescription={expenseToDelete.description}
+            expenseAmount={expenseToDelete.amount}
+            categoryName={expenseToDelete.category?.name || "General"}
+            onClose={() => setExpenseToDelete(null)}
+            onConfirm={async () => {
+              await DataService.deleteExpense(expenseToDelete.id);
+              setExpenseToDelete(null);
+              loadData();
+            }}
+          />
+        )}
       </div>
-
-      {/* Modals */}
-      {isAddExpenseOpen && (
-        <ExpenseDialog
-          isOpen={isAddExpenseOpen}
-          onClose={() => setIsAddExpenseOpen(false)}
-          onSaved={() => {
-            loadExpenses();
-            setIsAddExpenseOpen(false);
-          }}
-        />
-      )}
-
-      {expenseToEdit && (
-        <ExpenseDialog
-          isOpen={!!expenseToEdit}
-          expenseToEdit={expenseToEdit}
-          onClose={() => setExpenseToEdit(null)}
-          onSaved={() => {
-            loadExpenses();
-            setExpenseToEdit(null);
-          }}
-        />
-      )}
-
-      {expenseToView && (
-        <ExpenseDetailsModal
-          isOpen={!!expenseToView}
-          expense={expenseToView}
-          onClose={() => setExpenseToView(null)}
-          onEdit={(exp) => {
-            setExpenseToView(null);
-            setExpenseToEdit(exp);
-          }}
-          onDelete={(exp) => {
-            setExpenseToView(null);
-            setExpenseToDelete(exp);
-          }}
-        />
-      )}
-
-      {expenseToDelete && (
-        <DeleteExpenseDialog
-          isOpen={!!expenseToDelete}
-          expense={expenseToDelete}
-          onClose={() => setExpenseToDelete(null)}
-          onConfirm={handleConfirmDelete}
-        />
-      )}
     </AppLayout>
   );
 }
+

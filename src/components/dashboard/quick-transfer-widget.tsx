@@ -1,78 +1,81 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import Link from "next/link";
 import { Plus, Check, Send } from "lucide-react";
-import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 
-export function QuickTransferWidget() {
-  const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [selectedMemberId, setSelectedMemberId] = useState<string>("");
-  const [amount, setAmount] = useState("1000");
-  const [sentSuccess, setSentSuccess] = useState<string | null>(null);
+interface QuickTransferWidgetProps {
+  members?: HouseholdMember[];
+  onAddMemberClick?: () => void;
+  onAddExpenseClick?: () => void;
+}
 
-  useEffect(() => {
-    DataService.getMembers().then((mems) => {
-      setMembers(mems);
-      if (mems.length > 0) {
-        setSelectedMemberId(mems[0].id);
-      }
-    });
+const DEMO_AVATARS = [
+  { id: "1", name: "Priya", bg: "bg-blue-400 text-white", initial: "P" },
+  { id: "2", name: "Aarav", bg: "bg-amber-400 text-black", initial: "A" },
+  { id: "3", name: "Diya", bg: "bg-pink-400 text-white", initial: "D" },
+  { id: "4", name: "Ramesh", bg: "bg-emerald-400 text-black", initial: "R" },
+  { id: "5", name: "Sunita", bg: "bg-purple-400 text-white", initial: "S" },
+];
 
-    const handleUpdate = () => {
-      DataService.getMembers().then(setMembers);
-    };
-    window.addEventListener("household-user-changed", handleUpdate);
-    return () => window.removeEventListener("household-user-changed", handleUpdate);
-  }, []);
+export function QuickTransferWidget({
+  members,
+  onAddMemberClick,
+  onAddExpenseClick,
+}: QuickTransferWidgetProps) {
+  const [selectedId, setSelectedId] = useState<string>("1");
+  const [amount, setAmount] = useState<string>("1000");
+  const [isSending, setIsSending] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const displayList = members && members.length > 0
+    ? members.map((m, idx) => ({
+      id: m.user_id,
+      name: m.display_name.split(" ")[0],
+      bg: DEMO_AVATARS[idx % DEMO_AVATARS.length].bg,
+      initial: m.display_name.slice(0, 1).toUpperCase(),
+    }))
+    : DEMO_AVATARS;
 
   const handleSend = () => {
-    const target = members.find((m) => m.id === selectedMemberId);
-    if (!target) return;
-
-    setSentSuccess(`Transferred ${formatINR(Number(amount) || 1000)} to ${target.display_name}!`);
-    setTimeout(() => setSentSuccess(null), 3000);
-  };
-
-  const handleOpenWhoAreYou = () => {
-    window.dispatchEvent(new Event("open-who-are-you"));
+    if (!amount || parseFloat(amount) <= 0) return;
+    setIsSending(true);
+    setTimeout(() => {
+      setIsSending(false);
+      setSuccessMsg(`Sent ₹${amount} successfully!`);
+      setTimeout(() => setSuccessMsg(null), 3000);
+    }, 600);
   };
 
   return (
-    <div className="flex flex-col h-full justify-between">
+    <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs flex flex-col justify-between h-full select-none">
+      {/* Title */}
       <div>
-        <h3 className="text-base sm:text-lg font-extrabold text-foreground tracking-tight mb-3">
+        <h3 className="font-bold text-lg text-foreground tracking-tight mb-5">
           Quick transfer
         </h3>
 
-        {/* Member Avatars Row */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {members.map((member) => {
-            const isSelected = member.id === selectedMemberId;
-            const initials = member.display_name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .toUpperCase()
-              .slice(0, 2);
+        {/* Avatars Row matching Figma image_20261014_111150.jpg */}
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+          {displayList.slice(0, 5).map((person) => {
+            const isSelected = person.id === selectedId;
 
             return (
               <button
-                key={member.id}
+                key={person.id}
                 type="button"
-                onClick={() => setSelectedMemberId(member.id)}
-                className={`relative h-12 w-12 rounded-full shrink-0 flex items-center justify-center font-bold text-xs text-white transition-all cursor-pointer ${
-                  isSelected
-                    ? "ring-2 ring-offset-2 ring-black dark:ring-white scale-105"
-                    : "opacity-85 hover:opacity-100"
-                }`}
-                style={{ backgroundColor: member.color || "#3B82F6" }}
-                title={`${member.display_name} (${member.relationship || member.role})`}
+                onClick={() => setSelectedId(person.id)}
+                className={`relative flex h-12 w-12 rounded-full items-center justify-center font-bold text-sm shrink-0 transition-transform cursor-pointer ${person.bg} ${isSelected
+                  ? "ring-3 ring-black dark:ring-white scale-105 shadow-md"
+                  : "hover:scale-105 opacity-90"
+                  }`}
+                title={person.name}
               >
-                <span>{initials}</span>
+                <span>{person.initial}</span>
                 {isSelected && (
-                  <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-black text-white flex items-center justify-center">
+                  <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-black text-white flex items-center justify-center">
                     <Check className="h-2.5 w-2.5 stroke-[3]" />
                   </div>
                 )}
@@ -80,49 +83,72 @@ export function QuickTransferWidget() {
             );
           })}
 
-          {/* Dashed Add Member Button */}
+          {/* Dashed Add Circle */}
           <button
             type="button"
-            onClick={handleOpenWhoAreYou}
-            className="h-12 w-12 rounded-full border-2 border-dashed border-muted-foreground/40 hover:border-foreground flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-pointer"
-            title="Add or invite family member"
+            onClick={() => {
+              if (onAddMemberClick) onAddMemberClick();
+              else window.dispatchEvent(new Event("open-who-are-you"));
+            }}
+            className="flex h-12 w-12 rounded-full border-2 border-dashed border-muted-foreground/60 hover:border-foreground items-center justify-center text-muted-foreground hover:text-foreground shrink-0 transition-colors cursor-pointer"
+            title="Invite or add family member"
           >
             <Plus className="h-5 w-5" />
           </button>
         </div>
+      </div>
 
-        {/* Amount Input */}
-        <div className="mt-4">
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
-              ₹
-            </span>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="1000"
-              className="w-full h-12 pl-9 pr-4 rounded-full bg-muted/60 border border-border text-sm font-bold text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-            />
-          </div>
+      {/* Amount Input Pill matching Figma */}
+      <div className="my-4">
+        <div className="flex items-center rounded-full bg-secondary/60 border border-border/80 px-5 py-2.5 focus-within:ring-2 focus-within:ring-[#D4F835] focus-within:bg-card transition-all">
+          <span className="text-muted-foreground font-semibold text-sm mr-2">₹</span>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Amount"
+            className="w-full bg-transparent text-sm font-bold text-foreground focus:outline-none"
+          />
         </div>
-
-        {sentSuccess && (
-          <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-2 text-center animate-in fade-in">
-            {sentSuccess}
+        {successMsg && (
+          <p className="text-[11px] text-emerald-600 font-bold mt-1 text-center animate-in fade-in">
+            {successMsg}
           </p>
         )}
       </div>
 
-      {/* Send Button */}
-      <button
-        type="button"
-        onClick={handleSend}
-        className="w-full mt-4 py-3.5 px-4 rounded-full bg-[#0E0E10] hover:bg-black/90 active:scale-98 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
-      >
-        <Send className="h-3.5 w-3.5" />
-        <span>Send</span>
-      </button>
+      {/* Buttons */}
+      <div className="space-y-2.5">
+        <button
+          type="button"
+          onClick={handleSend}
+          disabled={isSending}
+          className="w-full py-3 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+        >
+          <span>{isSending ? "Sending..." : "Send"}</span>
+          <Send className="h-3.5 w-3.5" />
+        </button>
+
+        <div className="flex items-center gap-2">
+          <Link
+            href="/expenses"
+            className="flex-1 py-2 rounded-full bg-secondary/80 hover:bg-secondary text-foreground text-xs font-semibold text-center transition-colors truncate"
+          >
+            View all &gt;
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              if (onAddExpenseClick) onAddExpenseClick();
+              else window.dispatchEvent(new Event("open-add-expense"));
+            }}
+            className="flex-1 py-2 rounded-full bg-secondary/80 hover:bg-secondary text-foreground text-xs font-semibold text-center transition-colors truncate cursor-pointer"
+          >
+            + Add new card
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
+

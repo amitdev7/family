@@ -1,27 +1,28 @@
 "use client";
 
 import React, { useState } from "react";
-import { Modal } from "@/components/ui/modal";
-import { Expense } from "@/lib/types";
-import { formatINR } from "@/lib/formatters";
 import { Trash2 } from "lucide-react";
+import { Modal } from "@/components/ui/modal";
+import { formatINR } from "@/lib/formatters";
 
-interface DeleteExpenseDialogProps {
+interface DeleteDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void> | void;
-  expense: Expense | null;
+  expenseDescription: string;
+  expenseAmount: number;
+  categoryName?: string;
 }
 
-export function DeleteExpenseDialog({
+export function DeleteDialog({
   isOpen,
   onClose,
   onConfirm,
-  expense,
-}: DeleteExpenseDialogProps) {
+  expenseDescription,
+  expenseAmount,
+  categoryName,
+}: DeleteDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-
-  if (!expense) return null;
 
   const handleDelete = async () => {
     try {
@@ -34,34 +35,43 @@ export function DeleteExpenseDialog({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} maxWidth="sm">
-      <div className="text-center pt-2 pb-1">
-        {/* Lime Exclamation Badge */}
-        <div className="h-12 w-12 rounded-full bg-[#D4F835] text-black font-black text-xl flex items-center justify-center mx-auto mb-3 shadow-xs">
-          !
+    <Modal isOpen={isOpen} onClose={onClose} title="Delete Expense">
+      <div className="space-y-6 pt-2 select-none">
+        {/* Warning Icon Badge */}
+        <div className="flex flex-col items-center text-center space-y-3">
+          <div className="h-14 w-14 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-black text-2xl shadow-lg animate-pulse">
+            !
+          </div>
+          <h3 className="text-lg font-black text-foreground tracking-tight">
+            Delete This Transaction?
+          </h3>
+          <p className="text-xs font-medium text-muted-foreground max-w-xs leading-relaxed">
+            This action cannot be undone. Are you sure you want to remove this record from your household ledger?
+          </p>
         </div>
 
-        <h3 className="text-xl font-extrabold text-foreground mb-2">
-          Delete Expense
-        </h3>
+        {/* Expense Summary Card */}
+        <div className="p-4 rounded-2xl bg-secondary/50 border border-border/80 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-foreground">{expenseDescription}</p>
+            {categoryName && (
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                {categoryName}
+              </span>
+            )}
+          </div>
+          <span className="text-base font-black text-foreground">
+            {formatINR(expenseAmount)}
+          </span>
+        </div>
 
-        <p className="text-sm font-bold text-foreground mb-1">
-          Are you sure you want to delete this expense?
-        </p>
-
-        <p className="text-xs text-muted-foreground px-2">
-          This action cannot be undone. The expense of{" "}
-          <strong className="text-foreground">{formatINR(expense.amount)}</strong> for{" "}
-          <strong className="text-foreground">{expense.description}</strong> will be permanently deleted.
-        </p>
-
-        {/* Buttons matching Figma */}
-        <div className="grid grid-cols-2 gap-3 mt-6">
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-3 pt-2">
           <button
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="h-11 rounded-full border border-border bg-card text-foreground font-bold text-xs hover:bg-muted transition-colors cursor-pointer"
+            className="w-full py-3 rounded-full border border-border text-xs font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer disabled:opacity-50"
           >
             Cancel
           </button>
@@ -69,10 +79,16 @@ export function DeleteExpenseDialog({
             type="button"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="h-11 rounded-full bg-[#0E0E10] hover:bg-black/90 active:scale-98 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+            className="w-full py-3 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            <span>{isDeleting ? "Deleting..." : "Delete"}</span>
-            <Trash2 className="h-3.5 w-3.5" />
+            {isDeleting ? (
+              "Deleting..."
+            ) : (
+              <>
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Delete</span>
+              </>
+            )}
           </button>
         </div>
       </div>

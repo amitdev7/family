@@ -1,25 +1,36 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import {
+  X,
+  Calendar,
+  UploadCloud,
+  Check,
+  Zap,
+  Banknote,
+  CreditCard,
+  Building,
+  ChevronDown,
+} from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import { Expense, Category, HouseholdMember, PaymentMethod } from "@/lib/types";
+import { Expense, Category, HouseholdMember } from "@/lib/types";
 import { DataService } from "@/lib/data-service";
-import { expenseFormSchema } from "@/lib/validations";
-import { Upload, AlertCircle, Zap, Banknote, CreditCard, Landmark, Check } from "lucide-react";
+import { formatINR } from "@/lib/formatters";
 
 interface ExpenseDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSaved?: (expense: Expense) => void;
   expenseToEdit?: Expense | null;
+  initialExpense?: Expense | null;
 }
 
-const PAYMENT_METHOD_OPTIONS: { id: PaymentMethod; label: string; icon: React.ElementType }[] = [
-  { id: "UPI", label: "UPI", icon: Zap },
-  { id: "Cash", label: "Cash", icon: Banknote },
-  { id: "Credit Card", label: "Credit Card", icon: CreditCard },
-  { id: "Debit Card", label: "Debit Card", icon: CreditCard },
-  { id: "Net Banking", label: "Net Banking", icon: Landmark },
+const PAYMENT_METHOD_PILLS = [
+  { name: "UPI", icon: Zap, label: "UPI" },
+  { name: "Cash", icon: Banknote, label: "Cash" },
+  { name: "Credit Card", icon: CreditCard, label: "Credit Card" },
+  { name: "Debit Card", icon: CreditCard, label: "Debit Card" },
+  { name: "Net Banking", icon: Building, label: "Net Banking" },
 ];
 
 export function ExpenseDialog({
@@ -27,215 +38,219 @@ export function ExpenseDialog({
   onClose,
   onSaved,
   expenseToEdit,
+  initialExpense,
 }: ExpenseDialogProps) {
+  const activeExpense = expenseToEdit || initialExpense;
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
 
-  // Form state
-  const [amount, setAmount] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  // Form fields matching Figma image_20261014_111601.jpg
+  const [amount, setAmount] = useState<string>("1250.00");
   const [categoryId, setCategoryId] = useState<string>("");
-  const [expenseDate, setExpenseDate] = useState<string>("");
+  const [description, setDescription] = useState<string>("Weekly groceries from supermarket");
   const [paidByUserId, setPaidByUserId] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("UPI");
-  const [notes, setNotes] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("UPI");
+  const [expenseDate, setExpenseDate] = useState<string>("");
+  const [notes, setNotes] = useState<string>("Added milk, vegetables, fruits for the week...");
+  const [receiptFile, setReceiptFile] = useState<string | null>("supermarket_receipt.pdf");
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     DataService.getCategories().then((cats) => {
       setCategories(cats);
-      if (!categoryId && cats.length > 0) {
-        setCategoryId(cats[0].id);
-      }
+      if (cats.length > 0 && !categoryId) setCategoryId(cats[0].id);
     });
     DataService.getMembers().then((mems) => {
       setMembers(mems);
-      if (!paidByUserId && mems.length > 0) {
-        setPaidByUserId(DataService.getCurrentUser().user_id || mems[0].user_id);
-      }
+      const curr = DataService.getCurrentUser();
+      if (!paidByUserId) setPaidByUserId(curr?.user_id || mems[0]?.user_id || "");
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (expenseToEdit) {
-      setAmount(expenseToEdit.amount.toString());
-      setDescription(expenseToEdit.description);
-      setCategoryId(expenseToEdit.category_id);
-      setExpenseDate(expenseToEdit.expense_date);
-      setPaidByUserId(expenseToEdit.paid_by_user_id);
-      setPaymentMethod(expenseToEdit.payment_method);
-      setNotes(expenseToEdit.notes || "");
-      setReceiptFileName(expenseToEdit.receipt_path || null);
+    if (activeExpense) {
+      setAmount(activeExpense.amount.toString());
+      setDescription(activeExpense.description);
+      setCategoryId(activeExpense.category_id);
+      setPaidByUserId(activeExpense.paid_by_user_id);
+      setPaymentMethod(activeExpense.payment_method);
+      setExpenseDate(activeExpense.expense_date);
+      setNotes(activeExpense.notes || "");
+      setReceiptFile(activeExpense.receipt_path || null);
     } else {
       setAmount("");
       setDescription("");
-      const today = new Date().toISOString().split("T")[0];
-      setExpenseDate(today);
-      setPaymentMethod("UPI");
+      setExpenseDate(new Date().toISOString().slice(0, 10));
       setNotes("");
-      setReceiptFileName(null);
+      setReceiptFile(null);
+      setPaymentMethod("UPI");
     }
-  }, [expenseToEdit, isOpen]);
+    setError(null);
+  }, [activeExpense, isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({});
-
     const numAmount = parseFloat(amount);
-    const validation = expenseFormSchema.safeParse({
-      amount: isNaN(numAmount) ? 0 : numAmount,
-      description: description.trim(),
-      category_id: categoryId,
-      expense_date: expenseDate,
-      paid_by_user_id: paidByUserId,
-      payment_method: paymentMethod,
-      notes: notes.trim() || undefined,
-      receipt_path: receiptFileName || undefined,
-    });
-
-    if (!validation.success) {
-      const fieldErrors: Record<string, string> = {};
-      validation.error.issues.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0].toString()] = err.message;
-        }
-      });
-      setErrors(fieldErrors);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      setError("Please enter a valid amount");
+      return;
+    }
+    if (!description.trim()) {
+      setError("Please enter a description");
       return;
     }
 
     try {
-      setIsLoading(true);
-      let result: Expense;
-      if (expenseToEdit) {
-        result = await DataService.updateExpense(expenseToEdit.id, validation.data);
+      setIsSaving(true);
+      setError(null);
+
+      let saved: Expense;
+      if (activeExpense) {
+        saved = await DataService.updateExpense(activeExpense.id, {
+          amount: numAmount,
+          description: description.trim(),
+          category_id: categoryId,
+          paid_by_user_id: paidByUserId,
+          payment_method: paymentMethod,
+          expense_date: expenseDate,
+          notes: notes.trim() || null,
+          receipt_path: receiptFile,
+        });
       } else {
-        result = await DataService.addExpense({
-          amount: validation.data.amount,
-          description: validation.data.description,
-          category_id: validation.data.category_id,
-          expense_date: validation.data.expense_date,
-          paid_by_user_id: validation.data.paid_by_user_id,
-          created_by_user_id: DataService.getCurrentUser().user_id,
-          payment_method: validation.data.payment_method,
-          notes: validation.data.notes,
-          receipt_path: validation.data.receipt_path,
+        saved = await DataService.addExpense({
+          amount: numAmount,
+          description: description.trim(),
+          category_id: categoryId,
+          paid_by_user_id: paidByUserId,
+          payment_method: paymentMethod,
+          expense_date: expenseDate,
+          notes: notes.trim() || null,
+          receipt_path: receiptFile,
         });
       }
-      if (onSaved) {
-        onSaved(result);
-      }
+
+      if (onSaved) onSaved(saved);
       onClose();
     } catch (err: unknown) {
-      setErrors({ form: err instanceof Error ? err.message : "Failed to save expense. Please try again." });
+      setError(err instanceof Error ? err.message : "Failed to save expense");
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.size > 10 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, receipt: "File size exceeds 10MB limit." }));
-        return;
-      }
-      setReceiptFileName(file.name);
-    }
-  };
+  const selectedMember = members.find((m) => m.user_id === paidByUserId);
+  const initials = selectedMember?.display_name
+    ? selectedMember.display_name.slice(0, 2).toUpperCase()
+    : "AS";
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={expenseToEdit ? "Edit Expense" : "Expense Dialog"}
       maxWidth="md"
+      className="p-6 sm:p-8 rounded-[32px] bg-card border-0 shadow-2xl max-h-[90vh] overflow-y-auto select-none"
     >
-      <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-        {errors.form && (
-          <div className="p-3 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>{errors.form}</span>
-          </div>
-        )}
+      {/* Header matching Figma image_20261014_111601.jpg */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-black text-foreground tracking-tight">
+          Expense Dialog
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
 
-        {/* Amount (INR) */}
+      {error && (
+        <div className="mb-4 p-3 rounded-xl bg-destructive/10 text-destructive text-xs font-semibold">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSave} className="space-y-4">
+        {/* Amount (INR) Input matching Figma */}
         <div>
           <label className="block text-xs font-bold text-foreground mb-1.5">
-            Amount (INR) <span className="text-destructive">*</span>
+            Amount (INR)
           </label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
-              ₹
-            </span>
+          <div className="flex items-center px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border focus-within:ring-2 focus-within:ring-[#D4F835] focus-within:bg-card">
+            <span className="text-base font-extrabold text-foreground mr-2">₹</span>
             <input
               type="number"
-              step="any"
-              required
-              placeholder="1,250.00"
+              step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full h-12 pl-8 pr-4 rounded-xl bg-muted/60 border border-border text-base font-bold text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              placeholder="0.00"
+              required
+              className="w-full bg-transparent text-base font-extrabold text-foreground focus:outline-none"
             />
           </div>
-          {errors.amount && <p className="text-xs text-destructive mt-1">{errors.amount}</p>}
         </div>
 
-        {/* Category */}
+        {/* Category Dropdown */}
         <div>
           <label className="block text-xs font-bold text-foreground mb-1.5">
-            Category <span className="text-destructive">*</span>
+            Category
           </label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full h-12 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-          >
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          {errors.category_id && <p className="text-xs text-destructive mt-1">{errors.category_id}</p>}
+          <div className="relative">
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="w-full appearance-none px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
+            >
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
         </div>
 
         {/* Description */}
         <div>
           <label className="block text-xs font-bold text-foreground mb-1.5">
-            Description <span className="text-destructive">*</span>
+            Description
           </label>
           <input
             type="text"
-            required
-            placeholder="Weekly groceries from supermarket"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full h-12 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+            placeholder="e.g. Weekly groceries from supermarket"
+            required
+            className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
           />
-          {errors.description && <p className="text-xs text-destructive mt-1">{errors.description}</p>}
         </div>
 
-        {/* Paid by */}
+        {/* Paid by Dropdown with Initial Circle matching Figma */}
         <div>
           <label className="block text-xs font-bold text-foreground mb-1.5">
-            Paid by <span className="text-destructive">*</span>
+            Paid by
           </label>
-          <select
-            value={paidByUserId}
-            onChange={(e) => setPaidByUserId(e.target.value)}
-            className="w-full h-12 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-          >
-            {members.map((member) => (
-              <option key={member.id} value={member.user_id}>
-                {member.display_name} ({member.relationship || member.role})
-              </option>
-            ))}
-          </select>
-          {errors.paid_by_user_id && <p className="text-xs text-destructive mt-1">{errors.paid_by_user_id}</p>}
+          <div className="relative">
+            <select
+              value={paidByUserId}
+              onChange={(e) => setPaidByUserId(e.target.value)}
+              className="w-full appearance-none pl-12 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
+            >
+              {members.map((m) => (
+                <option key={m.id} value={m.user_id}>
+                  {m.display_name} ({m.relationship || "Member"})
+                </option>
+              ))}
+            </select>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-[#D4F835] text-black font-bold text-[10px] flex items-center justify-center pointer-events-none">
+              {initials}
+            </div>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
         </div>
 
         {/* Payment Method Pills matching Figma */}
@@ -244,63 +259,63 @@ export function ExpenseDialog({
             Payment Method
           </label>
           <div className="flex flex-wrap gap-2">
-            {PAYMENT_METHOD_OPTIONS.map((opt) => {
-              const isSelected = paymentMethod === opt.id;
-              const Icon = opt.icon;
+            {PAYMENT_METHOD_PILLS.map((pill) => {
+              const Icon = pill.icon;
+              const isSelected = paymentMethod === pill.name;
 
               return (
                 <button
-                  key={opt.id}
+                  key={pill.name}
                   type="button"
-                  onClick={() => setPaymentMethod(opt.id)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    isSelected
-                      ? "bg-[#D4F835] text-black shadow-xs ring-1 ring-[#c2e424]"
-                      : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground"
-                  }`}
+                  onClick={() => setPaymentMethod(pill.name)}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isSelected
+                    ? "bg-[#D4F835] text-black shadow-xs ring-2 ring-black/10"
+                    : "bg-secondary/70 text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
-                  <span>{opt.label}</span>
+                  <span>{pill.label}</span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Date */}
+        {/* Date Row */}
         <div>
           <label className="block text-xs font-bold text-foreground mb-1.5">
             Date
           </label>
-          <input
-            type="date"
-            required
-            value={expenseDate}
-            onChange={(e) => setExpenseDate(e.target.value)}
-            className="w-full h-12 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-          />
+          <div className="relative">
+            <input
+              type="date"
+              value={expenseDate}
+              onChange={(e) => setExpenseDate(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+            />
+            <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
         </div>
 
-        {/* Receipt Upload */}
+        {/* Receipt Upload Dropzone matching Figma */}
         <div>
           <label className="block text-xs font-bold text-foreground mb-1.5">
             Receipt
           </label>
-          <label className="border-2 border-dashed border-[#D4F835]/80 hover:border-[#D4F835] bg-[#D4F835]/5 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors text-center">
-            <Upload className="h-6 w-6 text-foreground mb-1" />
-            <span className="text-xs font-bold text-foreground">
-              {receiptFileName ? receiptFileName : "Upload receipt"}
-            </span>
-            <span className="text-[10px] text-muted-foreground mt-0.5">
-              PDF, JPG or PNG • Max 5MB
-            </span>
-            <input
-              type="file"
-              accept="image/*,application/pdf"
-              className="hidden"
-              onChange={handleReceiptChange}
-            />
-          </label>
+          <div
+            onClick={() => setReceiptFile(receiptFile ? null : "attached_receipt.pdf")}
+            className="rounded-2xl border-2 border-dashed border-[#D4F835] bg-[#D4F835]/5 hover:bg-[#D4F835]/10 p-4 text-center cursor-pointer transition-colors"
+          >
+            <div className="flex flex-col items-center justify-center">
+              <UploadCloud className="h-6 w-6 text-[#D4F835] mb-1" />
+              <p className="font-bold text-xs text-foreground">
+                {receiptFile ? `Receipt attached: ${receiptFile}` : "Upload receipt"}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                PDF, JPG or PNG • Max 5MB
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Notes */}
@@ -309,23 +324,26 @@ export function ExpenseDialog({
             Notes
           </label>
           <textarea
-            rows={2}
-            placeholder="Added milk, vegetables, fruits for the week..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full p-3 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+            rows={2}
+            placeholder="Add optional notes..."
+            className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
           />
         </div>
 
-        {/* Save Button */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full mt-4 h-12 rounded-full bg-[#0E0E10] hover:bg-black/85 active:scale-98 text-white font-extrabold text-sm transition-all shadow-md cursor-pointer disabled:opacity-50"
-        >
-          {isLoading ? "Saving..." : "Save"}
-        </button>
+        {/* Save Black Pill Button matching Figma */}
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="w-full py-3.5 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-extrabold text-sm transition-colors cursor-pointer shadow-md disabled:opacity-50"
+          >
+            {isSaving ? "Saving Expense..." : "Save"}
+          </button>
+        </div>
       </form>
     </Modal>
   );
 }
+

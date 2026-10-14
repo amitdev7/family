@@ -386,13 +386,17 @@ export class DataService {
     };
   }
 
-  static async addExpense(expenseData: Omit<Expense, "id" | "household_id" | "created_at" | "updated_at">): Promise<Expense> {
+  static async addExpense(
+    expenseData: Omit<Expense, "id" | "household_id" | "created_at" | "updated_at" | "created_by_user_id"> & {
+      created_by_user_id?: string;
+    }
+  ): Promise<Expense> {
     const currentUser = this.getCurrentUser();
     const newExpense: Expense = {
       ...expenseData,
       id: "exp-" + Date.now(),
       household_id: this.state.household.id,
-      created_by_user_id: currentUser.user_id,
+      created_by_user_id: expenseData.created_by_user_id || currentUser.user_id,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -607,20 +611,35 @@ export class DataService {
     amount: number;
     period_start?: string;
   }): Promise<Budget> {
+    const categoryId = budget.category_id ?? null;
+    const existing = budget.id
+      ? this.state.budgets.find((b) => b.id === budget.id)
+      : this.state.budgets.find((b) => b.category_id === categoryId);
+
+    const period_start =
+      budget.period_start ||
+      existing?.period_start ||
+      new Date().toISOString().slice(0, 7) + "-01";
+
     return this.saveBudget({
-      id: budget.id,
-      category_id: budget.category_id ?? null,
+      id: existing?.id || budget.id,
+      category_id: categoryId,
       amount: budget.amount,
-      period_start: budget.period_start || new Date().toISOString().slice(0, 7) + "-01",
+      period_start,
     });
   }
 
-  static async updateBudget(id: string, budget: { amount?: number; category_id?: string | null }): Promise<Budget> {
+  static async updateBudget(
+    id: string,
+    budget: { amount?: number; category_id?: string | null }
+  ): Promise<Budget | null> {
+    const existing = this.state.budgets.find((b) => b.id === id);
+    if (!existing) return null;
     return this.saveBudget({
       id,
-      amount: budget.amount ?? 0,
-      category_id: budget.category_id ?? null,
-      period_start: new Date().toISOString().slice(0, 7) + "-01",
+      category_id: budget.category_id !== undefined ? budget.category_id : existing.category_id,
+      amount: budget.amount !== undefined ? budget.amount : existing.amount,
+      period_start: existing.period_start,
     });
   }
 
@@ -677,44 +696,19 @@ export class DataService {
     return created;
   }
 
-  static async toggleRecurringStatus(id: string): Promise<boolean> {
-    const item = this.state.recurring.find((r) => r.id === id);
-    if (!item) return false;
-    item.is_active = !item.is_active;
-    item.updated_at = new Date().toISOString();
-    if (isSupabaseConfigured()) {
-      const supabase = createClient();
-      await supabase.from("recurring_expenses").update({ is_active: item.is_active }).eq("id", id);
-    }
-    saveDemoState(this.state);
-    return true;
+  static async addRecurringExpense(
+    data: Omit<RecurringExpense, "id" | "household_id" | "created_at" | "updated_at">
+  ): Promise<RecurringExpense> {
+    return this.saveRecurringExpense(data);
   }
 
-  static async addRecurringExpense(data: {
-    description: string;
-    amount: number;
-    category_id: string;
-    frequency?: RecurringFrequency;
-    start_date?: string;
-    paid_by_user_id: string;
-    payment_method?: PaymentMethod;
-    is_active?: boolean;
-    notes?: string | null;
-  }): Promise<RecurringExpense> {
-    const today = new Date().toISOString().split("T")[0];
-    return this.saveRecurringExpense({
-      description: data.description,
-      amount: data.amount,
-      category_id: data.category_id,
-      frequency: data.frequency || "monthly",
-      start_date: data.start_date || today,
-      next_occurrence: data.start_date || today,
-      paid_by_user_id: data.paid_by_user_id,
-      created_by_user_id: this.getCurrentUser().user_id,
-      payment_method: data.payment_method || "UPI",
-      is_active: data.is_active ?? true,
-      notes: data.notes || null,
-    });
+  static async toggleRecurringStatus(id: string): Promise<boolean> {
+    const rec = this.state.recurring.find((r) => r.id === id);
+    if (!rec) return false;
+    rec.is_active = !rec.is_active;
+    rec.updated_at = new Date().toISOString();
+    saveDemoState(this.state);
+    return rec.is_active;
   }
 
   /**

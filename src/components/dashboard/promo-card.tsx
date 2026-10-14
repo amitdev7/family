@@ -1,114 +1,196 @@
 "use client";
 
 import React, { useState } from "react";
+import { X, Sparkles, CheckCircle2 } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 
+const SAVING_TIPS = [
+  {
+    title: "Batch Grocery Shopping",
+    desc: "Order bulk staples once a month via DMart or Zepto wholesale to save up to 18% on pantry essentials.",
+  },
+  {
+    title: "Streamline Family Subscriptions",
+    desc: "Switch individual streaming plans to Family Plans (Netflix, Spotify, YouTube Premium) to cut recurring media bills in half.",
+  },
+  {
+    title: "The 48-Hour Cart Rule",
+    desc: "For any impulse non-essential purchase above ₹2,000, wait 48 hours. 65% of impulse desires fade naturally.",
+  },
+  {
+    title: "Smart Utility Scheduling",
+    desc: "Run washing machines and geysers during off-peak hours and enable smart plugs to curb phantom electricity draw.",
+  },
+];
+
 export function PromoCard() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <>
-      <div className="relative rounded-[28px] bg-[#D4F835] text-black p-6 shadow-sm border border-[#c2e424] flex flex-col justify-between overflow-hidden h-full min-h-[280px]">
-        {/* Title */}
-        <div>
+      <div className="rounded-[28px] bg-[#D4F835] text-black p-6 shadow-xs relative overflow-hidden flex flex-col justify-between h-full select-none">
+        {/* Headline matching Figma image_20261014_111154.jpg */}
+        <div className="relative z-10">
           <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
-            How to reduce <br />
-            expenses by{" "}
-            <span className="inline-block px-2.5 py-0.5 border-2 border-black rounded-full text-xl sm:text-2xl font-black">
-              25%
-            </span>{" "}
-            ?
+            How to reduce
+            <br />
+            expenses
+            <br />
+            <span className="inline-flex items-center gap-1.5 mt-1">
+              <span>by</span>
+              <span className="inline-block px-3 py-0.5 rounded-full border-2 border-black font-black text-xl sm:text-2xl">
+                25%
+              </span>
+              <span>?</span>
+            </span>
           </h3>
         </div>
 
-        {/* Playful Piggy Bank & Coins Illustration */}
-        <div className="relative my-2 flex items-center justify-center">
+        {/* Hand-drawn piggy bank & coins vector illustration */}
+        <div className="relative my-4 flex items-center justify-end">
           <svg
-            className="w-40 h-28 text-black"
-            viewBox="0 0 200 140"
+            viewBox="0 0 160 110"
+            className="w-40 h-28 overflow-visible drop-shadow-xs"
             fill="none"
-            xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Stack of Coins */}
-            <ellipse cx="45" cy="115" rx="25" ry="8" stroke="currentColor" strokeWidth="3" />
-            <path d="M20 115v8c0 4.4 11.2 8 25 8s25-3.6 25-8v-8" stroke="currentColor" strokeWidth="3" />
-            <path d="M20 123v8c0 4.4 11.2 8 25 8s25-3.6 25-8v-8" stroke="currentColor" strokeWidth="3" />
-
-            <ellipse cx="48" cy="95" rx="23" ry="7" stroke="currentColor" strokeWidth="3" />
-            <path d="M25 95v8c0 3.9 10.3 7 23 7s23-3.1 23-7v-8" stroke="currentColor" strokeWidth="3" />
-
-            {/* Currency note */}
-            <rect x="75" y="105" width="60" height="25" rx="3" stroke="currentColor" strokeWidth="2.5" />
-            <circle cx="105" cy="117.5" r="5" stroke="currentColor" strokeWidth="2" />
-
-            {/* Piggy Bank */}
-            <path
-              d="M110 50c-15 0-30 10-30 30 0 18 14 30 35 30h20c15 0 25-10 25-25 0-15-10-25-25-25"
-              stroke="currentColor"
-              strokeWidth="3.5"
-              strokeLinecap="round"
+            {/* Banknote bills underneath */}
+            <rect
+              x="55"
+              y="78"
+              width="95"
+              height="24"
+              rx="4"
+              fill="#c5ea28"
+              stroke="#000"
+              strokeWidth="2.5"
             />
-            {/* Snout */}
-            <ellipse cx="80" cy="78" rx="8" ry="12" stroke="currentColor" strokeWidth="3" fill="#D4F835" />
-            <circle cx="78" cy="76" r="1.5" fill="currentColor" />
-            <circle cx="82" cy="76" r="1.5" fill="currentColor" />
+            <line x1="65" y1="90" x2="140" y2="90" stroke="#000" strokeWidth="2" strokeDasharray="3 3" />
 
-            {/* Eye */}
-            <circle cx="100" cy="65" r="3" fill="currentColor" />
+            {/* Coin stack */}
+            <ellipse cx="36" cy="74" rx="28" ry="10" fill="#c5ea28" stroke="#000" strokeWidth="2.5" />
+            <ellipse cx="36" cy="62" rx="28" ry="10" fill="#c5ea28" stroke="#000" strokeWidth="2.5" />
+            <ellipse cx="36" cy="50" rx="28" ry="10" fill="#c5ea28" stroke="#000" strokeWidth="2.5" />
+            <ellipse cx="36" cy="38" rx="28" ry="10" fill="#D4F835" stroke="#000" strokeWidth="2.5" />
 
-            {/* Ears */}
-            <path d="M102 45c-2-8 6-12 12-8s2 12-4 12" stroke="currentColor" strokeWidth="3" fill="#D4F835" />
+            {/* Piggy bank body */}
+            <ellipse
+              cx="110"
+              cy="52"
+              rx="38"
+              ry="30"
+              fill="#D4F835"
+              stroke="#000"
+              strokeWidth="3"
+            />
+            {/* Piggy snout */}
+            <ellipse
+              cx="144"
+              cy="55"
+              rx="10"
+              ry="14"
+              fill="#D4F835"
+              stroke="#000"
+              strokeWidth="3"
+            />
+            <circle cx="142" cy="52" r="2.2" fill="#000" />
+            <circle cx="142" cy="58" r="2.2" fill="#000" />
 
-            {/* Tail */}
-            <path d="M160 80c5-5 10 0 5 5s-8-2-3-8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            {/* Piggy eye */}
+            <circle cx="126" cy="42" r="3.5" fill="#000" />
 
-            {/* Legs */}
-            <rect x="105" y="108" width="8" height="12" rx="3" stroke="currentColor" strokeWidth="3" fill="#D4F835" />
-            <rect x="135" y="108" width="8" height="12" rx="3" stroke="currentColor" strokeWidth="3" fill="#D4F835" />
+            {/* Piggy ear */}
+            <path
+              d="M 112 24 C 114 16, 126 18, 124 28 Z"
+              fill="#D4F835"
+              stroke="#000"
+              strokeWidth="2.5"
+            />
+
+            {/* Piggy feet */}
+            <rect x="85" y="76" width="10" height="14" rx="3" fill="#000" />
+            <rect x="122" y="76" width="10" height="14" rx="3" fill="#000" />
+
+            {/* Coin slot */}
+            <line x1="98" y1="26" x2="114" y2="26" stroke="#000" strokeWidth="3.5" strokeLinecap="round" />
           </svg>
         </div>
 
-        {/* White Rounded Action Button */}
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="w-full py-3.5 px-6 rounded-full bg-white hover:bg-neutral-100 active:scale-98 text-black text-xs font-black tracking-wide shadow-sm transition-all cursor-pointer text-center"
-        >
-          Learn more
-        </button>
+        {/* Learn More Button matching Figma */}
+        <div className="relative z-10">
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="w-full py-3 rounded-full bg-white text-black hover:bg-zinc-100 font-extrabold text-sm transition-colors text-center shadow-xs cursor-pointer"
+          >
+            Learn more
+          </button>
+        </div>
       </div>
 
-      {/* Tip Dialog */}
-      {isOpen && (
+      {/* Educational Tips Modal */}
+      {isModalOpen && (
         <Modal
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          title="How to cut household expenses by 25%"
-          description="Practical rules formulated for Indian households to optimize monthly cash flow."
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
           maxWidth="md"
+          className="p-6 sm:p-8 rounded-[32px] bg-card border-0 shadow-2xl"
         >
-          <div className="space-y-3 text-sm text-foreground py-2">
-            <div className="p-3.5 rounded-2xl bg-muted/60 border border-border">
-              <p className="font-bold">1. Audit Recurring Subscriptions</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Check broadband, OTT platforms, and memberships in the Recurring Bills tab. Canceling unused services saves ₹2,000–₹5,000 monthly.
-              </p>
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-xl text-foreground">
+                  Reduce Expenses by 25%
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Proven household savings blueprint
+                </p>
+              </div>
             </div>
-            <div className="p-3.5 rounded-2xl bg-muted/60 border border-border">
-              <p className="font-bold">2. Pre-budget Dining & Grocery runs</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Ordering via quick-commerce daily incurs delivery markups. Planning a weekly DMart run cuts food bills by 15-20%.
-              </p>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-muted/60 border border-border">
-              <p className="font-bold">3. Set Up Category Caps</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Configure monthly limits under the Budgets tab to receive real-time warnings before your family exceeds 80% utilization.
-              </p>
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {SAVING_TIPS.map((tip, i) => (
+              <div
+                key={i}
+                className="p-4 rounded-2xl bg-secondary/50 border border-border/80 flex items-start gap-3.5"
+              >
+                <div className="mt-0.5">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-foreground">
+                    {tip.title}
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    {tip.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-border">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="w-full py-3 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-sm transition-colors cursor-pointer"
+            >
+              Got it, let&apos;s apply this!
+            </button>
           </div>
         </Modal>
       )}
     </>
   );
 }
+

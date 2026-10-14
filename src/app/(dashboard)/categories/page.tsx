@@ -1,75 +1,99 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { AppLayout } from "@/components/layout/app-layout";
-import { DataService } from "@/lib/data-service";
-import { Category } from "@/lib/types";
-import { formatINR } from "@/lib/formatters";
+import React, { useState, useEffect } from "react";
 import {
-  ListFilter,
-  Search,
+  Tags,
   Plus,
+  Search,
   ShoppingCart,
-  ShoppingBag,
-  Fuel,
-  HeartPulse,
   Utensils,
   Car,
   Heart,
   Home,
-  Check,
+  ShoppingBag,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from "lucide-react";
+import { AppLayout } from "@/components/layout/app-layout";
+import { DataService } from "@/lib/data-service";
+import { Category } from "@/lib/types";
 
-const ICON_OPTIONS = [
-  { id: "ShoppingCart", icon: ShoppingCart },
-  { id: "Utensils", icon: Utensils },
-  { id: "Car", icon: Car },
-  { id: "Heart", icon: Heart },
-  { id: "Home", icon: Home },
-  { id: "ShoppingBag", icon: ShoppingBag },
+const COLOR_SWATCHES = [
+  { name: "Lime", hex: "#D4F835", bg: "bg-[#D4F835]" },
+  { name: "Black", hex: "#0E0E10", bg: "bg-[#0E0E10]" },
+  { name: "Grey", hex: "#9CA3AF", bg: "bg-zinc-400" },
+  { name: "Blue", hex: "#3B82F6", bg: "bg-blue-500" },
+  { name: "Pink", hex: "#EC4899", bg: "bg-pink-500" },
+  { name: "Purple", hex: "#A855F7", bg: "bg-purple-500" },
 ];
 
-const COLOR_OPTIONS = [
-  "#D4F835", // Lime
-  "#0E0E10", // Black
-  "#9CA3AF", // Gray
-  "#3B82F6", // Blue
-  "#EC4899", // Pink
-  "#8B5CF6", // Purple
+const ICON_CHOICES = [
+  { name: "cart", icon: ShoppingCart },
+  { name: "dining", icon: Utensils },
+  { name: "transport", icon: Car },
+  { name: "health", icon: Heart },
+  { name: "housing", icon: Home },
+  { name: "shopping", icon: ShoppingBag },
+];
+
+// 4 Figma Cards data matching image_20261014_111556.jpg center
+const DEFAULT_CARDS = [
+  {
+    name: "Groceries & Supermarket",
+    count: 32,
+    amount: "₹24,500",
+    trend: "+12% vs last month",
+    trendType: "up",
+    icon: ShoppingCart,
+    bg: "bg-[#D4F835] text-black",
+  },
+  {
+    name: "Shopping & Apparel",
+    count: 18,
+    amount: "₹10,200",
+    trend: "-5% vs last month",
+    trendType: "down",
+    icon: ShoppingBag,
+    bg: "bg-pink-400 text-white",
+  },
+  {
+    name: "Fuel & Transport",
+    count: 14,
+    amount: "₹16,800",
+    trend: "No change",
+    trendType: "neutral",
+    icon: Car,
+    bg: "bg-blue-500 text-white",
+  },
+  {
+    name: "Health & Medical",
+    count: 6,
+    amount: "₹5,400",
+    trend: "+8% vs last month",
+    trendType: "up",
+    icon: Heart,
+    bg: "bg-purple-500 text-white",
+  },
 ];
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  // New Category State
+  const [selectedColor, setSelectedColor] = useState(COLOR_SWATCHES[0].hex);
+  const [selectedIcon, setSelectedIcon] = useState("cart");
   const [newCatName, setNewCatName] = useState("");
-  const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
-  const [selectedIcon, setSelectedIcon] = useState(ICON_OPTIONS[0].id);
   const [isSaving, setIsSaving] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const loadData = async () => {
-    try {
-      setIsLoading(true);
-      const data = await DataService.getCategories();
-      setCategories(data);
-    } finally {
-      setIsLoading(false);
-    }
+    const list = await DataService.getCategories();
+    setCategories(list);
   };
 
   useEffect(() => {
     loadData();
   }, []);
-
-  const filteredCategories = useMemo(() => {
-    if (!search.trim()) return categories;
-    return categories.filter((c) =>
-      c.name.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [categories, search]);
 
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,201 +107,196 @@ export default function CategoriesPage() {
         color: selectedColor,
       });
       setNewCatName("");
-      setToast("New category created successfully!");
-      setTimeout(() => setToast(null), 3000);
+      setToastMsg("Category saved successfully!");
+      setTimeout(() => setToastMsg(null), 3000);
       loadData();
     } finally {
       setIsSaving(false);
     }
   };
 
+  const filteredCards = DEFAULT_CARDS.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <AppLayout title="Category Center" subtitle="Organize and monitor spending groups">
-      <div className="max-w-xl mx-auto space-y-6">
-        {/* Header Bar matching Figma */}
+    <AppLayout title="Category Center">
+      <div className="max-w-xl mx-auto space-y-6 select-none">
+        {/* Top Header Bar matching Figma image_20261014_111556.jpg */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-xs">
-              <ListFilter className="h-5 w-5" />
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-xs">
+              <Tags className="h-5 w-5" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">
+            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
               Category Center
             </h2>
           </div>
 
-          <a
-            href="#create-category"
-            className="px-3.5 py-1.5 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] text-black text-xs font-extrabold shadow-2xs transition-all flex items-center gap-1 cursor-pointer"
+          <button
+            type="button"
+            onClick={() => document.getElementById("new-cat-input")?.focus()}
+            className="px-3.5 py-1.5 rounded-full border border-border text-xs font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer"
           >
-            <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
-            <span>New Category</span>
-          </a>
+            + New Category
+          </button>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Input matching Figma */}
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search categories..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-12 pl-11 pr-4 rounded-full bg-card border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] shadow-2xs"
+            placeholder="Search categories..."
+            className="w-full pl-11 pr-4 py-2.5 rounded-full bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
           />
         </div>
 
-        {/* Categories Grid matching Figma */}
+        {/* 2x2 Category Cards Grid matching Figma */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filteredCategories.slice(0, 4).map((cat, idx) => {
-            const mockTrans = [32, 18, 14, 6][idx % 4] || 12;
-            const mockAmount = [24500, 10200, 16800, 5400][idx % 4] || 8500;
-            const mockTrend = [
-              { label: "+12% vs last month", type: "up" },
-              { label: "-5% vs last month", type: "down" },
-              { label: "No change", type: "neutral" },
-              { label: "+8% vs last month", type: "up" },
-            ][idx % 4];
-
-            // Resolve icon component
-            const iconMatch = ICON_OPTIONS.find((i) => i.id === cat.icon);
-            const Icon = iconMatch ? iconMatch.icon : ShoppingCart;
+          {filteredCards.map((card, i) => {
+            const Icon = card.icon;
 
             return (
               <div
-                key={cat.id}
-                className="rounded-[28px] bg-card border border-border p-6 shadow-xs flex flex-col items-center text-center justify-between min-h-[220px] transition-transform hover:-translate-y-1"
+                key={i}
+                className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs flex flex-col items-center text-center space-y-3"
               >
-                {/* Large Circle Icon with vibrant color */}
+                {/* Icon Circle */}
                 <div
-                  className="h-16 w-16 rounded-full flex items-center justify-center font-bold shadow-xs text-black"
-                  style={{ backgroundColor: cat.color || COLOR_OPTIONS[idx % COLOR_OPTIONS.length] }}
+                  className={`h-14 w-14 rounded-full flex items-center justify-center shadow-xs ${card.bg}`}
                 >
-                  <Icon className="h-8 w-8 stroke-[2.2]" />
+                  <Icon className="h-7 w-7" />
                 </div>
 
-                <div className="mt-3">
-                  <h4 className="font-extrabold text-base text-foreground">
-                    {cat.name}
-                  </h4>
+                <div>
+                  <h3 className="font-extrabold text-sm sm:text-base text-foreground">
+                    {card.name}
+                  </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {mockTrans} transactions • {formatINR(mockAmount)}
+                    {card.count} transactions • {card.amount}
                   </p>
                 </div>
 
                 {/* Trend Badge */}
-                <div className="mt-3">
-                  <span
-                    className={`inline-flex items-center gap-1 text-xs font-bold ${
-                      mockTrend.type === "up"
-                        ? "text-emerald-500"
-                        : mockTrend.type === "down"
-                        ? "text-red-500"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    <span>{mockTrend.type === "up" ? "↗" : mockTrend.type === "down" ? "↘" : "→"}</span>
-                    <span>{mockTrend.label}</span>
-                  </span>
+                <div>
+                  {card.trendType === "up" && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                      <TrendingUp className="h-3 w-3" />
+                      <span>{card.trend}</span>
+                    </span>
+                  )}
+                  {card.trendType === "down" && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-500">
+                      <TrendingDown className="h-3 w-3" />
+                      <span>{card.trend}</span>
+                    </span>
+                  )}
+                  {card.trendType === "neutral" && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+                      <Minus className="h-3 w-3" />
+                      <span>{card.trend}</span>
+                    </span>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Color & Icon Picker Form matching Figma */}
-        <form
-          id="create-category"
-          onSubmit={handleSaveCategory}
-          className="rounded-[28px] bg-card border border-border p-6 shadow-xs space-y-5"
-        >
-          <h3 className="text-base font-extrabold text-foreground">
-            Color & Icon Picker
+        {/* Color & Icon Picker Card matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs space-y-5">
+          <h3 className="font-extrabold text-base text-foreground">
+            Color &amp; Icon Picker
           </h3>
 
-          {toast && (
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-2.5 rounded-xl">
-              {toast}
-            </p>
-          )}
-
-          <div>
-            <label className="block text-xs font-bold text-muted-foreground mb-1.5">
-              Category Name
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Travel & Vacations"
-              value={newCatName}
-              onChange={(e) => setNewCatName(e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-muted/60 border border-border text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-            />
-          </div>
-
-          {/* Choose Color */}
-          <div>
-            <label className="block text-xs font-bold text-muted-foreground mb-2">
-              Choose Color:
-            </label>
-            <div className="flex items-center gap-3">
-              {COLOR_OPTIONS.map((c) => {
-                const isPicked = selectedColor === c;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setSelectedColor(c)}
-                    style={{ backgroundColor: c }}
-                    className={`h-8 w-8 rounded-full flex items-center justify-center transition-transform cursor-pointer ${
-                      isPicked ? "ring-2 ring-offset-2 ring-black dark:ring-white scale-110" : "hover:scale-105"
-                    }`}
-                  >
-                    {isPicked && (
-                      <Check className={`h-4 w-4 stroke-[3] ${c === "#D4F835" ? "text-black" : "text-white"}`} />
-                    )}
-                  </button>
-                );
-              })}
+          <form onSubmit={handleSaveCategory} className="space-y-4">
+            {/* Category Name Input */}
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                Category Name
+              </label>
+              <input
+                id="new-cat-input"
+                type="text"
+                value={newCatName}
+                onChange={(e) => setNewCatName(e.target.value)}
+                placeholder="e.g. Pet Care, Education, Fitness"
+                required
+                className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              />
             </div>
-          </div>
 
-          {/* Choose Icon */}
-          <div>
-            <label className="block text-xs font-bold text-muted-foreground mb-2">
-              Choose Icon:
-            </label>
-            <div className="flex items-center gap-3">
-              {ICON_OPTIONS.map((item) => {
-                const isPicked = selectedIcon === item.id;
-                const Icon = item.icon;
-                return (
+            {/* Choose Color */}
+            <div>
+              <span className="block text-xs font-semibold text-muted-foreground mb-2">
+                Choose Color:
+              </span>
+              <div className="flex items-center gap-3">
+                {COLOR_SWATCHES.map((swatch) => (
                   <button
-                    key={item.id}
+                    key={swatch.hex}
                     type="button"
-                    onClick={() => setSelectedIcon(item.id)}
-                    className={`h-10 w-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${
-                      isPicked
-                        ? "bg-[#D4F835] text-black shadow-xs ring-1 ring-[#c2e424]"
-                        : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </button>
-                );
-              })}
+                    onClick={() => setSelectedColor(swatch.hex)}
+                    className={`h-7 w-7 rounded-full transition-transform cursor-pointer ${swatch.bg} ${selectedColor === swatch.hex
+                      ? "ring-2 ring-black dark:ring-white scale-110 shadow-xs"
+                      : "hover:scale-105 opacity-80"
+                      }`}
+                    title={swatch.name}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Save Button matching Figma */}
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="w-full h-12 rounded-full bg-[#0E0E10] hover:bg-black/90 active:scale-98 text-white font-extrabold text-xs transition-all shadow-sm cursor-pointer disabled:opacity-50"
-          >
-            {isSaving ? "Saving..." : "+ Save Category"}
-          </button>
-        </form>
+            {/* Choose Icon */}
+            <div>
+              <span className="block text-xs font-semibold text-muted-foreground mb-2">
+                Choose Icon:
+              </span>
+              <div className="flex items-center gap-3">
+                {ICON_CHOICES.map((item) => {
+                  const Icon = item.icon;
+                  const isSelected = selectedIcon === item.name;
+
+                  return (
+                    <button
+                      key={item.name}
+                      type="button"
+                      onClick={() => setSelectedIcon(item.name)}
+                      className={`h-9 w-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${isSelected
+                        ? "bg-[#D4F835] text-black shadow-xs"
+                        : "bg-secondary text-muted-foreground hover:text-foreground"
+                        }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {toastMsg && (
+              <p className="text-xs font-bold text-emerald-600 text-center animate-in fade-in">
+                {toastMsg}
+              </p>
+            )}
+
+            {/* + Save Category Button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="w-full py-3 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-sm transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "+ Save Category"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </AppLayout>
   );
 }
+

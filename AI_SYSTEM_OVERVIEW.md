@@ -56,7 +56,13 @@ family/
 │   │   ├── layout.tsx            # Root HTML layout with ThemeProvider & fonts
 │   │   └── page.tsx              # Root index page -> Instant redirect to /dashboard
 │   ├── components/
-│   │   ├── dashboard/            # Specialized dashboard visual widgets
+│   │   ├── dashboard/            # Specialized dashboard visual widgets (1:1 Figma system)
+│   │   │   ├── lime-card-widget.tsx # Platina & Lime VISA Card with balance & masked number
+│   │   │   ├── budget-line-chart.tsx # Smooth spline curve budget graph with noir tooltip bubble
+│   │   │   ├── recent-transactions-widget.tsx # Merchant avatars (Supermarket, Swiggy, Netflix)
+│   │   │   ├── spending-radar-chart.tsx # Hexagonal radar visualization across spend categories
+│   │   │   ├── quick-transfer-widget.tsx # Family member transfer row with instant INR input & send
+│   │   │   ├── promo-card.tsx    # "How to reduce expenses by 25%?" tips modal card
 │   │   │   ├── category-pie-chart.tsx # Recharts doughnut chart for category breakdown
 │   │   │   └── spending-trend-chart.tsx # Recharts 6-month area chart
 │   │   ├── expenses/             # Expense modals & dialogs
