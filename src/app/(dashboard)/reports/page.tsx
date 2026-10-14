@@ -54,6 +54,9 @@ export default function ReportsPage() {
       }
     };
     loadData();
+    const handleUserChanged = () => loadData();
+    window.addEventListener("household-user-changed", handleUserChanged);
+    return () => window.removeEventListener("household-user-changed", handleUserChanged);
   }, []);
 
   // Filter expenses by period

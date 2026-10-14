@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-function SignUpForm() {
+export default function SignUpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inviteTokenParam = searchParams.get("invite") || "";
@@ -239,19 +239,4 @@ function SignUpForm() {
     </div>
   );
 }
-
-export default function SignUpPage() {
-  return (
-    <React.Suspense
-      fallback={
-        <div className="min-h-screen bg-background flex items-center justify-center text-xs text-muted-foreground">
-          Loading signup...
-        </div>
-      }
-    >
-      <SignUpForm />
-    </React.Suspense>
-  );
-}
-
 

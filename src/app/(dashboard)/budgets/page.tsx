@@ -61,6 +61,9 @@ export default function BudgetsPage() {
 
   useEffect(() => {
     loadData();
+    const handleUserChanged = () => loadData();
+    window.addEventListener("household-user-changed", handleUserChanged);
+    return () => window.removeEventListener("household-user-changed", handleUserChanged);
   }, []);
 
   // Compute overall budget & spent

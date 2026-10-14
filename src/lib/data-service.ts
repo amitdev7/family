@@ -31,6 +31,8 @@ import { createClient, isSupabaseConfigured } from "./supabase/client";
 
 // Storage key for local demo modifications
 const DEMO_STORAGE_KEY = "our_home_demo_state_v1";
+const DEVICE_USER_KEY = "family_device_active_user_id";
+const USER_IDENTIFIED_KEY = "family_user_has_selected_identity";
 
 interface DemoState {
   household: Household;
@@ -60,11 +62,21 @@ function getInitialDemoState(): DemoState {
   try {
     const saved = localStorage.getItem(DEMO_STORAGE_KEY);
     if (saved) {
-      return JSON.parse(saved);
+      const parsed: DemoState = JSON.parse(saved);
+      const deviceUser = localStorage.getItem(DEVICE_USER_KEY);
+      if (deviceUser && parsed.members.some((m: HouseholdMember) => m.user_id === deviceUser)) {
+        parsed.currentUserId = deviceUser;
+      }
+      return parsed;
     }
   } catch (err) {
     console.error("Failed to load saved demo state", err);
   }
+
+  const deviceUser = localStorage.getItem(DEVICE_USER_KEY);
+  const initialUserId = (deviceUser && DEMO_MEMBERS.some((m: HouseholdMember) => m.user_id === deviceUser))
+    ? deviceUser
+    : DEMO_MEMBERS[0].user_id;
 
   const fresh: DemoState = {
     household: DEMO_HOUSEHOLD,
@@ -74,7 +86,7 @@ function getInitialDemoState(): DemoState {
     budgets: DEMO_BUDGETS,
     recurring: DEMO_RECURRING,
     activityLogs: DEMO_ACTIVITY_LOGS,
-    currentUserId: DEMO_MEMBERS[0].user_id,
+    currentUserId: initialUserId,
   };
   try {
     localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(fresh));
@@ -95,18 +107,98 @@ function saveDemoState(state: DemoState) {
 export class DataService {
   private static state: DemoState = getInitialDemoState();
 
-  // Reset demo data to factory defaults
-  static resetDemoData() {
+  // Check if current device/user has completed "Who are you?" identification
+  static hasUserIdentified(): boolean {
+    if (typeof window === "undefined") return true;
+    return Boolean(localStorage.getItem(USER_IDENTIFIED_KEY));
+  }
+
+  // Select an existing member as the current active user for this device
+  static selectActiveUser(userId: string) {
+    this.state.currentUserId = userId;
     if (typeof window !== "undefined") {
-      localStorage.removeItem(DEMO_STORAGE_KEY);
+      try {
+        localStorage.setItem(USER_IDENTIFIED_KEY, "true");
+        localStorage.setItem(DEVICE_USER_KEY, userId);
+      } catch { }
     }
-    this.state = getInitialDemoState();
+    saveDemoState(this.state);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("household-user-changed"));
+    }
   }
 
   // Switch active demo user (for simulating multi-user family interaction)
   static switchDemoUser(userId: string) {
-    this.state.currentUserId = userId;
-    saveDemoState(this.state);
+    this.selectActiveUser(userId);
+  }
+
+  // Add a new family member with a unique user ID and save
+  static async addMember(data: {
+    name: string;
+    relationship: string;
+    email?: string;
+    color?: string;
+    role?: "admin" | "member";
+  }): Promise<HouseholdMember> {
+    const uniqueUserId = "usr_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
+    const memberId = "mem_" + Date.now().toString(36);
+
+    const newMember: HouseholdMember = {
+      id: memberId,
+      household_id: this.state.household.id,
+      user_id: uniqueUserId,
+      display_name: data.name.trim(),
+      relationship: data.relationship.trim(),
+      email: data.email?.trim() || `${data.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@family.home`,
+      role: data.role || "member",
+      color: data.color || "#3b82f6",
+      joined_at: new Date().toISOString(),
+    };
+
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      await supabase.from("household_members").insert({
+        id: newMember.id,
+        household_id: newMember.household_id,
+        user_id: newMember.user_id,
+        display_name: newMember.display_name,
+        email: newMember.email,
+        role: newMember.role,
+        color: newMember.color,
+      });
+    }
+
+    // Demo state update
+    this.state.members.push(newMember);
+    this.state.activityLogs.unshift({
+      id: "act-" + Date.now(),
+      household_id: this.state.household.id,
+      actor_user_id: uniqueUserId,
+      entity_type: "member",
+      entity_id: memberId,
+      action: "create",
+      change_summary: {
+        name: newMember.display_name,
+        relationship: newMember.relationship,
+        user_id: uniqueUserId,
+      },
+      created_at: new Date().toISOString(),
+      actor: newMember,
+    });
+
+    this.selectActiveUser(uniqueUserId);
+    return newMember;
+  }
+
+  // Reset demo data to factory defaults
+  static resetDemoData() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(DEMO_STORAGE_KEY);
+      localStorage.removeItem(USER_IDENTIFIED_KEY);
+      localStorage.removeItem(DEVICE_USER_KEY);
+    }
+    this.state = getInitialDemoState();
   }
 
   static getCurrentUser(): HouseholdMember {

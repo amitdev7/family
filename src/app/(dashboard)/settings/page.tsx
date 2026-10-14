@@ -60,6 +60,9 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadData();
+    const handleUserChanged = () => loadData();
+    window.addEventListener("household-user-changed", handleUserChanged);
+    return () => window.removeEventListener("household-user-changed", handleUserChanged);
   }, []);
 
   const handleUpdateHouseholdName = async (e: React.FormEvent) => {
@@ -176,33 +179,51 @@ export default function SettingsPage() {
               </CardDescription>
             </div>
 
-            <Button
-              size="sm"
-              onClick={() => {
-                setGeneratedInviteLink(null);
-                setInviteEmail("");
-                setIsInviteModalOpen(true);
-              }}
-              className="gap-1.5 text-xs font-semibold"
-            >
-              <UserPlus className="h-4 w-4" />
-              <span>Invite Member</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => window.dispatchEvent(new Event("open-who-are-you"))}
+                className="gap-1.5 text-xs font-semibold"
+              >
+                <Users className="h-4 w-4" />
+                <span>Who Are You? (Switch/Add)</span>
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  setGeneratedInviteLink(null);
+                  setInviteEmail("");
+                  setIsInviteModalOpen(true);
+                }}
+                className="gap-1.5 text-xs font-semibold"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span>Invite Member</span>
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="divide-y divide-border/60">
               {members.map((member) => (
                 <div
                   key={member.id}
-                  className="py-3.5 flex items-center justify-between gap-3"
+                  className="py-3.5 flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <Avatar name={member.display_name} src={member.avatar_url} size="md" />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-semibold text-sm text-foreground">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-semibold text-sm text-foreground truncate">
                           {member.display_name}
                         </h4>
+                        {member.relationship && (
+                          <Badge variant="outline" className="text-[10px] font-medium bg-primary/5 text-primary border-primary/20">
+                            {member.relationship}
+                          </Badge>
+                        )}
                         <Badge
                           variant={member.role === "admin" ? "default" : "secondary"}
                           className="text-[10px] uppercase font-bold"
@@ -210,8 +231,11 @@ export default function SettingsPage() {
                           {member.role}
                         </Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
                         {member.email || "Household User"} • Joined {formatDate(member.joined_at)}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/75 font-mono truncate mt-0.5">
+                        Unique UID: {member.user_id}
                       </p>
                     </div>
                   </div>

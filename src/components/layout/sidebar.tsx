@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,6 +15,8 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DataService } from "@/lib/data-service";
+import { Household } from "@/lib/types";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -28,6 +30,24 @@ const NAV_ITEMS = [
 
 export function Sidebar({ className = "" }: { className?: string }) {
   const pathname = usePathname();
+  const [household, setHousehold] = useState<Household | null>(null);
+  const [membersCount, setMembersCount] = useState<number>(3);
+
+  useEffect(() => {
+    DataService.getHousehold().then(setHousehold);
+    DataService.getMembers().then((mems) => setMembersCount(mems.length));
+
+    const handleUpdate = () => {
+      DataService.getHousehold().then(setHousehold);
+      DataService.getMembers().then((mems) => setMembersCount(mems.length));
+    };
+    window.addEventListener("household-user-changed", handleUpdate);
+    return () => window.removeEventListener("household-user-changed", handleUpdate);
+  }, []);
+
+  const handleOpenWhoAreYou = () => {
+    window.dispatchEvent(new Event("open-who-are-you"));
+  };
 
   return (
     <aside
@@ -81,15 +101,20 @@ export function Sidebar({ className = "" }: { className?: string }) {
 
       {/* Household Profile Footer */}
       <div className="p-4 border-t border-border/80">
-        <div className="p-3 rounded-xl bg-secondary/60 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary">
+        <button
+          type="button"
+          onClick={handleOpenWhoAreYou}
+          title="Click to switch active family member"
+          className="w-full text-left p-3 rounded-xl bg-secondary/60 hover:bg-secondary/90 transition-colors flex items-center gap-3 cursor-pointer"
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0">
             <Users className="h-4 w-4" />
           </div>
-          <div className="truncate">
-            <p className="text-xs font-semibold text-foreground truncate">The Sharma Residence</p>
-            <p className="text-[11px] text-muted-foreground truncate">4 Active Members</p>
+          <div className="truncate flex-1 min-w-0">
+            <p className="text-xs font-semibold text-foreground truncate">{household?.name || "Our Home"}</p>
+            <p className="text-[11px] text-muted-foreground truncate">{membersCount} Family Members • Switch</p>
           </div>
-        </div>
+        </button>
       </div>
     </aside>
   );

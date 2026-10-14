@@ -66,6 +66,9 @@ export default function RecurringExpensesPage() {
 
   useEffect(() => {
     loadData();
+    const handleUserChanged = () => loadData();
+    window.addEventListener("household-user-changed", handleUserChanged);
+    return () => window.removeEventListener("household-user-changed", handleUserChanged);
   }, [loadData]);
 
   const openModal = (existing?: RecurringExpense) => {

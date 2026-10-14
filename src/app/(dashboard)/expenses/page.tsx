@@ -81,7 +81,14 @@ export default function ExpensesPage() {
   useEffect(() => {
     DataService.getCategories().then(setCategories);
     DataService.getMembers().then(setMembers);
-  }, []);
+
+    const handleUserChanged = () => {
+      DataService.getMembers().then(setMembers);
+      loadExpenses();
+    };
+    window.addEventListener("household-user-changed", handleUserChanged);
+    return () => window.removeEventListener("household-user-changed", handleUserChanged);
+  }, [loadExpenses]);
 
   useEffect(() => {
     loadExpenses();

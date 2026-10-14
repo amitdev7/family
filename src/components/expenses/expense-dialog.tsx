@@ -14,7 +14,7 @@ import { Upload, AlertCircle, FileText } from "lucide-react";
 interface ExpenseDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaved: (expense: Expense) => void;
+  onSaved?: (expense: Expense) => void;
   expenseToEdit?: Expense | null;
 }
 
@@ -126,7 +126,9 @@ export function ExpenseDialog({
           receipt_path: validation.data.receipt_path,
         });
       }
-      onSaved(result);
+      if (onSaved) {
+        onSaved(result);
+      }
       onClose();
     } catch (err: unknown) {
       setErrors({ form: err instanceof Error ? err.message : "Failed to save expense. Please try again." });
@@ -262,7 +264,7 @@ export function ExpenseDialog({
           >
             {members.map((member) => (
               <option key={member.id} value={member.user_id}>
-                {member.display_name} ({member.role})
+                {member.display_name} ({member.relationship || member.role})
               </option>
             ))}
           </Select>
