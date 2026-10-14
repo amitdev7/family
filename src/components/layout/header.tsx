@@ -25,12 +25,14 @@ interface HeaderProps {
 
 export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
   const [currentUser, setCurrentUser] = useState<HouseholdMember | null>(null);
+  const [members, setMembers] = useState<HouseholdMember[]>([]);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
 
   const syncUserData = () => {
     setIsDemo(!isSupabaseConfigured());
     setCurrentUser(DataService.getCurrentUser());
+    DataService.getMembers().then(setMembers);
   };
 
   useEffect(() => {
