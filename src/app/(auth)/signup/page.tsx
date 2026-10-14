@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-export default function SignUpPage() {
+function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inviteTokenParam = searchParams.get("invite") || "";
@@ -32,7 +32,7 @@ export default function SignUpPage() {
     try {
       if (isSupabaseConfigured()) {
         const supabase = createClient();
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -237,6 +237,14 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-sm text-muted-foreground">Loading...</div>}>
+      <SignUpForm />
+    </React.Suspense>
   );
 }
 
