@@ -113,7 +113,7 @@ export function getSavedLanguage(): Language {
     if (saved === "en" || saved === "hi" || saved === "hinglish") {
       return saved;
     }
-  } catch {}
+  } catch { }
   return "en";
 }
 
@@ -122,6 +122,6 @@ export function saveLanguage(lang: Language) {
     try {
       localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
       window.dispatchEvent(new Event("household-language-changed"));
-    } catch {}
+    } catch { }
   }
 }

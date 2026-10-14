@@ -143,11 +143,10 @@ export default function WelcomeEntryPage() {
                     key={lang.id}
                     type="button"
                     onClick={() => handleSelectLanguage(lang.id)}
-                    className={`py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
-                      isSelected
-                        ? "bg-[#D4F835] text-black border-transparent shadow-xs scale-102"
-                        : "bg-card hover:bg-secondary/80 text-foreground border-border/80"
-                    }`}
+                    className={`py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${isSelected
+                      ? "bg-[#D4F835] text-black border-transparent shadow-xs scale-102"
+                      : "bg-card hover:bg-secondary/80 text-foreground border-border/80"
+                      }`}
                   >
                     <span>{lang.flag}</span>
                     <span>{lang.label}</span>
@@ -182,13 +181,11 @@ export default function WelcomeEntryPage() {
                     key={member.id}
                     type="button"
                     onClick={() => setSelectedUserId(member.user_id)}
-                    className={`relative flex flex-col items-center justify-between p-5 rounded-2xl transition-all duration-200 text-center cursor-pointer shadow-md ${
-                      style.bg
-                    } ${style.text} ${
-                      isSelected
+                    className={`relative flex flex-col items-center justify-between p-5 rounded-2xl transition-all duration-200 text-center cursor-pointer shadow-md ${style.bg
+                      } ${style.text} ${isSelected
                         ? "ring-4 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-xl"
                         : "hover:scale-102 opacity-85 hover:opacity-100"
-                    }`}
+                      }`}
                   >
                     {isSelected && (
                       <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#D4F835] text-black flex items-center justify-center shadow-xs">
