@@ -13,6 +13,7 @@ interface ModalProps {
   maxWidth?: "sm" | "md" | "lg" | "xl";
   className?: string;
   hideCloseButton?: boolean;
+  preventBackdropClose?: boolean;
 }
 
 export function Modal({
@@ -24,10 +25,11 @@ export function Modal({
   maxWidth = "md",
   className,
   hideCloseButton = false,
+  preventBackdropClose = false,
 }: ModalProps) {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !preventBackdropClose) onClose();
     };
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -37,7 +39,7 @@ export function Modal({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, preventBackdropClose]);
 
   if (!isOpen) return null;
 
@@ -53,7 +55,7 @@ export function Modal({
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
+        onClick={preventBackdropClose ? undefined : onClose}
       />
 
       {/* Modal Dialog Content */}

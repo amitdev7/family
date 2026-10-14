@@ -32,9 +32,9 @@ import {
 import { createClient, isSupabaseConfigured } from "./supabase/client";
 
 // Storage key for clean production state (zero fake dummy data)
-const DEMO_STORAGE_KEY = "familyflow_clean_v7";
-const DEVICE_USER_KEY = "family_device_active_user_id";
-const USER_IDENTIFIED_KEY = "family_user_has_selected_identity";
+const DEMO_STORAGE_KEY = "familyflow_clean_v9";
+const DEVICE_USER_KEY = "family_device_user_v9";
+const USER_IDENTIFIED_KEY = "family_user_identified_v9";
 
 interface DemoState {
   household: Household;

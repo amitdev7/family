@@ -1,6 +1,6 @@
 export type Language = "en" | "hi" | "hinglish";
 
-export const LANGUAGE_STORAGE_KEY = "familyflow_selected_language";
+export const LANGUAGE_STORAGE_KEY = "familyflow_lang_v9";
 
 export interface Translations {
   welcome: string;

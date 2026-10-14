@@ -117,6 +117,7 @@ export function WhoAreYouModal({
       onClose={handleContinue}
       maxWidth="md"
       hideCloseButton={true}
+      preventBackdropClose={true}
       className="p-0 overflow-hidden rounded-[32px] border-0 shadow-2xl bg-card"
     >
       <div className="p-6 sm:p-8 space-y-6 select-none">
