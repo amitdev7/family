@@ -12,6 +12,7 @@ interface ModalProps {
   children: React.ReactNode;
   maxWidth?: "sm" | "md" | "lg" | "xl";
   className?: string;
+  hideCloseButton?: boolean;
 }
 
 export function Modal({
@@ -22,6 +23,7 @@ export function Modal({
   children,
   maxWidth = "md",
   className,
+  hideCloseButton = false,
 }: ModalProps) {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -62,14 +64,16 @@ export function Modal({
           className
         )}
       >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none"
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </button>
+        {!hideCloseButton && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-4 top-4 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
+        )}
 
         {(title || description) && (
           <div className="mb-4 space-y-1 pr-6">

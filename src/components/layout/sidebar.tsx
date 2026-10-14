@@ -11,36 +11,28 @@ import {
   Repeat,
   BarChart3,
   Settings,
-  Home,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DataService } from "@/lib/data-service";
-import { Household } from "@/lib/types";
+import { HouseholdMember } from "@/lib/types";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/expenses", label: "Expenses", icon: ReceiptText },
-  { href: "/budgets", label: "Budgets", icon: PieChart },
-  { href: "/categories", label: "Categories", icon: Tags },
+  { href: "/expenses", label: "Expenses Ledger", icon: ReceiptText },
+  { href: "/budgets", label: "Budget Planner", icon: PieChart },
   { href: "/recurring", label: "Recurring Bills", icon: Repeat },
+  { href: "/categories", label: "Categories", icon: Tags },
   { href: "/reports", label: "Reports & Analytics", icon: BarChart3 },
-  { href: "/settings", label: "Household Settings", icon: Settings },
 ];
 
 export function Sidebar({ className = "" }: { className?: string }) {
   const pathname = usePathname();
-  const [household, setHousehold] = useState<Household | null>(null);
-  const [membersCount, setMembersCount] = useState<number>(3);
+  const [currentUser, setCurrentUser] = useState<HouseholdMember | null>(null);
 
   useEffect(() => {
-    DataService.getHousehold().then(setHousehold);
-    DataService.getMembers().then((mems) => setMembersCount(mems.length));
-
-    const handleUpdate = () => {
-      DataService.getHousehold().then(setHousehold);
-      DataService.getMembers().then((mems) => setMembersCount(mems.length));
-    };
+    setCurrentUser(DataService.getCurrentUser());
+    const handleUpdate = () => setCurrentUser(DataService.getCurrentUser());
     window.addEventListener("household-user-changed", handleUpdate);
     return () => window.removeEventListener("household-user-changed", handleUpdate);
   }, []);
@@ -52,70 +44,99 @@ export function Sidebar({ className = "" }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col w-64 bg-card border-r border-border shrink-0 select-none min-h-screen",
+        "hidden md:flex flex-col w-[76px] sticky top-4 my-4 ml-4 h-[calc(100vh-2rem)] bg-[#0E0E10] text-white rounded-[38px] items-center py-6 justify-between shadow-2xl shrink-0 z-40 select-none",
         className
       )}
     >
-      {/* Brand & Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-border/80 gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-          <Home className="h-5 w-5" />
-        </div>
-        <div>
-          <span className="font-bold text-lg tracking-tight text-foreground flex items-center gap-1.5">
-            Our Home
-          </span>
-          <p className="text-[11px] text-muted-foreground font-medium truncate leading-none">
-            Every expense. Total clarity.
-          </p>
-        </div>
-      </div>
-
-      {/* Navigation links */}
-      <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
-          Management
-        </div>
-
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              )}
-            >
-              <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* Household Profile Footer */}
-      <div className="p-4 border-t border-border/80">
-        <button
-          type="button"
-          onClick={handleOpenWhoAreYou}
-          title="Click to switch active family member"
-          className="w-full text-left p-3 rounded-xl bg-secondary/60 hover:bg-secondary/90 transition-colors flex items-center gap-3 cursor-pointer"
+      {/* Top Logo - Lime Ring / Crescent */}
+      <div className="flex flex-col items-center gap-6">
+        <Link
+          href="/dashboard"
+          className="group relative flex h-11 w-11 items-center justify-center"
+          title="Our Home"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0">
-            <Users className="h-4 w-4" />
+          <div className="h-10 w-10 rounded-full border-[3px] border-[#D4F835] border-t-transparent flex items-center justify-center transition-transform group-hover:rotate-45">
+            <div className="h-3.5 w-3.5 rounded-full bg-[#D4F835]" />
           </div>
-          <div className="truncate flex-1 min-w-0">
-            <p className="text-xs font-semibold text-foreground truncate">{household?.name || "Our Home"}</p>
-            <p className="text-[11px] text-muted-foreground truncate">{membersCount} Family Members • Switch</p>
+        </Link>
+
+        {/* Navigation Items Matching image_20261014_111146.jpg */}
+        <nav className="flex flex-col items-center gap-3">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
+
+            return (
+              <div key={item.href} className="group relative">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex h-11 w-11 items-center justify-center rounded-full transition-all duration-200",
+                    isActive
+                      ? "bg-white text-black shadow-lg scale-105"
+                      : "text-zinc-400 hover:text-white hover:bg-white/10"
+                  )}
+                  aria-label={item.label}
+                >
+                  <Icon
+                    className={cn(
+                      "h-5 w-5",
+                      isActive ? "text-black stroke-[2.2]" : "stroke-[1.8]"
+                    )}
+                  />
+                </Link>
+
+                {/* Tooltip on Hover */}
+                <div className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-black text-white text-xs font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-50 border border-zinc-800">
+                  {item.label}
+                </div>
+              </div>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Bottom Section - Switch Member & Settings */}
+      <div className="flex flex-col items-center gap-3">
+        {/* Switch Profile Button */}
+        <div className="group relative">
+          <button
+            type="button"
+            onClick={handleOpenWhoAreYou}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            title="Switch User Profile"
+          >
+            <Users className="h-5 w-5 stroke-[1.8]" />
+          </button>
+          <div className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-black text-white text-xs font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-50 border border-zinc-800">
+            {currentUser?.display_name
+              ? `Switch User (${currentUser.display_name})`
+              : "Switch User"}
           </div>
-        </button>
+        </div>
+
+        {/* Settings Button */}
+        <div className="group relative">
+          <Link
+            href="/settings"
+            className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200",
+              pathname === "/settings"
+                ? "bg-white text-black shadow-lg"
+                : "text-zinc-400 hover:text-white hover:bg-white/10"
+            )}
+            title="Household Settings"
+          >
+            <Settings className="h-5 w-5 stroke-[1.8]" />
+          </Link>
+          <div className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-black text-white text-xs font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-50 border border-zinc-800">
+            Household Settings
+          </div>
+        </div>
       </div>
     </aside>
   );
 }
+

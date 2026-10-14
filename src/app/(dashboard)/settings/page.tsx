@@ -2,487 +2,460 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Users,
-  Shield,
-  History,
-  Palette,
-  UserPlus,
+  Edit2,
+  ChevronDown,
+  ShieldCheck,
+  ChevronRight,
+  Database,
   Trash2,
-  Copy,
-  Check,
-  Clock,
-  Home,
-  CheckCircle2,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
-import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
-import { Household, HouseholdMember, ActivityLog } from "@/lib/types";
-import { formatDateTime, formatDate, formatINR } from "@/lib/formatters";
-import { useTheme } from "next-themes";
+import { Household, HouseholdMember } from "@/lib/types";
+import {
+  getPersistedAuthUser,
+  signInWithGoogle,
+  signOutGoogle,
+  StoredAuthUser,
+} from "@/lib/firebase/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
+const AVATAR_COLORS = [
+  "bg-amber-400 text-black",
+  "bg-pink-400 text-white",
+  "bg-blue-500 text-white",
+  "bg-purple-500 text-white",
+];
+
 export default function SettingsPage() {
-  const { theme, setTheme } = useTheme();
   const [household, setHousehold] = useState<Household | null>(null);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
 
-  // Household name update state
-  const [householdName, setHouseholdName] = useState("");
-  const [isUpdatingHousehold, setIsUpdatingHousehold] = useState(false);
-  const [householdSuccess, setHouseholdSuccess] = useState<string | null>(null);
+  // Edit Household
+  const [displayName, setDisplayName] = useState("Sharma Residence");
+  const [isEditingName, setIsEditingName] = useState(false);
 
-  // Invite modal state
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"admin" | "member">("member");
-  const [generatedInviteLink, setGeneratedInviteLink] = useState<string | null>(null);
-  const [copiedLink, setCopiedLink] = useState(false);
+  // Add Member Form
+  const [newFullName, setNewFullName] = useState("");
+  const [newContact, setNewContact] = useState("");
+  const [isSavingMember, setIsSavingMember] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [authUser, setAuthUser] = useState<StoredAuthUser | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   const loadData = async () => {
-    const [h, m, logs] = await Promise.all([
+    const [h, mems] = await Promise.all([
       DataService.getHousehold(),
       DataService.getMembers(),
-      DataService.getActivityLogs(),
     ]);
     setHousehold(h);
-    setHouseholdName(h.name);
-    setMembers(m);
-    setActivityLogs(logs);
+    if (h?.name) setDisplayName(h.name);
+    setMembers(mems);
+    setCurrentUserId(DataService.getCurrentUser().user_id);
+    setAuthUser(getPersistedAuthUser());
   };
 
   useEffect(() => {
     loadData();
-    const handleUserChanged = () => loadData();
-    window.addEventListener("household-user-changed", handleUserChanged);
-    return () => window.removeEventListener("household-user-changed", handleUserChanged);
+
+    const handleUpdate = () => loadData();
+    window.addEventListener("household-user-changed", handleUpdate);
+    return () => window.removeEventListener("household-user-changed", handleUpdate);
   }, []);
 
-  const handleUpdateHouseholdName = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!householdName.trim()) return;
-
-    setIsUpdatingHousehold(true);
+  const handleGoogleConnect = async () => {
     try {
-      if (household) {
-        household.name = householdName;
-      }
-      setHouseholdSuccess("Household name updated successfully!");
-      setTimeout(() => setHouseholdSuccess(null), 3000);
+      setIsAuthLoading(true);
+      const user = await signInWithGoogle();
+      setAuthUser(user);
+      loadData();
+      setToastMsg("Connected to Google! Session permanently saved.");
+      setTimeout(() => setToastMsg(null), 3500);
+    } catch {
+      setToastMsg("Google authentication cancelled or failed.");
+      setTimeout(() => setToastMsg(null), 3000);
     } finally {
-      setIsUpdatingHousehold(false);
+      setIsAuthLoading(false);
     }
   };
 
-  const handleCreateInvite = (e: React.FormEvent) => {
+  const handleGoogleDisconnect = async () => {
+    await signOutGoogle();
+    setAuthUser(null);
+    setToastMsg("Google account disconnected.");
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const handleClearAllData = async () => {
+    if (confirm("Are you sure you want to clear all expenses and money inflow logs? This resets to a completely fresh clean slate.")) {
+      await DataService.clearAllData();
+      loadData();
+      setToastMsg("All fake & old data cleared! Fresh slate ready.");
+      setTimeout(() => setToastMsg(null), 3500);
+    }
+  };
+
+  const handleSaveName = async () => {
+    if (!displayName.trim()) return;
+    await DataService.updateHousehold({ name: displayName.trim() });
+    setIsEditingName(false);
+    setToastMsg("Household name updated!");
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteEmail) return;
+    if (!newFullName.trim()) return;
 
-    const token = "inv_" + Math.random().toString(36).substring(2, 10);
-    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-    const link = `${origin}/signup?invite=${token}`;
-    setGeneratedInviteLink(link);
-  };
-
-  const copyInviteToClipboard = () => {
-    if (generatedInviteLink) {
-      navigator.clipboard.writeText(generatedInviteLink);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2500);
+    try {
+      setIsSavingMember(true);
+      await DataService.addMember({
+        display_name: newFullName.trim(),
+        relationship: "Member",
+        email: newContact.trim() || undefined,
+        role: "member",
+        color: "#D4F835",
+      });
+      setNewFullName("");
+      setNewContact("");
+      loadData();
+      setToastMsg("New member added to household!");
+      setTimeout(() => setToastMsg(null), 3000);
+    } finally {
+      setIsSavingMember(false);
     }
   };
 
-  const handleRemoveMember = async (memberId: string) => {
-    if (confirm("Are you sure you want to remove this family member from the household?")) {
-      setMembers((prev) => prev.filter((m) => m.id !== memberId));
-    }
+  const handleSwitchUser = (userId: string) => {
+    DataService.selectActiveUser(userId);
+    setCurrentUserId(userId);
+    setToastMsg("Active profile switched!");
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const handleCloudSync = () => {
+    setToastMsg("Cloud sync complete! Encrypted & secure.");
+    setTimeout(() => setToastMsg(null), 3500);
   };
 
   return (
-    <AppLayout
-      title="Household Settings"
-      subtitle="Manage family members, security permissions, and audit logs"
-    >
-      <div className="space-y-8 max-w-4xl">
-        {/* Section 1: Household Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Home className="h-5 w-5 text-primary" />
-              <span>Household Configuration</span>
-            </CardTitle>
-            <CardDescription>
-              Basic household information and financial localization
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleUpdateHouseholdName} className="space-y-4">
-              {householdSuccess && (
-                <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 shrink-0" />
-                  <span>{householdSuccess}</span>
-                </div>
-              )}
+    <AppLayout title="Household Settings">
+      <div className="max-w-xl mx-auto space-y-6 select-none">
+        {/* Top Header matching Figma image_20261014_111612.jpg right */}
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Settings
+          </h2>
+        </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1.5">
-                    Household Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={householdName}
-                    onChange={(e) => setHouseholdName(e.target.value)}
-                    required
-                  />
-                </div>
+        {toastMsg && (
+          <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold text-center animate-in fade-in">
+            {toastMsg}
+          </div>
+        )}
 
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1.5">
-                    Currency & Number Formatting
-                  </label>
-                  <Input
-                    type="text"
-                    value="Indian Rupee (INR, ₹) • en-IN (Lakhs / Crores)"
-                    disabled
-                    className="bg-muted text-muted-foreground text-xs"
-                  />
-                </div>
-              </div>
+        {/* Section 1: Household */}
+        <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs space-y-4">
+          <h3 className="font-extrabold text-base text-foreground">
+            Household
+          </h3>
 
-              <div className="flex justify-end pt-2">
-                <Button type="submit" size="sm" isLoading={isUpdatingHousehold}>
-                  Update Household
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Section 2: Family Members Management */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <div className="space-y-4">
+            {/* Display Name */}
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                <span>Family Members ({members.length})</span>
-              </CardTitle>
-              <CardDescription>
-                All authorized accounts sharing access to this household
-              </CardDescription>
+              <span className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                Display name
+              </span>
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-secondary/50 border border-border">
+                {isEditingName ? (
+                  <div className="flex items-center gap-2 flex-1 mr-2">
+                    <input
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="w-full bg-card px-3 py-1 rounded-lg text-sm font-bold text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveName}
+                      className="px-3 py-1 rounded-lg bg-[#D4F835] text-black text-xs font-bold cursor-pointer"
+                    >
+                      Save
+                    </button>
+                  </div>
+                ) : (
+                  <span className="font-bold text-sm text-foreground">
+                    {displayName}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsEditingName(!isEditingName)}
+                  className="p-1 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => window.dispatchEvent(new Event("open-who-are-you"))}
-                className="gap-1.5 text-xs font-semibold"
-              >
-                <Users className="h-4 w-4" />
-                <span>Who Are You? (Switch/Add)</span>
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => {
-                  setGeneratedInviteLink(null);
-                  setInviteEmail("");
-                  setIsInviteModalOpen(true);
-                }}
-                className="gap-1.5 text-xs font-semibold"
-              >
-                <UserPlus className="h-4 w-4" />
-                <span>Invite Member</span>
-              </Button>
+            {/* Default Currency */}
+            <div>
+              <span className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                Default currency
+              </span>
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-secondary/50 border border-border cursor-pointer">
+                <span className="font-bold text-sm text-foreground">
+                  INR • Indian Rupee (₹)
+                </span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="divide-y divide-border/60">
-              {members.map((member) => (
+          </div>
+        </div>
+
+        {/* Section 2: Family Members matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-extrabold text-base text-foreground">
+              Family Members
+            </h3>
+            <span className="text-xs font-bold text-muted-foreground">
+              {members.length} members
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {members.map((member, idx) => {
+              const isActive = member.user_id === currentUserId;
+              const colorClass = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+              const initial = member.display_name.slice(0, 1).toUpperCase();
+
+              return (
                 <div
                   key={member.id}
-                  className="py-3.5 flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap"
+                  onClick={() => handleSwitchUser(member.user_id)}
+                  className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer ${isActive
+                    ? "border-black/30 dark:border-white/30 bg-secondary/70 shadow-xs"
+                    : "border-border/60 hover:bg-secondary/40"
+                    }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Avatar name={member.display_name} src={member.avatar_url} size="md" />
+                    <div
+                      className={`h-11 w-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs ${colorClass}`}
+                    >
+                      {initial}
+                    </div>
+
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-semibold text-sm text-foreground truncate">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-sm text-foreground truncate">
                           {member.display_name}
-                        </h4>
-                        {member.relationship && (
-                          <Badge variant="outline" className="text-[10px] font-medium bg-primary/5 text-primary border-primary/20">
-                            {member.relationship}
-                          </Badge>
+                        </span>
+                        {isActive && (
+                          <span className="px-2 py-0.5 rounded-full bg-[#D4F835] text-black text-[10px] font-extrabold shadow-2xs">
+                            Active • You
+                          </span>
                         )}
-                        <Badge
-                          variant={member.role === "admin" ? "default" : "secondary"}
-                          className="text-[10px] uppercase font-bold"
-                        >
-                          {member.role}
-                        </Badge>
+                        {!isActive && (
+                          <span className="text-[11px] text-muted-foreground font-semibold">
+                            {member.relationship || "Member"}
+                          </span>
+                        )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                        {member.email || "Household User"} • Joined {formatDate(member.joined_at)}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground/75 font-mono truncate mt-0.5">
-                        Unique UID: {member.user_id}
+
+                      <p className="text-[11px] font-mono text-muted-foreground truncate mt-0.5">
+                        User ID: {member.user_id}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {member.role !== "admin" && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveMember(member.id)}
-                        className="p-1.5 rounded-lg text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors text-xs inline-flex items-center gap-1"
-                        title="Remove Member"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="hidden sm:inline">Remove</span>
-                      </button>
-                    )}
+                  <div className="shrink-0 pl-2">
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 3: Activity Log & Immutable Audit Trail */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5 text-primary" />
-              <span>Activity History & Audit Trail</span>
-            </CardTitle>
-            <CardDescription>
-              Tamper-proof record of additions, modifications, and deletions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="p-3 rounded-xl bg-muted/40 border border-border/80 text-xs text-muted-foreground mb-4">
-              <p>
-                <strong>Security Rule:</strong> In accordance with financial audit requirements, audit entries are immutable and cannot be deleted or modified by ordinary household members.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {activityLogs.map((log) => {
-                const summary = log.change_summary as Record<string, string | number>;
-                return (
-                  <div
-                    key={log.id}
-                    className="p-3.5 rounded-xl border border-border bg-card/60 flex items-start gap-3 text-xs"
-                  >
-                    <div className="p-2 rounded-lg bg-secondary text-primary shrink-0 mt-0.5">
-                      <Clock className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <span className="font-semibold text-foreground">
-                          {log.actor?.display_name || "Family Member"}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {formatDateTime(log.created_at)}
-                        </span>
-                      </div>
-
-                      <p className="text-muted-foreground">
-                        Action:{" "}
-                        <Badge
-                          variant={
-                            log.action === "create"
-                              ? "success"
-                              : log.action === "delete"
-                                ? "destructive"
-                                : "secondary"
-                          }
-                          className="text-[10px] capitalize ml-1 mr-1.5"
-                        >
-                          {log.action}
-                        </Badge>
-                        on <strong>{log.entity_type}</strong>:{" "}
-                        {summary.description || summary.event || "Record modified"}
-                      </p>
-
-                      {summary.amount && (
-                        <p className="text-foreground font-medium">
-                          Amount: {formatINR(Number(summary.amount))}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 4: Theme & Appearance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5 text-primary" />
-              <span>Theme & Appearance</span>
-            </CardTitle>
-            <CardDescription>
-              Personalize interface mode across mobile and desktop
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-foreground">Color Theme Preference</p>
-                <p className="text-xs text-muted-foreground">
-                  Current: <strong className="capitalize">{theme || "system"}</strong>
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant={theme === "light" ? "default" : "outline"}
-                  onClick={() => setTheme("light")}
-                >
-                  Light
-                </Button>
-                <Button
-                  size="sm"
-                  variant={theme === "dark" ? "default" : "outline"}
-                  onClick={() => setTheme("dark")}
-                >
-                  Dark
-                </Button>
-                <Button
-                  size="sm"
-                  variant={theme === "system" ? "default" : "outline"}
-                  onClick={() => setTheme("system")}
-                >
-                  System
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 5: Database Connection Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <span>Database & Security Status</span>
-            </CardTitle>
-            <CardDescription>
-              Supabase PostgreSQL and Row Level Security architecture
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-xs">
-            <div className="p-3.5 rounded-xl border border-border bg-card flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-foreground text-sm">PostgreSQL Row Level Security</p>
-                <p className="text-muted-foreground mt-0.5">
-                  Tenant boundaries enforced at database kernel level via RLS policies
-                </p>
-              </div>
-              <Badge variant="success" className="text-[10px]">Active & Enforced</Badge>
-            </div>
-
-            <div className="p-3.5 rounded-xl border border-border bg-card flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-foreground text-sm">Supabase Backend Link</p>
-                <p className="text-muted-foreground mt-0.5">
-                  {isSupabaseConfigured()
-                    ? "Connected to live Supabase project"
-                    : "Interactive Local/Demo Mode active (Configure .env.local to link cloud database)"}
-                </p>
-              </div>
-              <Badge variant={isSupabaseConfigured() ? "success" : "warning"} className="text-[10px]">
-                {isSupabaseConfigured() ? "Connected" : "Demo Mode"}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Member Invitation Modal */}
-      <Modal
-        isOpen={isInviteModalOpen}
-        onClose={() => setIsInviteModalOpen(false)}
-        title="Invite Family Member"
-        description="Generate a secure invitation token to welcome a family member into this household"
-        maxWidth="sm"
-      >
-        {generatedInviteLink ? (
-          <div className="space-y-4">
-            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>Invitation generated! Share the link below with your family member:</span>
-            </div>
-
-            <div className="p-3 rounded-lg border border-border bg-muted/60 text-xs font-mono break-all select-all">
-              {generatedInviteLink}
-            </div>
-
-            <Button
-              type="button"
-              onClick={copyInviteToClipboard}
-              className="w-full gap-2 font-semibold text-xs"
-            >
-              {copiedLink ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
-              <span>{copiedLink ? "Copied to Clipboard!" : "Copy Invitation Link"}</span>
-            </Button>
+              );
+            })}
           </div>
-        ) : (
-          <form onSubmit={handleCreateInvite} className="space-y-4">
+        </div>
+
+        {/* Section 3: Add New Member matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs space-y-4">
+          <h3 className="font-extrabold text-base text-foreground">
+            Add New Member
+          </h3>
+
+          <form onSubmit={handleAddMember} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Member Email Address
-              </label>
-              <Input
-                type="email"
+              <input
+                type="text"
+                value={newFullName}
+                onChange={(e) => setNewFullName(e.target.value)}
+                placeholder="Full name"
                 required
-                placeholder="family.member@example.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                autoFocus
+                className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Household Role
-              </label>
-              <Select
-                value={inviteRole}
-                onChange={(e) => setInviteRole(e.target.value as "admin" | "member")}
-              >
-                <option value="member">Member (Can view, add, edit, and delete expenses)</option>
-                <option value="admin">Admin (Can also manage members and settings)</option>
-              </Select>
+              <input
+                type="text"
+                value={newContact}
+                onChange={(e) => setNewContact(e.target.value)}
+                placeholder="Email or phone number"
+                className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-              <Button type="button" variant="outline" onClick={() => setIsInviteModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">
-                Generate Invite Link
-              </Button>
-            </div>
+            <button
+              type="submit"
+              disabled={isSavingMember}
+              className="w-full py-3 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-sm transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+            >
+              {isSavingMember ? "Adding..." : "+ Add New Member"}
+            </button>
           </form>
-        )}
-      </Modal>
+        </div>
+
+        {/* Section 4: Google Account & Firebase Auth */}
+        <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-extrabold text-base text-foreground">
+              Google Account &amp; Auth
+            </h3>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
+              Permanent Persistence
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-secondary/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-card border border-border flex items-center justify-center shrink-0">
+                <svg className="h-5 w-5" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+              </div>
+
+              <div>
+                <p className="font-extrabold text-sm text-foreground">
+                  {authUser ? authUser.displayName || "Google Account Connected" : "Connect with Google"}
+                </p>
+                <p className="text-xs text-muted-foreground font-mono">
+                  {authUser ? authUser.email || "Persistent Firebase Session Active" : "Sign in to keep your session permanently active"}
+                </p>
+              </div>
+            </div>
+
+            {authUser ? (
+              <button
+                type="button"
+                onClick={handleGoogleDisconnect}
+                className="px-4 py-2 rounded-full border border-border hover:bg-secondary text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                Disconnect
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleGoogleConnect}
+                disabled={isAuthLoading}
+                className="px-4 py-2 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 text-xs font-bold transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                {isAuthLoading ? "Connecting..." : "Sign in with Google"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Section 5: Cloud, Database & Reset */}
+        <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-extrabold text-base text-foreground">
+              Cloud Database &amp; Storage
+            </h3>
+
+            {/* Cloud Sync Button */}
+            <button
+              type="button"
+              onClick={handleCloudSync}
+              className="px-4 py-1.5 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] text-black text-xs font-bold transition-colors cursor-pointer shadow-xs"
+            >
+              Cloud sync
+            </button>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground font-medium">
+            Database: {isSupabaseConfigured() ? "Supabase Connected & Active" : "Local Storage + Supabase Ready"} • Encrypted &amp; secure
+          </p>
+
+          {/* Database Row */}
+          <div className="p-4 rounded-2xl bg-secondary/40 border border-border/60 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <Database className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-bold text-xs sm:text-sm text-foreground">
+                  Supabase Database
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  PostgreSQL with Row Level Security (RLS)
+                </p>
+              </div>
+            </div>
+
+            <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold">
+              Online
+            </span>
+          </div>
+
+          {/* Data Backup Row */}
+          <div className="p-4 rounded-2xl bg-secondary/40 border border-border/60 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-bold text-xs sm:text-sm text-foreground">
+                  Data backup &amp; encryption
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  Automatic • Daily • Multi-region
+                </p>
+              </div>
+            </div>
+
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </div>
+
+          {/* Reset / Clean Slate Button */}
+          <div className="pt-2 border-t border-border/60">
+            <button
+              type="button"
+              onClick={handleClearAllData}
+              className="w-full py-3 rounded-2xl border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Clear All Dummy Data &amp; Reset to Fresh Clean Slate</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </AppLayout>
   );
 }

@@ -1,521 +1,461 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
+  ChevronDown,
   Download,
-  Plus,
-  Eye,
-  Edit2,
-  Trash2,
+  SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
-  FileSpreadsheet,
+  Eye,
+  Trash2,
+  Edit2,
+  Calendar,
+  CreditCard,
+  ShoppingBag,
+  Utensils,
+  Zap,
+  Car,
+  HeartPulse,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { CategoryIcon } from "@/components/ui/category-icon";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { EmptyState } from "@/components/ui/empty-state";
 import { ExpenseDialog } from "@/components/expenses/expense-dialog";
 import { ExpenseDetailsModal } from "@/components/expenses/expense-details-modal";
-import { DeleteExpenseDialog } from "@/components/expenses/delete-dialog";
+import { DeleteDialog } from "@/components/expenses/delete-dialog";
 import { DataService } from "@/lib/data-service";
-import { Expense, Category, HouseholdMember, PaymentMethod } from "@/lib/types";
-import { formatINR, formatDate } from "@/lib/formatters";
+import { Expense, Category, HouseholdMember } from "@/lib/types";
+import { formatINR } from "@/lib/formatters";
 
-type SortOption = "date_desc" | "date_asc" | "amount_desc" | "amount_asc";
+const MERCHANT_ICONS: Record<string, { bg: string; text: string; icon: any }> = {
+  groceries: { bg: "bg-emerald-100 text-emerald-600", text: "Groceries", icon: ShoppingBag },
+  food: { bg: "bg-orange-100 text-orange-600", text: "Food & Dining", icon: Utensils },
+  transport: { bg: "bg-blue-100 text-blue-600", text: "Transport", icon: Car },
+  utilities: { bg: "bg-red-100 text-red-600", text: "Utilities", icon: Zap },
+  shopping: { bg: "bg-pink-100 text-pink-600", text: "Shopping", icon: ShoppingBag },
+  healthcare: { bg: "bg-teal-100 text-teal-600", text: "Healthcare", icon: HeartPulse },
+};
+
+function getCategoryIcon(catName?: string) {
+  const name = (catName || "").toLowerCase();
+  for (const key of Object.keys(MERCHANT_ICONS)) {
+    if (name.includes(key)) {
+      return MERCHANT_ICONS[key];
+    }
+  }
+  return { bg: "bg-lime-100 text-lime-700", text: catName || "Other", icon: ShoppingBag };
+}
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
 
-  // Filters state
+  // Filters matching Figma
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedMember, setSelectedMember] = useState("all");
-  const [selectedMethod, setSelectedMethod] = useState<string>("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("date_desc");
+  const [selectedMethod, setSelectedMethod] = useState("all");
   const [page, setPage] = useState(1);
-  const pageSize = 15;
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
-  // Dialogs state
-  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  // Modals
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
-  const [expenseToView, setExpenseToView] = useState<Expense | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
 
-  const loadExpenses = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await DataService.getExpenses({
         search: search.trim() || undefined,
-        categoryId: selectedCategory !== "all" ? selectedCategory : undefined,
-        paidByUserId: selectedMember !== "all" ? selectedMember : undefined,
-        paymentMethod: selectedMethod !== "all" ? (selectedMethod as PaymentMethod) : undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-        sortBy,
+        categoryId: selectedCategory === "all" ? undefined : selectedCategory,
+        paidByUserId: selectedMember === "all" ? undefined : selectedMember,
+        paymentMethod: selectedMethod === "all" ? undefined : selectedMethod,
         page,
         pageSize,
       });
-
       setExpenses(res.expenses);
       setTotalCount(res.totalCount);
-      setTotalPages(res.totalPages);
     } finally {
       setIsLoading(false);
     }
-  }, [search, selectedCategory, selectedMember, selectedMethod, startDate, endDate, sortBy, page, pageSize]);
+  }, [search, selectedCategory, selectedMember, selectedMethod, page, pageSize]);
 
   useEffect(() => {
     DataService.getCategories().then(setCategories);
     DataService.getMembers().then(setMembers);
-
-    const handleUserChanged = () => {
-      DataService.getMembers().then(setMembers);
-      loadExpenses();
-    };
-    window.addEventListener("household-user-changed", handleUserChanged);
-    return () => window.removeEventListener("household-user-changed", handleUserChanged);
-  }, [loadExpenses]);
+  }, []);
 
   useEffect(() => {
-    loadExpenses();
-  }, [loadExpenses]);
-
-  // Total sum of currently loaded expenses
-  const currentTotalAmount = useMemo(() => {
-    return expenses.reduce((sum, e) => sum + e.amount, 0);
-  }, [expenses]);
+    loadData();
+  }, [loadData]);
 
   const handleExportCSV = () => {
-    const csvContent = DataService.exportExpensesToCSV(expenses);
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const csv = DataService.exportExpensesToCSV(expenses);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `Our_Home_Expenses_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `expenses_ledger_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (expenseToDelete) {
-      await DataService.deleteExpense(expenseToDelete.id);
-      loadExpenses();
-    }
-  };
-
-  const clearFilters = () => {
-    setSearch("");
-    setSelectedCategory("all");
-    setSelectedMember("all");
-    setSelectedMethod("all");
-    setStartDate("");
-    setEndDate("");
-    setSortBy("date_desc");
-    setPage(1);
-  };
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <AppLayout
-      title="Household Expenses"
-      subtitle="Complete ledger of all family expenses with real-time sync"
+      title="Expenses Ledger"
+      onAddExpenseClick={() => setIsAddOpen(true)}
     >
-      {/* Top Header & Export bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="space-y-6 select-none">
+        {/* Title Header with Lime Underline Accent from Figma image_20261014_111612.jpg */}
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-muted-foreground">Filtered Total:</span>
-            <span className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-              {formatINR(currentTotalAmount)}
-            </span>
-            <Badge variant="secondary" className="ml-2 font-medium">
-              {totalCount} {totalCount === 1 ? "expense" : "expenses"}
-            </Badge>
-          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Expenses Ledger Table
+          </h2>
+          <div className="h-1 w-14 bg-[#D4F835] rounded-full mt-2" />
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExportCSV}
-            disabled={expenses.length === 0}
-            className="gap-1.5 text-xs font-semibold"
-          >
-            <Download className="h-4 w-4" />
-            <span>Export CSV</span>
-          </Button>
-
-          <Button
-            size="sm"
-            onClick={() => setIsAddExpenseOpen(true)}
-            className="gap-1.5 text-xs font-semibold"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Add Expense</span>
-          </Button>
+        {/* Search Bar matching Figma */}
+        <div className="relative max-w-xl">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search transactions..."
+            className="w-full pl-11 pr-4 py-2.5 rounded-full bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+          />
         </div>
-      </div>
 
-      {/* Filter and Search Bar Card */}
-      <Card className="mb-6 p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Search Input */}
+        {/* Filter Pills Row matching Figma image_20261014_111612.jpg */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Category Dropdown Pill */}
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search description, notes..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              className="pl-9 h-10 text-xs sm:text-sm"
-            />
-          </div>
-
-          {/* Category Filter */}
-          <div>
-            <Select
+            <select
               value={selectedCategory}
               onChange={(e) => {
                 setSelectedCategory(e.target.value);
                 setPage(1);
               }}
-              className="h-10 text-xs sm:text-sm"
+              className="appearance-none pl-4 pr-8 py-2 rounded-full bg-card border border-border text-xs font-semibold text-foreground hover:bg-secondary cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
             >
-              <option value="all">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
+              <option value="all">Category • All</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
                 </option>
               ))}
-            </Select>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           </div>
 
-          {/* Paid By Filter */}
-          <div>
-            <Select
+          {/* Member Dropdown Pill */}
+          <div className="relative">
+            <select
               value={selectedMember}
               onChange={(e) => {
                 setSelectedMember(e.target.value);
                 setPage(1);
               }}
-              className="h-10 text-xs sm:text-sm"
+              className="appearance-none pl-4 pr-8 py-2 rounded-full bg-card border border-border text-xs font-semibold text-foreground hover:bg-secondary cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
             >
-              <option value="all">All Family Members</option>
+              <option value="all">Member • All members</option>
               {members.map((m) => (
                 <option key={m.id} value={m.user_id}>
-                  Paid by: {m.display_name}
+                  {m.display_name}
                 </option>
               ))}
-            </Select>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           </div>
 
-          {/* Sort By */}
-          <div>
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="h-10 text-xs sm:text-sm"
+          {/* Payment Method Dropdown Pill */}
+          <div className="relative">
+            <select
+              value={selectedMethod}
+              onChange={(e) => {
+                setSelectedMethod(e.target.value);
+                setPage(1);
+              }}
+              className="appearance-none pl-4 pr-8 py-2 rounded-full bg-card border border-border text-xs font-semibold text-foreground hover:bg-secondary cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
             >
-              <option value="date_desc">Newest First (Date ↓)</option>
-              <option value="date_asc">Oldest First (Date ↑)</option>
-              <option value="amount_desc">Highest Amount (₹ ↓)</option>
-              <option value="amount_asc">Lowest Amount (₹ ↑)</option>
-            </Select>
-          </div>
-        </div>
-
-        {/* Date Filter Row & Reset */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-3 border-t border-border/60 text-xs">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground">From:</span>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setPage(1);
-                }}
-                className="h-8 text-xs w-36"
-              />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground">To:</span>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setPage(1);
-                }}
-                className="h-8 text-xs w-36"
-              />
-            </div>
+              <option value="all">Payment • All methods</option>
+              <option value="UPI">UPI</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Debit Card">Debit Card</option>
+              <option value="Net Banking">Net Banking</option>
+              <option value="Cash">Cash</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           </div>
 
-          {(search || selectedCategory !== "all" || selectedMember !== "all" || selectedMethod !== "all" || startDate || endDate) && (
+          {/* CSV Export Pill */}
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 text-xs font-bold cursor-pointer transition-colors shadow-xs"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>CSV</span>
+          </button>
+
+          {/* Reset Filters Pill */}
+          {(search || selectedCategory !== "all" || selectedMember !== "all" || selectedMethod !== "all") && (
             <button
               type="button"
-              onClick={clearFilters}
-              className="text-primary font-semibold hover:underline text-xs"
+              onClick={() => {
+                setSearch("");
+                setSelectedCategory("all");
+                setSelectedMember("all");
+                setSelectedMethod("all");
+                setPage(1);
+              }}
+              className="px-3.5 py-2 rounded-full bg-secondary text-muted-foreground hover:text-foreground text-xs font-semibold transition-colors cursor-pointer"
             >
               Reset Filters
             </button>
           )}
         </div>
-      </Card>
 
-      {/* Main Expense Table / Card List */}
-      {isLoading ? (
-        <div className="space-y-3 animate-pulse">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 rounded-xl bg-card border border-border" />
-          ))}
-        </div>
-      ) : expenses.length === 0 ? (
-        <EmptyState
-          icon={FileSpreadsheet}
-          title="No expenses found"
-          description="Try adjusting your active search or filter criteria, or record a new expense for your home."
-          action={
-            <Button onClick={() => setIsAddExpenseOpen(true)} className="gap-2 font-semibold">
-              <Plus className="h-4 w-4" />
-              <span>Record New Expense</span>
-            </Button>
-          }
-        />
-      ) : (
-        <>
-          {/* Desktop Table View */}
-          <div className="hidden md:block rounded-xl border border-border bg-card overflow-hidden shadow-xs">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Paid By</TableHead>
-                  <TableHead>Payment Method</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-center w-28">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {expenses.map((expense) => (
-                  <TableRow
-                    key={expense.id}
-                    className="cursor-pointer hover:bg-muted/40 transition-colors"
-                    onClick={() => setExpenseToView(expense)}
-                  >
-                    <TableCell className="font-medium whitespace-nowrap text-muted-foreground text-xs">
-                      {formatDate(expense.expense_date)}
-                    </TableCell>
+        {/* Ledger Table Container matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border/80 shadow-xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-border/70 text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
+                  <th className="py-4 px-6">DATE</th>
+                  <th className="py-4 px-6">MERCHANT</th>
+                  <th className="py-4 px-6">CATEGORY</th>
+                  <th className="py-4 px-6">MEMBER</th>
+                  <th className="py-4 px-6">PAYMENT METHOD</th>
+                  <th className="py-4 px-6 text-right">AMOUNT</th>
+                  <th className="py-4 px-6 text-center">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/60">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-sm text-muted-foreground">
+                      Loading ledger entries...
+                    </td>
+                  </tr>
+                ) : expenses.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-sm text-muted-foreground">
+                      No matching expenses found.
+                    </td>
+                  </tr>
+                ) : (
+                  expenses.map((expense) => {
+                    const iconMeta = getCategoryIcon(expense.category?.name);
+                    const Icon = iconMeta.icon;
 
-                    <TableCell>
-                      <span className="font-semibold text-foreground text-sm block">
-                        {expense.description}
-                      </span>
-                      {expense.notes && (
-                        <span className="text-[11px] text-muted-foreground line-clamp-1">
-                          {expense.notes}
-                        </span>
-                      )}
-                    </TableCell>
+                    return (
+                      <tr
+                        key={expense.id}
+                        className="group hover:bg-secondary/40 transition-colors"
+                      >
+                        {/* Date */}
+                        <td className="py-4 px-6 text-xs font-medium text-muted-foreground whitespace-nowrap">
+                          {expense.expense_date}
+                        </td>
 
-                    <TableCell>
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-muted/60">
-                        <CategoryIcon
-                          name={expense.category?.icon || "Receipt"}
-                          className="h-3.5 w-3.5"
-                          style={{ color: expense.category?.color }}
-                        />
-                        <span>{expense.category?.name || "General"}</span>
-                      </div>
-                    </TableCell>
+                        {/* Merchant */}
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`h-9 w-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs ${iconMeta.bg}`}
+                            >
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <span className="font-bold text-sm text-foreground truncate max-w-[180px]">
+                              {expense.description}
+                            </span>
+                          </div>
+                        </td>
 
-                    <TableCell className="text-xs">
-                      {expense.paid_by?.display_name || "Family Member"}
-                    </TableCell>
+                        {/* Category */}
+                        <td className="py-4 px-6">
+                          <span className="inline-block px-3 py-1 rounded-full bg-secondary/70 text-foreground text-xs font-semibold">
+                            {expense.category?.name || "General"}
+                          </span>
+                        </td>
 
-                    <TableCell>
-                      <Badge variant="outline" className="text-[11px]">
-                        {expense.payment_method}
-                      </Badge>
-                    </TableCell>
+                        {/* Member */}
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-2">
+                            <div className="h-6 w-6 rounded-full bg-[#D4F835] text-black font-bold text-[10px] flex items-center justify-center shrink-0">
+                              {expense.paid_by?.display_name?.slice(0, 1).toUpperCase() || "F"}
+                            </div>
+                            <span className="text-xs font-medium text-foreground">
+                              {expense.paid_by?.display_name || "Family Member"}
+                            </span>
+                          </div>
+                        </td>
 
-                    <TableCell className="text-right font-extrabold text-foreground text-sm whitespace-nowrap">
-                      {formatINR(expense.amount)}
-                    </TableCell>
+                        {/* Payment Method */}
+                        <td className="py-4 px-6">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary text-xs font-medium text-foreground">
+                            <CreditCard className="h-3 w-3 text-muted-foreground" />
+                            <span>{expense.payment_method}</span>
+                          </span>
+                        </td>
 
-                    <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setExpenseToView(expense)}
-                          className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                          title="View Details"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setExpenseToEdit(expense)}
-                          className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                          title="Edit"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setExpenseToDelete(expense)}
-                          className="p-1.5 rounded-lg text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                        {/* Amount */}
+                        <td className="py-4 px-6 text-right">
+                          <span className="font-extrabold text-sm text-foreground whitespace-nowrap">
+                            - {formatINR(expense.amount)}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-4 px-6 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedExpense(expense)}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                              title="View Details"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setExpenseToEdit(expense)}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                              title="Edit Expense"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setExpenseToDelete(expense)}
+                              className="p-1.5 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                              title="Delete Expense"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
 
-          {/* Mobile Card View (Adapts table to responsive cards with large touch targets) */}
-          <div className="md:hidden space-y-3">
-            {expenses.map((expense) => (
-              <div
-                key={expense.id}
-                onClick={() => setExpenseToView(expense)}
-                className="p-4 rounded-xl border border-border bg-card shadow-xs active:scale-[0.99] transition-transform space-y-2.5"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2.5 truncate">
-                    <div
-                      className="flex h-9 w-9 items-center justify-center rounded-xl text-white shrink-0"
-                      style={{ backgroundColor: expense.category?.color || "#124334" }}
-                    >
-                      <CategoryIcon name={expense.category?.icon || "Receipt"} className="h-4 w-4" />
-                    </div>
-                    <div className="truncate">
-                      <h4 className="font-bold text-sm text-foreground truncate">
-                        {expense.description}
-                      </h4>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(expense.expense_date)} • {expense.category?.name}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="font-extrabold text-base text-foreground shrink-0">
-                    {formatINR(expense.amount)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/60">
-                  <span>Paid by {expense.paid_by?.display_name?.split(" ")[0]} ({expense.payment_method})</span>
-                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      type="button"
-                      onClick={() => setExpenseToEdit(expense)}
-                      className="p-1 rounded text-primary font-semibold"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setExpenseToDelete(expense)}
-                      className="p-1 rounded text-destructive font-semibold"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Pagination Controls */}
-          <div className="flex items-center justify-between pt-4 mt-4 border-t border-border text-xs text-muted-foreground">
+          {/* Pagination Footer matching Figma */}
+          <div className="py-4 px-6 border-t border-border/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-muted-foreground">
             <div>
-              Showing {expenses.length} of {totalCount} records (Page {page} of {totalPages})
+              Showing {expenses.length > 0 ? (page - 1) * pageSize + 1 : 0}-
+              {Math.min(page * pageSize, totalCount)} of {totalCount} transactions
             </div>
+
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="gap-1 text-xs h-8"
+                className="p-1.5 rounded-full hover:bg-secondary disabled:opacity-30 cursor-pointer"
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
-                <span>Previous</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                const pageNum = i + 1;
+                const isActive = pageNum === page;
+                return (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => setPage(pageNum)}
+                    className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs transition-colors cursor-pointer ${isActive
+                      ? "bg-[#D4F835] text-black shadow-xs"
+                      : "hover:bg-secondary text-foreground"
+                      }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="gap-1 text-xs h-8"
+                className="p-1.5 rounded-full hover:bg-secondary disabled:opacity-30 cursor-pointer"
               >
-                <span>Next</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           </div>
-        </>
-      )}
+        </div>
 
-      {/* View Details Modal */}
-      <ExpenseDetailsModal
-        isOpen={Boolean(expenseToView)}
-        onClose={() => setExpenseToView(null)}
-        expense={expenseToView}
-        onEdit={(exp) => {
-          setExpenseToView(null);
-          setExpenseToEdit(exp);
-        }}
-        onDelete={(exp) => {
-          setExpenseToView(null);
-          setExpenseToDelete(exp);
-        }}
-      />
+        {/* Expense Modals */}
+        {isAddOpen && (
+          <ExpenseDialog
+            isOpen={isAddOpen}
+            onClose={() => setIsAddOpen(false)}
+            onSaved={() => {
+              setIsAddOpen(false);
+              loadData();
+            }}
+          />
+        )}
 
-      {/* Add / Edit Dialog */}
-      <ExpenseDialog
-        isOpen={isAddExpenseOpen || Boolean(expenseToEdit)}
-        onClose={() => {
-          setIsAddExpenseOpen(false);
-          setExpenseToEdit(null);
-        }}
-        onSaved={() => loadExpenses()}
-        expenseToEdit={expenseToEdit}
-      />
+        {expenseToEdit && (
+          <ExpenseDialog
+            isOpen={Boolean(expenseToEdit)}
+            initialExpense={expenseToEdit}
+            onClose={() => setExpenseToEdit(null)}
+            onSaved={() => {
+              setExpenseToEdit(null);
+              loadData();
+            }}
+          />
+        )}
 
-      {/* Delete Confirmation Dialog */}
-      <DeleteExpenseDialog
-        isOpen={Boolean(expenseToDelete)}
-        onClose={() => setExpenseToDelete(null)}
-        onConfirm={handleDeleteConfirm}
-        expense={expenseToDelete}
-      />
+        {selectedExpense && (
+          <ExpenseDetailsModal
+            isOpen={Boolean(selectedExpense)}
+            expense={selectedExpense}
+            onClose={() => setSelectedExpense(null)}
+            onEdit={(exp) => {
+              setSelectedExpense(null);
+              setExpenseToEdit(exp);
+            }}
+            onDelete={(exp) => {
+              setSelectedExpense(null);
+              setExpenseToDelete(exp);
+            }}
+          />
+        )}
+
+        {expenseToDelete && (
+          <DeleteDialog
+            isOpen={Boolean(expenseToDelete)}
+            expenseDescription={expenseToDelete.description}
+            expenseAmount={expenseToDelete.amount}
+            categoryName={expenseToDelete.category?.name || "General"}
+            onClose={() => setExpenseToDelete(null)}
+            onConfirm={async () => {
+              await DataService.deleteExpense(expenseToDelete.id);
+              setExpenseToDelete(null);
+              loadData();
+            }}
+          />
+        )}
+      </div>
     </AppLayout>
   );
 }

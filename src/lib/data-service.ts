@@ -8,6 +8,9 @@ import {
   ActivityLog,
   ExpenseFilters,
   DashboardMetrics,
+  RecurringFrequency,
+  PaymentMethod,
+  ReceivedMoney,
 } from "./types";
 import {
   DEMO_HOUSEHOLD,
@@ -16,6 +19,7 @@ import {
   DEMO_EXPENSES,
   DEMO_BUDGETS,
   DEMO_RECURRING,
+  DEMO_RECEIVED_MONEY,
   DEMO_ACTIVITY_LOGS,
 } from "./demo-data";
 import {
@@ -29,8 +33,8 @@ import {
 } from "./calculations/financials";
 import { createClient, isSupabaseConfigured } from "./supabase/client";
 
-// Storage key for local demo modifications
-const DEMO_STORAGE_KEY = "our_home_demo_state_v1";
+// Storage key for clean production state (v2 has zero fake dummy data)
+const DEMO_STORAGE_KEY = "our_home_demo_state_v2";
 const DEVICE_USER_KEY = "family_device_active_user_id";
 const USER_IDENTIFIED_KEY = "family_user_has_selected_identity";
 
@@ -42,6 +46,7 @@ interface DemoState {
   budgets: Budget[];
   recurring: RecurringExpense[];
   activityLogs: ActivityLog[];
+  receivedMoney: ReceivedMoney[];
   currentUserId: string;
 }
 
@@ -55,6 +60,7 @@ function getInitialDemoState(): DemoState {
       budgets: DEMO_BUDGETS,
       recurring: DEMO_RECURRING,
       activityLogs: DEMO_ACTIVITY_LOGS,
+      receivedMoney: DEMO_RECEIVED_MONEY,
       currentUserId: DEMO_MEMBERS[0].user_id,
     };
   }
@@ -63,6 +69,7 @@ function getInitialDemoState(): DemoState {
     const saved = localStorage.getItem(DEMO_STORAGE_KEY);
     if (saved) {
       const parsed: DemoState = JSON.parse(saved);
+      if (!parsed.receivedMoney) parsed.receivedMoney = [];
       const deviceUser = localStorage.getItem(DEVICE_USER_KEY);
       if (deviceUser && parsed.members.some((m: HouseholdMember) => m.user_id === deviceUser)) {
         parsed.currentUserId = deviceUser;
@@ -86,6 +93,7 @@ function getInitialDemoState(): DemoState {
     budgets: DEMO_BUDGETS,
     recurring: DEMO_RECURRING,
     activityLogs: DEMO_ACTIVITY_LOGS,
+    receivedMoney: DEMO_RECEIVED_MONEY,
     currentUserId: initialUserId,
   };
   try {
@@ -135,7 +143,8 @@ export class DataService {
 
   // Add a new family member with a unique user ID and save
   static async addMember(data: {
-    name: string;
+    name?: string;
+    display_name?: string;
     relationship: string;
     email?: string;
     color?: string;
@@ -143,14 +152,15 @@ export class DataService {
   }): Promise<HouseholdMember> {
     const uniqueUserId = "usr_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
     const memberId = "mem_" + Date.now().toString(36);
+    const resolvedName = (data.display_name || data.name || "Family Member").trim();
 
     const newMember: HouseholdMember = {
       id: memberId,
       household_id: this.state.household.id,
       user_id: uniqueUserId,
-      display_name: data.name.trim(),
+      display_name: resolvedName,
       relationship: data.relationship.trim(),
-      email: data.email?.trim() || `${data.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@family.home`,
+      email: data.email?.trim() || `${resolvedName.toLowerCase().replace(/[^a-z0-9]/g, "")}@family.home`,
       role: data.role || "member",
       color: data.color || "#3b82f6",
       joined_at: new Date().toISOString(),
@@ -215,6 +225,17 @@ export class DataService {
     return this.state.household;
   }
 
+  static async updateHousehold(updates: { name?: string; currency?: string }): Promise<Household> {
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      await supabase.from("households").update(updates).eq("id", this.state.household.id);
+    }
+    if (updates.name) this.state.household.name = updates.name;
+    if (updates.currency) this.state.household.currency = updates.currency;
+    saveDemoState(this.state);
+    return this.state.household;
+  }
+
   static async getMembers(): Promise<HouseholdMember[]> {
     if (isSupabaseConfigured()) {
       const supabase = createClient();
@@ -231,6 +252,31 @@ export class DataService {
       if (!error && data) return data;
     }
     return this.state.categories;
+  }
+
+  static async addCategory(data: {
+    name: string;
+    icon: string;
+    color: string;
+    is_active?: boolean;
+  }): Promise<Category> {
+    const newCategory: Category = {
+      id: "cat-" + Date.now(),
+      household_id: this.state.household.id,
+      name: data.name.trim(),
+      icon: data.icon,
+      color: data.color,
+      is_active: data.is_active ?? true,
+      is_system: false,
+      created_at: new Date().toISOString(),
+    };
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      await supabase.from("categories").insert(newCategory);
+    }
+    this.state.categories.push(newCategory);
+    saveDemoState(this.state);
+    return newCategory;
   }
 
   static async getExpenses(filters?: ExpenseFilters): Promise<{
@@ -346,13 +392,17 @@ export class DataService {
     };
   }
 
-  static async addExpense(expenseData: Omit<Expense, "id" | "household_id" | "created_at" | "updated_at">): Promise<Expense> {
+  static async addExpense(
+    expenseData: Omit<Expense, "id" | "household_id" | "created_at" | "updated_at" | "created_by_user_id"> & {
+      created_by_user_id?: string;
+    }
+  ): Promise<Expense> {
     const currentUser = this.getCurrentUser();
     const newExpense: Expense = {
       ...expenseData,
       id: "exp-" + Date.now(),
       household_id: this.state.household.id,
-      created_by_user_id: currentUser.user_id,
+      created_by_user_id: expenseData.created_by_user_id || currentUser.user_id,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -561,6 +611,44 @@ export class DataService {
     return created;
   }
 
+  static async setBudget(budget: {
+    id?: string;
+    category_id?: string | null;
+    amount: number;
+    period_start?: string;
+  }): Promise<Budget> {
+    const categoryId = budget.category_id ?? null;
+    const existing = budget.id
+      ? this.state.budgets.find((b) => b.id === budget.id)
+      : this.state.budgets.find((b) => b.category_id === categoryId);
+
+    const period_start =
+      budget.period_start ||
+      existing?.period_start ||
+      new Date().toISOString().slice(0, 7) + "-01";
+
+    return this.saveBudget({
+      id: existing?.id || budget.id,
+      category_id: categoryId,
+      amount: budget.amount,
+      period_start,
+    });
+  }
+
+  static async updateBudget(
+    id: string,
+    budget: { amount?: number; category_id?: string | null }
+  ): Promise<Budget | null> {
+    const existing = this.state.budgets.find((b) => b.id === id);
+    if (!existing) return null;
+    return this.saveBudget({
+      id,
+      category_id: budget.category_id !== undefined ? budget.category_id : existing.category_id,
+      amount: budget.amount !== undefined ? budget.amount : existing.amount,
+      period_start: existing.period_start,
+    });
+  }
+
   static async deleteBudget(id: string): Promise<boolean> {
     if (isSupabaseConfigured()) {
       const supabase = createClient();
@@ -570,6 +658,146 @@ export class DataService {
     this.state.budgets = this.state.budgets.filter((b) => b.id !== id);
     saveDemoState(this.state);
     return true;
+  }
+
+  /**
+   * Received Money / Allowances from Family Members
+   */
+  static async getReceivedMoney(): Promise<ReceivedMoney[]> {
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("received_money")
+        .select("*, category:categories(*)")
+        .order("date", { ascending: false });
+      if (!error && data) return data;
+    }
+    const list = this.state.receivedMoney || [];
+    return list.map((r) => ({
+      ...r,
+      category: this.state.categories.find((c) => c.id === r.category_id),
+      from_member: this.state.members.find(
+        (m) => m.id === r.from_member_id || m.user_id === r.from_member_id
+      ),
+    }));
+  }
+
+  static async addReceivedMoney(
+    data: Omit<ReceivedMoney, "id" | "household_id" | "created_at" | "updated_at">
+  ): Promise<ReceivedMoney> {
+    const paymentMethod = data.payment_method || "Cash";
+
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      const { data: inserted, error } = await supabase
+        .from("received_money")
+        .insert({
+          ...data,
+          payment_method: paymentMethod,
+          household_id: this.state.household.id,
+        })
+        .select("*, category:categories(*)")
+        .single();
+      if (!error && inserted) return inserted;
+    }
+
+    const created: ReceivedMoney = {
+      ...data,
+      id: "rm-" + Date.now(),
+      household_id: this.state.household.id,
+      payment_method: paymentMethod,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    if (!this.state.receivedMoney) this.state.receivedMoney = [];
+    this.state.receivedMoney.unshift(created);
+    saveDemoState(this.state);
+    return created;
+  }
+
+  static async deleteReceivedMoney(id: string): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      const { error } = await supabase.from("received_money").delete().eq("id", id);
+      if (!error) return true;
+    }
+    if (!this.state.receivedMoney) return true;
+    this.state.receivedMoney = this.state.receivedMoney.filter((r) => r.id !== id);
+    saveDemoState(this.state);
+    return true;
+  }
+
+  static async getMoneySummary(targetDate: Date = new Date()) {
+    const receivedList = await this.getReceivedMoney();
+    const expensesRes = await this.getExpenses({ pageSize: 1000 });
+    const expenses = expensesRes.expenses;
+    const categories = await this.getCategories();
+
+    const targetMonth = targetDate.toISOString().slice(0, 7);
+    const monthReceived = receivedList.filter((r) => r.date.startsWith(targetMonth));
+    const totalReceived = monthReceived.reduce((sum, r) => sum + r.amount, 0);
+
+    const monthExpenses = expenses.filter((e) => e.expense_date.startsWith(targetMonth));
+    const totalSpent = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+    const moneyLeft = totalReceived - totalSpent;
+
+    // By Member Breakdown (Who gave money)
+    const memberMap: Record<string, { memberName: string; relationship: string; amount: number }> = {};
+    monthReceived.forEach((r) => {
+      const key = r.from_member_id || r.from_member_name;
+      if (!memberMap[key]) {
+        memberMap[key] = {
+          memberName: r.from_member_name,
+          relationship: r.relationship || "Family Member",
+          amount: 0,
+        };
+      }
+      memberMap[key].amount += r.amount;
+    });
+
+    const byMember = Object.entries(memberMap).map(([id, info]) => ({
+      memberId: id,
+      memberName: info.memberName,
+      relationship: info.relationship,
+      amount: info.amount,
+      percentage: totalReceived > 0 ? (info.amount / totalReceived) * 100 : 0,
+    }));
+
+    // By Category Breakdown
+    const byCategory = categories.map((cat) => {
+      const catReceived = monthReceived
+        .filter((r) => r.category_id === cat.id)
+        .reduce((sum, r) => sum + r.amount, 0);
+      const catSpent = monthExpenses
+        .filter((e) => e.category_id === cat.id)
+        .reduce((sum, e) => sum + e.amount, 0);
+      return {
+        categoryId: cat.id,
+        categoryName: cat.name,
+        color: cat.color,
+        icon: cat.icon,
+        allocated: catReceived,
+        spent: catSpent,
+        left: catReceived - catSpent,
+      };
+    });
+
+    return {
+      totalReceived,
+      totalSpent,
+      moneyLeft,
+      byMember,
+      byCategory,
+      recentReceived: monthReceived.slice(0, 10),
+    };
+  }
+
+  static async clearAllData(): Promise<void> {
+    this.state.expenses = [];
+    this.state.receivedMoney = [];
+    this.state.recurring = [];
+    this.state.activityLogs = [];
+    saveDemoState(this.state);
   }
 
   static async getRecurringExpenses(): Promise<RecurringExpense[]> {
@@ -612,6 +840,21 @@ export class DataService {
     this.state.recurring.push(created);
     saveDemoState(this.state);
     return created;
+  }
+
+  static async addRecurringExpense(
+    data: Omit<RecurringExpense, "id" | "household_id" | "created_at" | "updated_at">
+  ): Promise<RecurringExpense> {
+    return this.saveRecurringExpense(data);
+  }
+
+  static async toggleRecurringStatus(id: string): Promise<boolean> {
+    const rec = this.state.recurring.find((r) => r.id === id);
+    if (!rec) return false;
+    rec.is_active = !rec.is_active;
+    rec.updated_at = new Date().toISOString();
+    saveDemoState(this.state);
+    return rec.is_active;
   }
 
   /**
@@ -685,6 +928,13 @@ export class DataService {
     // Upcoming recurring in next 30 days
     const upcomingRecurring = recurring.filter((r) => r.is_active);
 
+    const received = await this.getReceivedMoney();
+    const targetMonthStr = targetDate.toISOString().slice(0, 7);
+    const totalReceivedThisMonth = received
+      .filter((r) => r.date.startsWith(targetMonthStr))
+      .reduce((sum, r) => sum + r.amount, 0);
+    const moneyLeft = totalReceivedThisMonth - spentThisMonth;
+
     return {
       totalSpentThisMonth: spentThisMonth,
       totalSpentThisYear: spentThisYear,
@@ -692,6 +942,8 @@ export class DataService {
       budgetRemaining: remaining,
       budgetUtilizationPercent: utilizationPercent,
       transactionCountThisMonth: expenses.filter((e) => !e.deleted_at).length,
+      totalReceivedThisMonth,
+      moneyLeft,
       recentExpenses: expenses.slice(0, 5),
       categorySpending,
       memberSpending,
@@ -725,6 +977,10 @@ export class DataService {
     ]);
 
     return [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+  }
+
+  static exportExpensesCSV(expenses?: Expense[]): string {
+    return this.exportExpensesToCSV(expenses || this.state.expenses);
   }
 }
 

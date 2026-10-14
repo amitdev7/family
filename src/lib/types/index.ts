@@ -33,11 +33,11 @@ export interface Category {
 }
 
 export const PAYMENT_METHODS = [
+  "Cash",
   "UPI",
   "Credit Card",
   "Debit Card",
   "Net Banking",
-  "Cash",
   "Other",
 ] as const;
 
@@ -77,6 +77,26 @@ export interface Budget {
   updated_at?: string;
 
   category?: Category;
+}
+
+export interface ReceivedMoney {
+  id: string;
+  household_id: string;
+  from_member_id?: string;
+  from_member_name: string;
+  relationship?: string; // e.g. Father, Mother, Brother, etc.
+  to_member_id?: string;
+  to_member_name?: string;
+  amount: number;
+  date: string;
+  category_id?: string | null; // specific category or null for general/all
+  notes?: string | null;
+  payment_method?: PaymentMethod;
+  created_at: string;
+  updated_at?: string;
+
+  category?: Category;
+  from_member?: HouseholdMember;
 }
 
 export type RecurringFrequency = "weekly" | "monthly" | "quarterly" | "yearly";
@@ -162,6 +182,8 @@ export interface DashboardMetrics {
   budgetRemaining: number;
   budgetUtilizationPercent: number;
   transactionCountThisMonth: number;
+  totalReceivedThisMonth?: number;
+  moneyLeft?: number;
   recentExpenses: Expense[];
   categorySpending: CategorySpending[];
   memberSpending: MemberSpending[];

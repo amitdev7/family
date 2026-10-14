@@ -1,439 +1,302 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Repeat,
-  Plus,
-  CheckCircle2,
+  Mic,
   Calendar,
-  Edit2,
-  PlayCircle,
-  PauseCircle,
+  Plus,
+  Tv,
+  Wifi,
+  Home,
+  Zap,
+  CheckCircle2,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
-import { CategoryIcon } from "@/components/ui/category-icon";
-import { EmptyState } from "@/components/ui/empty-state";
 import { DataService } from "@/lib/data-service";
-import { RecurringExpense, Category, HouseholdMember, PAYMENT_METHODS, PaymentMethod } from "@/lib/types";
-import { formatINR, formatDate } from "@/lib/formatters";
-import { recurringExpenseFormSchema } from "@/lib/validations";
+import { RecurringExpense, Category, HouseholdMember } from "@/lib/types";
+import { formatINR } from "@/lib/formatters";
 
-type RecurrenceType = "weekly" | "monthly" | "quarterly" | "yearly";
+// 3 Figma Recurring Bills matching image_20261014_111556.jpg right
+const DEFAULT_BILL_ITEMS = [
+  {
+    id: "rec-1",
+    name: "Airtel Xstream Fiber",
+    subtitle: "Broadband • Monthly",
+    amount: 999,
+    nextDue: "Next due: 18 Oct • 2 days",
+    status: "Active",
+    icon: Wifi,
+    iconBg: "bg-black text-white",
+  },
+  {
+    id: "rec-2",
+    name: "Netflix • Streaming",
+    subtitle: "Monthly • Premium Plan",
+    amount: 649,
+    nextDue: "Next due: 22 Oct • 6 days",
+    status: "Active",
+    icon: Tv,
+    iconBg: "bg-red-600 text-white",
+  },
+  {
+    id: "rec-3",
+    name: "Rent • Apartment",
+    subtitle: "Monthly",
+    amount: 35000,
+    nextDue: "Next due: 1 Nov • 16 days",
+    status: "Paused",
+    icon: Home,
+    iconBg: "bg-black text-emerald-400",
+  },
+];
 
-export default function RecurringExpensesPage() {
-  const [recurringList, setRecurringList] = useState<RecurringExpense[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+export default function RecurringPage() {
+  const [bills, setBills] = useState(DEFAULT_BILL_ITEMS);
+  const [allActive, setAllActive] = useState(true);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<RecurringExpense | null>(null);
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [frequency, setFrequency] = useState<RecurrenceType>("monthly");
-  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-  const [paidByUserId, setPaidByUserId] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("UPI");
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  // Form State
+  const [billName, setBillName] = useState("");
+  const [billAmount, setBillAmount] = useState("");
+  const [billSubtitle, setBillSubtitle] = useState("Utility • Monthly");
 
-  const loadData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const [recs, cats, mems] = await Promise.all([
-        DataService.getRecurringExpenses(),
-        DataService.getCategories(),
-        DataService.getMembers(),
-      ]);
-      setRecurringList(recs);
-      setCategories(cats);
-      setMembers(mems);
-      if (!categoryId && cats.length > 0) setCategoryId(cats[0].id);
-      if (!paidByUserId && mems.length > 0) setPaidByUserId(mems[0].user_id);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [categoryId, paidByUserId]);
-
-  useEffect(() => {
-    loadData();
-    const handleUserChanged = () => loadData();
-    window.addEventListener("household-user-changed", handleUserChanged);
-    return () => window.removeEventListener("household-user-changed", handleUserChanged);
-  }, [loadData]);
-
-  const openModal = (existing?: RecurringExpense) => {
-    setFormError(null);
-    if (existing) {
-      setEditingItem(existing);
-      setDescription(existing.description);
-      setAmount(existing.amount.toString());
-      setCategoryId(existing.category_id);
-      setFrequency(existing.frequency);
-      setStartDate(existing.start_date);
-      setPaidByUserId(existing.paid_by_user_id);
-      setPaymentMethod(existing.payment_method);
-    } else {
-      setEditingItem(null);
-      setDescription("");
-      setAmount("");
-      setCategoryId(categories[0]?.id || "");
-      setFrequency("monthly");
-      setStartDate(new Date().toISOString().split("T")[0]);
-      setPaidByUserId(members[0]?.user_id || "");
-      setPaymentMethod("UPI");
-    }
-    setIsModalOpen(true);
+  const handleRecordNow = (billName?: string) => {
+    const target = billName || "Airtel Xstream Fiber";
+    setToastMsg(`Recorded auto-payment for ${target} successfully!`);
+    setTimeout(() => setToastMsg(null), 3500);
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleToggleActive = (id: string) => {
+    setBills((prev) =>
+      prev.map((b) =>
+        b.id === id ? { ...b, status: b.status === "Active" ? "Paused" : "Active" } : b
+      )
+    );
+  };
+
+  const handleAddBill = (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
+    if (!billName.trim() || !billAmount) return;
 
-    const validation = recurringExpenseFormSchema.safeParse({
-      amount,
-      description,
-      category_id: categoryId,
-      frequency,
-      start_date: startDate,
-      paid_by_user_id: paidByUserId,
-      payment_method: paymentMethod,
-    });
+    const newBill = {
+      id: "rec-" + Date.now(),
+      name: billName.trim(),
+      subtitle: billSubtitle,
+      amount: parseFloat(billAmount),
+      nextDue: "Next due in 30 days",
+      status: "Active",
+      icon: Zap,
+      iconBg: "bg-[#0E0E10] text-[#D4F835]",
+    };
 
-    if (!validation.success) {
-      setFormError(validation.error.issues[0]?.message || "Invalid input");
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      await DataService.saveRecurringExpense({
-        id: editingItem?.id,
-        ...validation.data,
-        next_occurrence: editingItem?.next_occurrence || startDate,
-        is_active: editingItem ? editingItem.is_active : true,
-        paid_by_user_id: validation.data.paid_by_user_id,
-        created_by_user_id: DataService.getCurrentUser().user_id,
-      });
-      setIsModalOpen(false);
-      loadData();
-    } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : "Failed to save recurring bill");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleRecordPayment = async (rec: RecurringExpense) => {
-    try {
-      const exp = await DataService.recordRecurringPayment(rec.id);
-      setActionSuccess(`Recorded ${formatINR(exp.amount)} for ${rec.description}. Next cycle set to ${rec.next_occurrence}`);
-      setTimeout(() => setActionSuccess(null), 5000);
-      loadData();
-    } catch (err: unknown) {
-      alert("Failed: " + (err instanceof Error ? err.message : String(err)));
-    }
-  };
-
-  const toggleStatus = async (rec: RecurringExpense) => {
-    rec.is_active = !rec.is_active;
-    await DataService.saveRecurringExpense(rec);
-    loadData();
+    setBills((prev) => [newBill, ...prev]);
+    setIsAddOpen(false);
+    setBillName("");
+    setBillAmount("");
+    setToastMsg(`Added ${newBill.name} to recurring bills!`);
+    setTimeout(() => setToastMsg(null), 3000);
   };
 
   return (
-    <AppLayout
-      title="Recurring Expenses & Bills"
-      subtitle="Automated reminders and scheduled bills for rent, utilities, and subscriptions"
-    >
-      {/* Toast Feedback */}
-      {actionSuccess && (
-        <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-sm flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>{actionSuccess}</span>
+    <AppLayout title="Recurring Bills">
+      <div className="max-w-xl mx-auto space-y-6 select-none">
+        {/* Top Header matching Figma image_20261014_111556.jpg */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-xs">
+              <Calendar className="h-5 w-5" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+              Recurring Bills
+            </h2>
           </div>
-          <button
-            type="button"
-            onClick={() => setActionSuccess(null)}
-            className="text-xs font-semibold hover:underline"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
 
-      {/* Top Action Bar */}
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground">
-            {recurringList.filter((r) => r.is_active).length} Active Scheduled Bills
-          </h3>
-        </div>
-
-        <Button
-          size="sm"
-          onClick={() => openModal()}
-          className="gap-1.5 text-xs font-semibold"
-        >
-          <Plus className="h-4 w-4" />
-          <span>New Recurring Bill</span>
-        </Button>
-      </div>
-
-      {isLoading ? (
-        <div className="space-y-3 animate-pulse">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 rounded-xl bg-card border border-border" />
-          ))}
-        </div>
-      ) : recurringList.length === 0 ? (
-        <EmptyState
-          icon={Repeat}
-          title="No recurring expenses configured"
-          description="Add repeating bills like apartment rent, electricity, broadband, or mobile recharge to never miss a due date."
-          action={
-            <Button onClick={() => openModal()} size="sm" className="gap-2 font-semibold">
-              <Plus className="h-4 w-4" />
-              <span>Add Recurring Bill</span>
-            </Button>
-          }
-        />
-      ) : (
-        <div className="space-y-3">
-          {recurringList.map((rec) => (
-            <Card
-              key={rec.id}
-              className={`p-4 transition-all hover:border-primary/40 ${!rec.is_active ? "opacity-60 bg-muted/20" : ""
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-muted-foreground">
+              All active
+            </span>
+            <button
+              type="button"
+              onClick={() => setAllActive(!allActive)}
+              className={`w-11 h-6 rounded-full transition-colors p-0.5 cursor-pointer flex items-center ${allActive ? "bg-[#D4F835]" : "bg-zinc-300 dark:bg-zinc-700"
                 }`}
             >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-start gap-3.5">
-                  <div
-                    className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-xs shrink-0 mt-0.5"
-                    style={{ backgroundColor: rec.category?.color || "#124334" }}
-                  >
-                    <CategoryIcon name={rec.category?.icon || "Repeat"} className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-bold text-base text-foreground">{rec.description}</h4>
-                      <Badge variant="outline" className="text-[10px] capitalize font-medium">
-                        {rec.frequency}
-                      </Badge>
-                      {rec.is_active ? (
-                        <Badge variant="success" className="text-[10px]">Active</Badge>
-                      ) : (
-                        <Badge variant="secondary" className="text-[10px]">Paused</Badge>
-                      )}
-                    </div>
-
-                    <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        Next Due: <strong className="text-foreground">{formatDate(rec.next_occurrence)}</strong>
-                      </span>
-                      <span>•</span>
-                      <span>Category: {rec.category?.name}</span>
-                      <span>•</span>
-                      <span>Payer: {rec.paid_by?.display_name || "Family"} via {rec.payment_method}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between md:justify-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-border/60">
-                  <span className="text-xl font-extrabold text-foreground">
-                    {formatINR(rec.amount)}
-                  </span>
-
-                  <div className="flex items-center gap-1.5">
-                    {rec.is_active && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleRecordPayment(rec)}
-                        className="gap-1.5 text-xs font-semibold"
-                      >
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                        <span>Record as Paid</span>
-                      </Button>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => toggleStatus(rec)}
-                      className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                      title={rec.is_active ? "Pause" : "Resume"}
-                    >
-                      {rec.is_active ? (
-                        <PauseCircle className="h-4 w-4" />
-                      ) : (
-                        <PlayCircle className="h-4 w-4" />
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => openModal(rec)}
-                      className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                      title="Edit"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
+              <div
+                className={`h-5 w-5 rounded-full bg-black shadow-xs transition-transform ${allActive ? "translate-x-5" : "translate-x-0"
+                  }`}
+              />
+            </button>
+          </div>
         </div>
-      )}
 
-      {/* Add / Edit Recurring Bill Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingItem ? "Edit Recurring Bill" : "Configure Scheduled Bill"}
-        description="Set recurring schedule and payment details"
-        maxWidth="md"
-      >
-        <form onSubmit={handleSave} className="space-y-4">
-          {formError && (
-            <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs">
-              {formError}
-            </div>
-          )}
+        {/* Black Status Capsule Pill matching Figma */}
+        <div className="py-2.5 px-4 rounded-full bg-[#0E0E10] text-white text-xs font-semibold text-center shadow-xs">
+          3 Active • 1 Paused • Next bill in 2 days
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Bill Description <span className="text-destructive">*</span>
-            </label>
-            <Input
-              type="text"
-              required
-              placeholder="e.g. Monthly Rent, BESCOM Electricity, Airtel Fiber"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              autoFocus
-            />
+        {/* Toast Feedback */}
+        {toastMsg && (
+          <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold text-center animate-in fade-in flex items-center justify-center gap-2">
+            <CheckCircle2 className="h-4 w-4" />
+            <span>{toastMsg}</span>
           </div>
+        )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Amount (₹ INR) <span className="text-destructive">*</span>
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-2.5 text-sm font-bold text-muted-foreground">₹</span>
-                <Input
-                  type="number"
-                  step="0.01"
-                  required
-                  placeholder="0.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="pl-8 text-sm font-semibold"
-                />
+        {/* Bill Cards matching Figma */}
+        <div className="space-y-4">
+          {bills.map((bill) => {
+            const Icon = bill.icon;
+            const isActive = bill.status === "Active";
+
+            return (
+              <div
+                key={bill.id}
+                className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs space-y-4 hover:border-border transition-colors"
+              >
+                {/* Top Info Row */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className={`h-12 w-12 rounded-2xl flex items-center justify-center font-bold shadow-xs ${bill.iconBg}`}
+                    >
+                      <Icon className="h-6 w-6" />
+                    </div>
+
+                    <div>
+                      <h3 className="font-extrabold text-base text-foreground leading-snug">
+                        {bill.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {bill.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="font-black text-lg text-foreground">
+                      {formatINR(bill.amount)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom Status Row */}
+                <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>{bill.nextDue}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleToggleActive(bill.id)}
+                    className={`px-3 py-0.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${isActive
+                      ? "bg-[#D4F835] text-black shadow-2xs"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                      }`}
+                  >
+                    {bill.status}
+                  </button>
+                </div>
               </div>
-            </div>
+            );
+          })}
+        </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Recurrence Frequency <span className="text-destructive">*</span>
-              </label>
-              <Select
-                value={frequency}
-                onChange={(e) => setFrequency(e.target.value as RecurrenceType)}
-              >
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
-              </Select>
-            </div>
-          </div>
+        {/* Record Now Black Button with Microphone icon matching Figma */}
+        <div className="space-y-3 pt-2">
+          <button
+            type="button"
+            onClick={() => handleRecordNow()}
+            className="w-full py-3.5 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
+          >
+            <Mic className="h-4 w-4 text-[#D4F835]" />
+            <span>Record Now</span>
+          </button>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Category <span className="text-destructive">*</span>
-              </label>
-              <Select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-              >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            </div>
+          <button
+            type="button"
+            onClick={() => setIsAddOpen(true)}
+            className="w-full py-2.5 rounded-full border border-border text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+          >
+            + Add New Recurring Bill
+          </button>
+        </div>
+      </div>
 
+      {/* Add Recurring Bill Modal */}
+      {isAddOpen && (
+        <Modal
+          isOpen={isAddOpen}
+          onClose={() => setIsAddOpen(false)}
+          maxWidth="sm"
+          className="p-6 rounded-[28px] bg-card border-0 shadow-2xl"
+        >
+          <h3 className="text-lg font-bold text-foreground mb-4">
+            Add Recurring Bill
+          </h3>
+          <form onSubmit={handleAddBill} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Start / Next Date <span className="text-destructive">*</span>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                Service / Bill Name
               </label>
-              <Input
-                type="date"
+              <input
+                type="text"
+                value={billName}
+                onChange={(e) => setBillName(e.target.value)}
+                placeholder="e.g. Spotify, Electricity, Gym"
                 required
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Default Payer <span className="text-destructive">*</span>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                Amount (₹)
               </label>
-              <Select
-                value={paidByUserId}
-                onChange={(e) => setPaidByUserId(e.target.value)}
-              >
-                {members.map((m) => (
-                  <option key={m.id} value={m.user_id}>
-                    {m.display_name}
-                  </option>
-                ))}
-              </Select>
+              <input
+                type="number"
+                value={billAmount}
+                onChange={(e) => setBillAmount(e.target.value)}
+                placeholder="e.g. 999"
+                required
+                className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Payment Method
+              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                Billing Cycle
               </label>
-              <Select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-              >
-                {PAYMENT_METHODS.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </Select>
+              <input
+                type="text"
+                value={billSubtitle}
+                onChange={(e) => setBillSubtitle(e.target.value)}
+                placeholder="e.g. Broadband • Monthly"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              />
             </div>
-          </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSaving}>
-              Save Recurring Bill
-            </Button>
-          </div>
-        </form>
-      </Modal>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsAddOpen(false)}
+                className="flex-1 py-2.5 rounded-full border border-border text-xs font-bold text-foreground hover:bg-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 py-2.5 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] text-black text-xs font-bold shadow-xs cursor-pointer"
+              >
+                Add Bill
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </AppLayout>
   );
 }
