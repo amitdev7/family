@@ -53,7 +53,6 @@ export default function BudgetsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
   const [allReceived, setAllReceived] = useState<ReceivedMoney[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Category filter
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>("all");
@@ -79,7 +78,6 @@ export default function BudgetsPage() {
 
   const loadData = async () => {
     try {
-      setIsLoading(true);
       const [sum, cats, mems, received] = await Promise.all([
         DataService.getMoneySummary(),
         DataService.getCategories(),
@@ -94,13 +92,14 @@ export default function BudgetsPage() {
       if (mems.length > 0 && !fromMemberId) {
         setFromMemberId(mems[0].user_id || mems[0].id);
       }
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      console.error("Failed to load budgets data:", err);
     }
   };
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle Receiving Money from a Family Member

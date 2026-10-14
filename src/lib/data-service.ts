@@ -8,8 +8,6 @@ import {
   ActivityLog,
   ExpenseFilters,
   DashboardMetrics,
-  RecurringFrequency,
-  PaymentMethod,
   ReceivedMoney,
 } from "./types";
 import {

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Plus, Check, Send } from "lucide-react";
 import { HouseholdMember } from "@/lib/types";
-import { formatINR } from "@/lib/formatters";
 
 interface QuickTransferWidgetProps {
   members?: HouseholdMember[];

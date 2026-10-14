@@ -5,7 +5,6 @@ import {
   X,
   Calendar,
   UploadCloud,
-  Check,
   Zap,
   Banknote,
   CreditCard,
@@ -15,7 +14,6 @@ import {
 import { Modal } from "@/components/ui/modal";
 import { Expense, Category, HouseholdMember } from "@/lib/types";
 import { DataService } from "@/lib/data-service";
-import { formatINR } from "@/lib/formatters";
 
 interface ExpenseDialogProps {
   isOpen: boolean;
@@ -68,6 +66,7 @@ export function ExpenseDialog({
       const curr = DataService.getCurrentUser();
       if (!paidByUserId) setPaidByUserId(curr?.user_id || mems[0]?.user_id || "");
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
