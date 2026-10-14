@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
+  Repeat,
   Mic,
   Calendar,
+  Plus,
   Tv,
   Wifi,
   Home,
@@ -12,6 +14,8 @@ import {
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Modal } from "@/components/ui/modal";
+import { DataService } from "@/lib/data-service";
+import { RecurringExpense, Category, HouseholdMember } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 
 // 3 Figma Recurring Bills matching image_20261014_111556.jpg right

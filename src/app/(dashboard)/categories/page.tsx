@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Tags,
+  Plus,
   Search,
   ShoppingCart,
   Utensils,
@@ -292,28 +293,6 @@ export default function CategoriesPage() {
                 {isSaving ? "Saving..." : "+ Save Category"}
               </button>
             </div>
-
-            {categories.length > 0 && (
-              <div className="pt-3 border-t border-border/50">
-                <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                  Saved Categories ({categories.length})
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((c) => (
-                    <span
-                      key={c.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-secondary/80 text-foreground border border-border/60"
-                    >
-                      <span
-                        className="h-2 w-2 rounded-full"
-                        style={{ backgroundColor: c.color || "#D4F835" }}
-                      />
-                      {c.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </form>
         </div>
       </div>

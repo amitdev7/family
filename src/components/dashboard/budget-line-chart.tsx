@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { formatINR } from "@/lib/formatters";
 
 interface BudgetLineChartProps {
   dataPoints?: Array<{ date: string; amount: number }>;
@@ -59,14 +60,10 @@ export function BudgetLineChart({ dataPoints = DEFAULT_POINTS }: BudgetLineChart
         </h3>
 
         {/* Dropdown Pill */}
-        <button
-          type="button"
-          onClick={() => setSelectedPeriod((prev) => (prev === "Month" ? "Week" : "Month"))}
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/80 text-foreground text-xs font-semibold hover:bg-secondary cursor-pointer transition-colors shadow-2xs"
-        >
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/80 text-foreground text-xs font-semibold hover:bg-secondary cursor-pointer transition-colors shadow-2xs">
           <span>{selectedPeriod}</span>
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
-        </button>
+        </div>
       </div>
 
       {/* Line Graph */}

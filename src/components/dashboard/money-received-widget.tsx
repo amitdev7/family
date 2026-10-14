@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowDownLeft, ArrowUpRight, Plus, Wallet, ChevronRight, X } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Plus, Wallet, ShieldCheck, ChevronRight, X } from "lucide-react";
 import { DataService } from "@/lib/data-service";
 import { formatINR } from "@/lib/formatters";
 import { Modal } from "@/components/ui/modal";
@@ -48,7 +48,6 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
 
   useEffect(() => {
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {

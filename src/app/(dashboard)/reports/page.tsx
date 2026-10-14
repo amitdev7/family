@@ -1,10 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Printer } from "lucide-react";
+import {
+  Printer,
+  TrendingUp,
+  TrendingDown,
+  ArrowUpRight,
+  User,
+} from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
+import { formatINR } from "@/lib/formatters";
 
 // 3 Top Spenders from Figma image_20261014_111612.jpg center
 const TOP_SPENDERS = [
@@ -98,16 +105,9 @@ export default function ReportsPage() {
 
         {/* Section 1: Top Spenders by Member matching Figma */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-sm text-foreground">
-              Top Spenders by Member
-            </h3>
-            {members.length > 0 && (
-              <span className="text-xs font-semibold text-muted-foreground">
-                {members.length} members tracked
-              </span>
-            )}
-          </div>
+          <h3 className="font-bold text-sm text-foreground">
+            Top Spenders by Member
+          </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {TOP_SPENDERS.map((spender, i) => (
