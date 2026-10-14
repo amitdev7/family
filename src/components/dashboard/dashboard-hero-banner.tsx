@@ -8,7 +8,6 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Plus,
-  ArrowLeftRight,
   TrendingUp,
   Sparkles,
   Calendar,
@@ -26,18 +25,16 @@ interface DashboardHeroBannerProps {
   moneyLeft?: number;
   onAddExpenseClick: () => void;
   onReceiveMoneyClick: () => void;
-  onSwitchUserClick: () => void;
 }
 
 export function DashboardHeroBanner({
   currentUser,
-  totalBalance = 85230.2,
-  totalReceived = 32500,
-  totalSpent = 18450,
-  moneyLeft = 14050,
+  totalBalance = 0,
+  totalReceived = 0,
+  totalSpent = 0,
+  moneyLeft = 0,
   onAddExpenseClick,
   onReceiveMoneyClick,
-  onSwitchUserClick,
 }: DashboardHeroBannerProps) {
   const [greeting, setGreeting] = useState("Good day");
   const [greetingEmoji, setGreetingEmoji] = useState("✨");
@@ -140,25 +137,15 @@ export function DashboardHeroBanner({
           </div>
         </div>
 
-        {/* Date, Time & Quick Switch Profile Button */}
+        {/* Date & Time */}
         <div className="flex items-center flex-wrap gap-2.5 sm:self-center">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-zinc-300">
             <Calendar className="h-3.5 w-3.5 text-[#D4F835]" />
-            <span>{currentDate || "Wed, Oct 14"}</span>
+            <span>{currentDate || "Today"}</span>
             <span className="text-white/20">•</span>
             <Clock className="h-3.5 w-3.5 text-zinc-400" />
-            <span>{currentTime || "05:45 PM"}</span>
+            <span>{currentTime || "Live"}</span>
           </div>
-
-          <button
-            type="button"
-            onClick={onSwitchUserClick}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer border border-white/10 shadow-xs active:scale-95"
-            title="Switch family member profile"
-          >
-            <ArrowLeftRight className="h-3 w-3 text-[#D4F835]" />
-            <span>Switch Role</span>
-          </button>
         </div>
       </div>
 

@@ -6,8 +6,6 @@ import { DashboardHeroBanner } from "@/components/dashboard/dashboard-hero-banne
 import { RecentTransactionsWidget } from "@/components/dashboard/recent-transactions-widget";
 import { SpendingRadarChart } from "@/components/dashboard/spending-radar-chart";
 import { QuickTransferWidget } from "@/components/dashboard/quick-transfer-widget";
-import { LimeCardWidget } from "@/components/dashboard/lime-card-widget";
-import { BudgetLineChart } from "@/components/dashboard/budget-line-chart";
 import { MoneyReceivedWidget } from "@/components/dashboard/money-received-widget";
 import { ExpenseDialog } from "@/components/expenses/expense-dialog";
 import { DataService } from "@/lib/data-service";
@@ -62,8 +60,8 @@ export default function DashboardPage() {
       <AppLayout title="Dashboard">
         <div className="space-y-6 animate-pulse">
           <div className="h-48 rounded-[32px] bg-card border border-border/80" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-84 rounded-[28px] bg-card border border-border/80" />
             ))}
           </div>
@@ -93,7 +91,6 @@ export default function DashboardPage() {
           moneyLeft={moneyLeft}
           onAddExpenseClick={() => setIsAddExpenseOpen(true)}
           onReceiveMoneyClick={() => {
-            // Dispatch event to open receive money modal in widget or navigate
             const widgetBtn = document.querySelector<HTMLButtonElement>("button:has(span:contains('+ Receive'))");
             if (widgetBtn) {
               widgetBtn.click();
@@ -101,11 +98,10 @@ export default function DashboardPage() {
               window.location.href = "/budgets";
             }
           }}
-          onSwitchUserClick={() => window.dispatchEvent(new Event("open-who-are-you"))}
         />
 
-        {/* 6-Card High-Fidelity 1:1 Responsive Figma Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+        {/* 4-Card Balanced Responsive Grid (Virtual Card & Spending Curve removed) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           {/* 1. Recent Transactions Card with Category Tabs & Receipt Modal */}
           <div className="min-h-[380px]">
             <RecentTransactionsWidget expenses={recentExpenses} />
@@ -121,26 +117,10 @@ export default function DashboardPage() {
             <QuickTransferWidget
               members={members}
               onAddExpenseClick={() => setIsAddExpenseOpen(true)}
-              onAddMemberClick={() => window.dispatchEvent(new Event("open-who-are-you"))}
             />
           </div>
 
-          {/* 4. Electric Lime Virtual VISA Card with 3D Tilt & Masking */}
-          <div className="min-h-[380px]">
-            <LimeCardWidget
-              balance={totalBalance}
-              creditLimit={totalReceived}
-              creditUsed={totalSpent}
-              cardName={currentUser?.display_name?.split(" ")[0] || "Household"}
-            />
-          </div>
-
-          {/* 5. Budget Line Chart Card with Area Gradient & Scrubber */}
-          <div className="min-h-[380px]">
-            <BudgetLineChart />
-          </div>
-
-          {/* 6. Money Received & Remaining Fuel Gauge Widget */}
+          {/* 4. Money Received & Remaining Fuel Gauge Widget */}
           <div className="min-h-[380px]">
             <MoneyReceivedWidget onRefresh={loadData} />
           </div>

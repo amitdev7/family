@@ -1,63 +1,37 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
 
-const RELATIONSHIP_OPTIONS = [
-  "Father",
-  "Mother",
-  "Son",
-  "Daughter",
-  "Self",
-  "Spouse",
-  "Brother",
-  "Sister",
-  "Grandparent",
-  "Other",
-];
-
-const AVATAR_COLORS = [
-  { name: "Blue", hex: "#3b82f6", bgClass: "bg-blue-500", textClass: "text-white" },
-  { name: "Pink", hex: "#f472b6", bgClass: "bg-pink-400", textClass: "text-white" },
-  { name: "Lime", hex: "#D4F835", bgClass: "bg-[#D4F835]", textClass: "text-black" },
-  { name: "Orange", hex: "#fb923c", bgClass: "bg-orange-400", textClass: "text-white" },
-  { name: "Black", hex: "#0E0E10", bgClass: "bg-[#0E0E10]", textClass: "text-white" },
-];
-
-// 4 Figma Cards styles matching image_20261014_111553.jpg
-const MEMBER_CARD_STYLES = [
-  {
-    bg: "bg-[#3b82f6]",
+const MEMBER_STYLES: Record<
+  string,
+  { bg: string; text: string; avatarBg: string; pillBg: string; emoji: string }
+> = {
+  "usr-amit": {
+    bg: "bg-blue-600",
     text: "text-white",
-    avatarBg: "bg-[#2563eb] text-white",
-    pillBg: "bg-white/25 text-white",
-    border: "border-blue-400",
+    avatarBg: "bg-blue-800 text-white",
+    pillBg: "bg-white/20 text-white",
+    emoji: "👑",
   },
-  {
-    bg: "bg-[#f472b6]",
+  "usr-ajay": {
+    bg: "bg-pink-500",
     text: "text-white",
-    avatarBg: "bg-[#ec4899] text-white",
-    pillBg: "bg-white/25 text-white",
-    border: "border-pink-300",
+    avatarBg: "bg-pink-700 text-white",
+    pillBg: "bg-white/20 text-white",
+    emoji: "🌸",
   },
-  {
-    bg: "bg-[#4ade80]",
-    text: "text-black",
-    avatarBg: "bg-[#D4F835] text-black",
-    pillBg: "bg-white/70 text-black",
-    border: "border-emerald-300",
-  },
-  {
-    bg: "bg-[#fb923c]",
+  "usr-chhotu": {
+    bg: "bg-emerald-500",
     text: "text-white",
-    avatarBg: "bg-[#f97316] text-white",
-    pillBg: "bg-white/25 text-white",
-    border: "border-orange-300",
+    avatarBg: "bg-emerald-700 text-white",
+    pillBg: "bg-white/20 text-white",
+    emoji: "🧸",
   },
-];
+};
 
 interface WhoAreYouModalProps {
   isOpen?: boolean;
@@ -70,20 +44,17 @@ export function WhoAreYouModal({
 }: WhoAreYouModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
-
-  // Add Details Form
-  const [name, setName] = useState("");
-  const [relationship, setRelationship] = useState("Father");
-  const [selectedColor, setSelectedColor] = useState(AVATAR_COLORS[0].hex);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string>("usr-amit");
 
   const loadMembers = async () => {
     const list = await DataService.getMembers();
     setMembers(list);
     const current = DataService.getCurrentUser();
-    setSelectedUserId(current?.user_id || (list[0]?.user_id ?? ""));
+    if (current?.user_id) {
+      setSelectedUserId(current.user_id);
+    } else if (list.length > 0) {
+      setSelectedUserId(list[0].user_id);
+    }
   };
 
   useEffect(() => {
@@ -114,218 +85,107 @@ export function WhoAreYouModal({
     setSelectedUserId(userId);
   };
 
-  const handleClose = () => {
-    if (!DataService.hasUserIdentified() && members.length > 0) {
-      DataService.selectActiveUser(selectedUserId || members[0].user_id);
-    }
+  const handleContinue = () => {
+    const targetId = selectedUserId || members[0]?.user_id || "usr-amit";
+    DataService.selectActiveUser(targetId);
     setIsOpen(false);
     if (onClose) onClose();
-  };
-
-  const handleContinue = async () => {
-    // If the user entered custom details in "Add Details", create member
-    if (name.trim()) {
-      try {
-        setIsSaving(true);
-        setError(null);
-        const newMember = await DataService.addMember({
-          display_name: name.trim(),
-          relationship,
-          color: selectedColor,
-          role: "member",
-        });
-        DataService.selectActiveUser(newMember.user_id);
-        setName("");
-        handleClose();
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to add family member");
-      } finally {
-        setIsSaving(false);
-      }
-      return;
-    }
-
-    // Otherwise, select the currently highlighted member
-    if (selectedUserId) {
-      DataService.selectActiveUser(selectedUserId);
-      handleClose();
-    }
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={handleContinue}
       maxWidth="md"
       hideCloseButton={true}
       className="p-0 overflow-hidden rounded-[32px] border-0 shadow-2xl bg-card"
     >
-      <div className="p-6 sm:p-8 space-y-6">
-        {/* Top Header matching Figma image_20261014_111553.jpg */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              Who are you?
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5 font-medium">
-              Select your family member
-            </p>
+      <div className="p-6 sm:p-8 space-y-6 select-none">
+        {/* Top Header */}
+        <div className="text-center space-y-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4F835]/20 text-[#0E0E10] dark:text-[#D4F835] text-xs font-black mb-1">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Welcome to FamilyFlow</span>
           </div>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            title="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Who are you?
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+            Choose your profile to begin managing family expenses
+          </p>
         </div>
 
-        {/* 2x2 Colored Family Cards Grid from Figma */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {members.slice(0, 4).map((member, idx) => {
+        {/* 3 Members Selection Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+          {members.map((member) => {
             const isSelected = member.user_id === selectedUserId;
-            const style = MEMBER_CARD_STYLES[idx % MEMBER_CARD_STYLES.length];
-            const initials = member.display_name
-              .split(" ")
-              .map((n) => n[0])
-              .slice(0, 2)
-              .join("")
-              .toUpperCase();
+            const style = MEMBER_STYLES[member.user_id] || {
+              bg: "bg-blue-600",
+              text: "text-white",
+              avatarBg: "bg-blue-800 text-white",
+              pillBg: "bg-white/20 text-white",
+              emoji: "👤",
+            };
 
             return (
               <button
                 key={member.id}
                 type="button"
                 onClick={() => handleSelectMember(member.user_id)}
-                className={`relative flex items-center gap-3.5 p-4 rounded-2xl transition-all duration-200 text-left cursor-pointer shadow-sm ${style.bg} ${style.text} ${isSelected
-                  ? "ring-4 ring-black/40 scale-[1.02] shadow-md"
-                  : "hover:scale-[1.01] opacity-95"
-                  }`}
+                className={`relative flex flex-col items-center justify-between p-5 rounded-2xl transition-all duration-200 text-center cursor-pointer shadow-md ${
+                  style.bg
+                } ${style.text} ${
+                  isSelected
+                    ? "ring-4 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-xl"
+                    : "hover:scale-102 opacity-85 hover:opacity-100"
+                }`}
               >
+                {/* Selected Check Badge */}
+                {isSelected && (
+                  <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#D4F835] text-black flex items-center justify-center shadow-xs">
+                    <Check className="h-3.5 w-3.5 stroke-[3]" />
+                  </div>
+                )}
+
                 {/* Avatar Initial Circle */}
                 <div
-                  className={`h-11 w-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-xs ${style.avatarBg}`}
+                  className={`h-14 w-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner relative ${style.avatarBg}`}
                 >
-                  {initials}
+                  <span>{member.display_name.slice(0, 1).toUpperCase()}</span>
+                  <span className="absolute -bottom-1 -right-1 text-sm">
+                    {style.emoji}
+                  </span>
                 </div>
 
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-base truncate leading-tight">
+                <div className="mt-3">
+                  <h3 className="font-extrabold text-base tracking-tight leading-tight">
                     {member.display_name}
                   </h3>
                   <div className="mt-1">
                     <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-xs ${style.pillBg}`}
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold backdrop-blur-xs ${style.pillBg}`}
                     >
-                      {member.relationship || "Member"}
+                      {member.role === "admin" ? "Admin" : "Member"}
                     </span>
                   </div>
                 </div>
-
-                {isSelected && (
-                  <div className="absolute top-3 right-3 h-5 w-5 rounded-full bg-white text-black flex items-center justify-center shadow-xs">
-                    <Check className="h-3 w-3 stroke-[3]" />
-                  </div>
-                )}
               </button>
             );
           })}
         </div>
 
-        {/* Add Details Section */}
-        <div className="pt-2 border-t border-border/60 space-y-3.5">
-          <h4 className="font-bold text-base text-foreground">
-            Add Details
-          </h4>
-
-          {error && (
-            <div className="p-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-medium">
-              {error}
-            </div>
-          )}
-
-          {/* Name Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <label className="text-xs font-bold text-foreground w-20 shrink-0">
-              Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter full name"
-              className="flex-1 px-4 py-2 rounded-xl bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
-            />
-          </div>
-
-          {/* Relationship & Avatar Color Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <label className="text-xs font-bold text-foreground w-20 shrink-0">
-                Relationship
-              </label>
-              <select
-                value={relationship}
-                onChange={(e) => setRelationship(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-secondary/50 border border-border text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
-              >
-                {RELATIONSHIP_OPTIONS.map((rel) => (
-                  <option key={rel} value={rel}>
-                    {rel}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Avatar Color Swatches */}
-            <div className="flex items-center gap-2 sm:pl-2">
-              <span className="text-xs font-medium text-muted-foreground mr-1">
-                Avatar Color
-              </span>
-              <div className="flex items-center gap-1.5">
-                {AVATAR_COLORS.map((col) => (
-                  <button
-                    key={col.hex}
-                    type="button"
-                    onClick={() => setSelectedColor(col.hex)}
-                    className={`h-6 w-6 rounded-full flex items-center justify-center transition-transform cursor-pointer ${col.bgClass} ${selectedColor === col.hex
-                      ? "scale-110 ring-2 ring-black dark:ring-white"
-                      : "hover:scale-105 opacity-80"
-                      }`}
-                    title={col.name}
-                  >
-                    {selectedColor === col.hex && (
-                      <Check className={`h-3 w-3 stroke-[3] ${col.textClass}`} />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Buttons: Cancel & Continue -> */}
-        <div className="flex items-center gap-3 pt-2">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex-1 py-3 px-4 rounded-full border border-border text-sm font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer"
-          >
-            Cancel
-          </button>
+        {/* Continue Button */}
+        <div className="pt-2">
           <button
             type="button"
             onClick={handleContinue}
-            disabled={isSaving}
-            className="flex-1 py-3 px-4 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] text-black text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 px-6 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 text-sm font-black transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-98"
           >
-            <span>Continue</span>
-            <span>→</span>
+            <span>Continue as {members.find((m) => m.user_id === selectedUserId)?.display_name || "Selected Member"}</span>
+            <span className="text-[#D4F835]">→</span>
           </button>
         </div>
       </div>
     </Modal>
   );
 }
-

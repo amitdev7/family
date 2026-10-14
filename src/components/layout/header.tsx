@@ -7,9 +7,7 @@ import {
   ShieldAlert,
   LogOut,
   ChevronDown,
-  UserCheck,
   Bell,
-  ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -27,14 +25,12 @@ interface HeaderProps {
 
 export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
   const [currentUser, setCurrentUser] = useState<HouseholdMember | null>(null);
-  const [members, setMembers] = useState<HouseholdMember[]>([]);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
 
   const syncUserData = () => {
     setIsDemo(!isSupabaseConfigured());
     setCurrentUser(DataService.getCurrentUser());
-    DataService.getMembers().then(setMembers);
   };
 
   useEffect(() => {
@@ -50,16 +46,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
     };
   }, []);
 
-  const handleSwitchUser = (member: HouseholdMember) => {
-    DataService.selectActiveUser(member.user_id);
-    setCurrentUser(member);
-    setIsUserMenuOpen(false);
-  };
 
-  const handleOpenWhoAreYou = () => {
-    setIsUserMenuOpen(false);
-    window.dispatchEvent(new Event("open-who-are-you"));
-  };
 
   const initials = currentUser?.display_name
     ? currentUser.display_name
@@ -105,36 +92,24 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
           </div>
         )}
 
-        {/* Switch Profile Pill from Figma image_20261014_111553.jpg */}
-        <div className="hidden md:flex items-center bg-[#0E0E10] text-white rounded-full p-1 pl-2 pr-1 gap-2 shadow-xs border border-zinc-800">
-          <div className="flex items-center gap-1.5">
-            <div className="h-5 w-5 rounded-full bg-[#D4F835] text-black font-bold text-[9px] flex items-center justify-center shrink-0">
-              {initials}
-            </div>
-            <span className="text-xs font-medium text-zinc-200 truncate max-w-[100px]">
-              {currentUser?.display_name || "Amit Sharma"}
-            </span>
+        {/* Active Member Badge */}
+        <div className="hidden md:flex items-center bg-[#0E0E10] text-white rounded-full py-1.5 px-3.5 gap-2 shadow-xs border border-zinc-800">
+          <div className="h-5 w-5 rounded-full bg-[#D4F835] text-black font-bold text-[9px] flex items-center justify-center shrink-0">
+            {initials}
           </div>
-          <button
-            type="button"
-            onClick={handleOpenWhoAreYou}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#D4F835] text-black text-[11px] font-bold hover:bg-[#c5ea28] transition-all cursor-pointer shadow-xs"
-          >
-            <span>Switch Profile</span>
-            <ArrowLeftRight className="h-3 w-3" />
-          </button>
+          <span className="text-xs font-bold text-zinc-200 truncate max-w-[120px]">
+            {currentUser?.display_name || "Amit"}
+          </span>
         </div>
 
-        {/* Notification Bell with Red Dot from Figma image_20261014_111553.jpg */}
-        <button
-          type="button"
-          onClick={handleOpenWhoAreYou}
-          className="relative h-9 w-9 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-secondary/80 transition-colors cursor-pointer"
+        {/* Notification Bell with Red Dot */}
+        <div
+          className="relative h-9 w-9 rounded-full bg-secondary flex items-center justify-center text-foreground transition-colors"
           title="Notifications & Family Updates"
         >
           <Bell className="h-4 w-4" />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-card" />
-        </button>
+          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-card" />
+        </div>
 
         {/* Quick Add Expense Button */}
         {onAddExpenseClick && (
@@ -189,49 +164,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                 </p>
               </div>
 
-              {/* Action: Open Who Are You / Add Member */}
-              <div className="py-1 border-b border-border/60">
-                <button
-                  type="button"
-                  onClick={handleOpenWhoAreYou}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs flex items-center gap-2 text-black bg-[#D4F835] hover:bg-[#c5ea28] transition-colors font-bold cursor-pointer"
-                >
-                  <UserCheck className="h-4 w-4 shrink-0" />
-                  <span>Who are you? (Switch/Add)</span>
-                </button>
-              </div>
-
-              {/* Multi-member fast list */}
-              <div className="py-1 max-h-48 overflow-y-auto">
-                <p className="px-3 pt-1 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Quick Switch Family Member
-                </p>
-                {members.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => handleSwitchUser(m)}
-                    className={`w-full text-left px-3 py-1.5 rounded-xl text-xs flex items-center justify-between hover:bg-accent transition-colors cursor-pointer ${m.user_id === currentUser?.user_id
-                      ? "font-bold text-black bg-[#D4F835]/30"
-                      : "text-foreground"
-                      }`}
-                  >
-                    <span className="truncate">{m.display_name}</span>
-                    <span className="text-[10px] text-muted-foreground capitalize shrink-0 ml-1">
-                      ({m.relationship || m.role})
-                    </span>
-                  </button>
-                ))}
-              </div>
-
               <div className="pt-1 mt-1 border-t border-border/60">
-                <Link
-                  href="/settings"
-                  onClick={() => setIsUserMenuOpen(false)}
-                  className="w-full text-left px-3 py-1.5 rounded-xl text-xs flex items-center gap-2 text-foreground hover:bg-muted transition-colors"
-                >
-                  <span>Household Settings</span>
-                </Link>
                 <Link
                   href="/login"
                   className="w-full text-left px-3 py-1.5 rounded-xl text-xs flex items-center gap-2 text-destructive hover:bg-destructive/10 transition-colors"

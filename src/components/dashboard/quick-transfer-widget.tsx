@@ -2,31 +2,27 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Plus, Check, Send, CheckCircle2 } from "lucide-react";
+import { Check, Send, CheckCircle2 } from "lucide-react";
 import { HouseholdMember } from "@/lib/types";
 
 interface QuickTransferWidgetProps {
   members?: HouseholdMember[];
-  onAddMemberClick?: () => void;
   onAddExpenseClick?: () => void;
 }
 
 const DEMO_AVATARS = [
-  { id: "1", name: "Priya", role: "Mother", emoji: "🌸", bg: "bg-blue-500 text-white", initial: "P" },
-  { id: "2", name: "Aarav", role: "Son", emoji: "🎓", bg: "bg-amber-400 text-black", initial: "A" },
-  { id: "3", name: "Diya", role: "Daughter", emoji: "🎨", bg: "bg-pink-500 text-white", initial: "D" },
-  { id: "4", name: "Ramesh", role: "Grandpa", emoji: "👴", bg: "bg-emerald-500 text-white", initial: "R" },
-  { id: "5", name: "Sunita", role: "Grandma", emoji: "👵", bg: "bg-purple-500 text-white", initial: "S" },
+  { id: "usr-amit", name: "Amit", role: "Admin", emoji: "👑", bg: "bg-blue-600 text-white", initial: "A" },
+  { id: "usr-ajay", name: "Ajay", role: "Member", emoji: "🌸", bg: "bg-pink-500 text-white", initial: "A" },
+  { id: "usr-chhotu", name: "Chhotu", role: "Member", emoji: "🧸", bg: "bg-emerald-500 text-white", initial: "C" },
 ];
 
 const PRESET_AMOUNTS = ["500", "1000", "2000", "5000"];
 
 export function QuickTransferWidget({
   members,
-  onAddMemberClick,
   onAddExpenseClick,
 }: QuickTransferWidgetProps) {
-  const [selectedId, setSelectedId] = useState<string>(() => members?.[0]?.user_id || "1");
+  const [selectedId, setSelectedId] = useState<string>(() => members?.[0]?.user_id || "usr-amit");
   const [amount, setAmount] = useState<string>("1000");
   const [isSending, setIsSending] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -39,23 +35,17 @@ export function QuickTransferWidget({
 
   const displayList =
     members && members.length > 0
-      ? members.map((m, idx) => ({
-          id: m.user_id,
-          name: m.display_name.split(" ")[0],
-          role: m.relationship || m.role || "Member",
-          emoji:
-            m.relationship === "Father"
-              ? "👑"
-              : m.relationship === "Mother"
-              ? "🌸"
-              : m.relationship === "Son"
-              ? "🎓"
-              : m.relationship === "Daughter"
-              ? "🎨"
-              : "👤",
-          bg: DEMO_AVATARS[idx % DEMO_AVATARS.length].bg,
-          initial: m.display_name.slice(0, 1).toUpperCase(),
-        }))
+      ? members.map((m) => {
+          const match = DEMO_AVATARS.find((a) => a.id === m.user_id);
+          return {
+            id: m.user_id,
+            name: m.display_name,
+            role: m.relationship || (m.role === "admin" ? "Admin" : "Member"),
+            emoji: match?.emoji || "👤",
+            bg: match?.bg || "bg-blue-600 text-white",
+            initial: m.display_name.slice(0, 1).toUpperCase(),
+          };
+        })
       : DEMO_AVATARS;
 
   const selectedPerson = displayList.find((p) => p.id === selectedId) || displayList[0];
@@ -123,24 +113,6 @@ export function QuickTransferWidget({
               </div>
             );
           })}
-
-          {/* Add / Invite Circle */}
-          <div className="flex flex-col items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                if (onAddMemberClick) onAddMemberClick();
-                else window.dispatchEvent(new Event("open-who-are-you"));
-              }}
-              className="flex h-13 w-13 rounded-2xl border-2 border-dashed border-border hover:border-foreground items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer hover:bg-secondary"
-              title="Add or Switch family member"
-            >
-              <Plus className="h-5 w-5" />
-            </button>
-            <span className="text-[11px] font-semibold text-muted-foreground text-center">
-              + New
-            </span>
-          </div>
         </div>
       </div>
 
