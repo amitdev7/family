@@ -32,7 +32,7 @@ import {
 import { createClient, isSupabaseConfigured } from "./supabase/client";
 
 // Storage key for clean production state (zero fake dummy data)
-const DEMO_STORAGE_KEY = "familyflow_clean_v5";
+const DEMO_STORAGE_KEY = "familyflow_clean_v7";
 const DEVICE_USER_KEY = "family_device_active_user_id";
 const USER_IDENTIFIED_KEY = "family_user_has_selected_identity";
 
@@ -68,9 +68,13 @@ function getInitialDemoState(): DemoState {
     if (saved) {
       const parsed: DemoState = JSON.parse(saved);
       if (!parsed.receivedMoney) parsed.receivedMoney = [];
+      // Strictly enforce the 3 members: Amit, Ajay, Chhotu
+      parsed.members = DEMO_MEMBERS;
       const deviceUser = localStorage.getItem(DEVICE_USER_KEY);
       if (deviceUser && parsed.members.some((m: HouseholdMember) => m.user_id === deviceUser)) {
         parsed.currentUserId = deviceUser;
+      } else {
+        parsed.currentUserId = DEMO_MEMBERS[0].user_id;
       }
       return parsed;
     }
@@ -116,8 +120,14 @@ export class DataService {
   // Check if current device/user has completed "Who are you?" identification
   static hasUserIdentified(): boolean {
     if (typeof window === "undefined") return true;
-    return Boolean(localStorage.getItem(USER_IDENTIFIED_KEY));
+    const identified = Boolean(localStorage.getItem(USER_IDENTIFIED_KEY));
+    const deviceUser = localStorage.getItem(DEVICE_USER_KEY);
+    if (!identified || !deviceUser || !DEMO_MEMBERS.some((m) => m.user_id === deviceUser)) {
+      return false;
+    }
+    return true;
   }
+
 
   // Select an existing member as the current active user for this device
   static selectActiveUser(userId: string) {
