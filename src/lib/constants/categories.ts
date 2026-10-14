@@ -1,0 +1,17 @@
+export const CATEGORY_ICON_MAP: Record<string, string> = {
+  ShoppingCart: "Shopping & Groceries",
+  Utensils: "Dining & Food",
+  Home: "Housing & Rent",
+  Zap: "Utilities & Electricity",
+  Wifi: "Internet & Bills",
+  Car: "Transport & Fuel",
+  Tv: "Entertainment & Subs",
+  HeartPulse: "Healthcare & Medical",
+  GraduationCap: "Education",
+  Plane: "Travel & Vacations",
+  Smile: "Personal Care",
+  Gift: "Gifts & Celebrations",
+  ShieldAlert: "Insurance & Taxes",
+  Briefcase: "Work & Home Office",
+  HelpCircle: "Miscellaneous",
+};
