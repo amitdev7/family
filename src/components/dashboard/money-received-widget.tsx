@@ -125,9 +125,8 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
           </p>
           <div className="flex items-baseline gap-2">
             <span
-              className={`text-3xl sm:text-4xl font-black tracking-tight ${
-                moneyLeft >= 0 ? "text-[#D4F835]" : "text-rose-400"
-              }`}
+              className={`text-3xl sm:text-4xl font-black tracking-tight ${moneyLeft >= 0 ? "text-[#D4F835]" : "text-rose-400"
+                }`}
             >
               {formatINR(moneyLeft)}
             </span>
@@ -139,11 +138,10 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
           {/* Progress Bar */}
           <div className="h-2 w-full rounded-full bg-zinc-800/80 overflow-hidden mt-3">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                moneyLeft >= 0
-                  ? "bg-gradient-to-r from-emerald-400 to-[#D4F835]"
-                  : "bg-rose-500"
-              }`}
+              className={`h-full rounded-full transition-all duration-500 ${moneyLeft >= 0
+                ? "bg-gradient-to-r from-emerald-400 to-[#D4F835]"
+                : "bg-rose-500"
+                }`}
               style={{ width: `${percentLeft}%` }}
             />
           </div>
@@ -263,11 +261,10 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
                     key={m.id || m.user_id}
                     type="button"
                     onClick={() => setFromMemberId(m.id || m.user_id)}
-                    className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-                      isSelected
-                        ? "border-[#D4F835] bg-[#D4F835]/15 text-foreground ring-1 ring-[#D4F835]"
-                        : "border-border bg-secondary/40 text-muted-foreground hover:bg-secondary"
-                    }`}
+                    className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-2 ${isSelected
+                      ? "border-[#D4F835] bg-[#D4F835]/15 text-foreground ring-1 ring-[#D4F835]"
+                      : "border-border bg-secondary/40 text-muted-foreground hover:bg-secondary"
+                      }`}
                   >
                     <div className="h-7 w-7 rounded-full bg-[#0E0E10] text-[#D4F835] dark:bg-white dark:text-black flex items-center justify-center text-xs font-black shrink-0">
                       {m.display_name.charAt(0)}
@@ -352,11 +349,10 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
                   key={method}
                   type="button"
                   onClick={() => setPaymentMethod(method)}
-                  className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                    paymentMethod === method
-                      ? "border-[#D4F835] bg-[#D4F835] text-black"
-                      : "border-border bg-secondary/40 text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${paymentMethod === method
+                    ? "border-[#D4F835] bg-[#D4F835] text-black"
+                    : "border-border bg-secondary/40 text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   {method}
                 </button>
