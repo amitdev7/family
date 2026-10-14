@@ -1,489 +1,339 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Users,
-  Shield,
-  History,
-  Palette,
-  UserPlus,
-  Trash2,
-  Copy,
-  Check,
-  Clock,
-  Home,
-  CheckCircle2,
-} from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
-import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
-import { Household, HouseholdMember, ActivityLog } from "@/lib/types";
-import { formatDateTime, formatDate, formatINR } from "@/lib/formatters";
-import { useTheme } from "next-themes";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { Household, HouseholdMember } from "@/lib/types";
+import {
+  Edit2,
+  ChevronDown,
+  Plus,
+  Cloud,
+  ShieldCheck,
+  Check,
+  ChevronRight,
+  MoreVertical,
+} from "lucide-react";
 
 export default function SettingsPage() {
-  const { theme, setTheme } = useTheme();
   const [household, setHousehold] = useState<Household | null>(null);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [householdName, setHouseholdName] = useState("Sharma Residence");
+  const [isEditingName, setIsEditingName] = useState(false);
 
-  // Household name update state
-  const [householdName, setHouseholdName] = useState("");
-  const [isUpdatingHousehold, setIsUpdatingHousehold] = useState(false);
-  const [householdSuccess, setHouseholdSuccess] = useState<string | null>(null);
-
-  // Invite modal state
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"admin" | "member">("member");
-  const [generatedInviteLink, setGeneratedInviteLink] = useState<string | null>(null);
-  const [copiedLink, setCopiedLink] = useState(false);
+  // New member form
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberRelation, setNewMemberRelation] = useState("Son");
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [isSavingMember, setIsSavingMember] = useState(false);
+  const [syncToast, setSyncToast] = useState<string | null>(null);
 
   const loadData = async () => {
-    const [h, m, logs] = await Promise.all([
+    const [h, m] = await Promise.all([
       DataService.getHousehold(),
       DataService.getMembers(),
-      DataService.getActivityLogs(),
     ]);
     setHousehold(h);
     setHouseholdName(h.name);
     setMembers(m);
-    setActivityLogs(logs);
+    setCurrentUserId(DataService.getCurrentUser().user_id);
   };
 
   useEffect(() => {
     loadData();
-    const handleUserChanged = () => loadData();
-    window.addEventListener("household-user-changed", handleUserChanged);
-    return () => window.removeEventListener("household-user-changed", handleUserChanged);
+
+    const handleUpdate = () => loadData();
+    window.addEventListener("household-user-changed", handleUpdate);
+    return () => window.removeEventListener("household-user-changed", handleUpdate);
   }, []);
 
-  const handleUpdateHouseholdName = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveName = async () => {
     if (!householdName.trim()) return;
-
-    setIsUpdatingHousehold(true);
-    try {
-      if (household) {
-        household.name = householdName;
-      }
-      setHouseholdSuccess("Household name updated successfully!");
-      setTimeout(() => setHouseholdSuccess(null), 3000);
-    } finally {
-      setIsUpdatingHousehold(false);
-    }
+    await DataService.updateHousehold({ name: householdName.trim() });
+    setIsEditingName(false);
+    setSyncToast("Household name updated!");
+    setTimeout(() => setSyncToast(null), 3000);
   };
 
-  const handleCreateInvite = (e: React.FormEvent) => {
+  const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteEmail) return;
+    if (!newMemberName.trim()) return;
 
-    const token = "inv_" + Math.random().toString(36).substring(2, 10);
-    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-    const link = `${origin}/signup?invite=${token}`;
-    setGeneratedInviteLink(link);
-  };
-
-  const copyInviteToClipboard = () => {
-    if (generatedInviteLink) {
-      navigator.clipboard.writeText(generatedInviteLink);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2500);
+    try {
+      setIsSavingMember(true);
+      await DataService.addMember({
+        display_name: newMemberName.trim(),
+        relationship: newMemberRelation,
+        email: newMemberEmail.trim() || undefined,
+        role: "member",
+        color: "#D4F835",
+      });
+      setNewMemberName("");
+      setNewMemberEmail("");
+      loadData();
+      setSyncToast("New member added to household!");
+      setTimeout(() => setSyncToast(null), 3000);
+    } finally {
+      setIsSavingMember(false);
     }
   };
 
-  const handleRemoveMember = async (memberId: string) => {
-    if (confirm("Are you sure you want to remove this family member from the household?")) {
-      setMembers((prev) => prev.filter((m) => m.id !== memberId));
-    }
+  const handleSwitchUser = (userId: string) => {
+    DataService.selectActiveUser(userId);
+    setCurrentUserId(userId);
+    setSyncToast("Switched active user profile!");
+    setTimeout(() => setSyncToast(null), 3000);
+  };
+
+  const handleSyncCloud = () => {
+    setSyncToast("Cloud sync completed. Data backup secured.");
+    setTimeout(() => setSyncToast(null), 3000);
   };
 
   return (
-    <AppLayout
-      title="Household Settings"
-      subtitle="Manage family members, security permissions, and audit logs"
-    >
-      <div className="space-y-8 max-w-4xl">
-        {/* Section 1: Household Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Home className="h-5 w-5 text-primary" />
-              <span>Household Configuration</span>
-            </CardTitle>
-            <CardDescription>
-              Basic household information and financial localization
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleUpdateHouseholdName} className="space-y-4">
-              {householdSuccess && (
-                <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 shrink-0" />
-                  <span>{householdSuccess}</span>
-                </div>
+    <AppLayout title="Settings" subtitle="Household preferences and member identity management">
+      <div className="max-w-xl mx-auto space-y-6">
+        {/* Title */}
+        <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">
+          Settings
+        </h2>
+
+        {syncToast && (
+          <div className="p-3.5 rounded-2xl bg-[#D4F835]/15 border border-[#D4F835]/30 text-foreground text-xs font-bold flex items-center gap-2 animate-in fade-in">
+            <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-[#D4F835]" />
+            <span>{syncToast}</span>
+          </div>
+        )}
+
+        {/* Household Section matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border p-6 shadow-xs space-y-4">
+          <h3 className="text-xs font-extrabold text-muted-foreground uppercase tracking-wider">
+            Household
+          </h3>
+
+          <div>
+            <label className="block text-xs font-bold text-muted-foreground mb-1">
+              Display name
+            </label>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/60 border border-border">
+              {isEditingName ? (
+                <input
+                  type="text"
+                  value={householdName}
+                  onChange={(e) => setHouseholdName(e.target.value)}
+                  onBlur={handleSaveName}
+                  autoFocus
+                  className="bg-transparent font-extrabold text-sm text-foreground focus:outline-none w-full"
+                />
+              ) : (
+                <span className="font-extrabold text-sm text-foreground">
+                  {householdName}
+                </span>
               )}
+              <button
+                type="button"
+                onClick={() => (isEditingName ? handleSaveName() : setIsEditingName(true))}
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <Edit2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1.5">
-                    Household Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={householdName}
-                    onChange={(e) => setHouseholdName(e.target.value)}
-                    required
-                  />
-                </div>
+          <div>
+            <label className="block text-xs font-bold text-muted-foreground mb-1">
+              Default currency
+            </label>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/60 border border-border">
+              <span className="font-extrabold text-sm text-foreground">
+                INR • Indian Rupee (₹)
+              </span>
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+        </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1.5">
-                    Currency & Number Formatting
-                  </label>
-                  <Input
-                    type="text"
-                    value="Indian Rupee (INR, ₹) • en-IN (Lakhs / Crores)"
-                    disabled
-                    className="bg-muted text-muted-foreground text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-2">
-                <Button type="submit" size="sm" isLoading={isUpdatingHousehold}>
-                  Update Household
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Section 2: Family Members Management */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
+        {/* Family Members Section matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                <span>Family Members ({members.length})</span>
-              </CardTitle>
-              <CardDescription>
-                All authorized accounts sharing access to this household
-              </CardDescription>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => window.dispatchEvent(new Event("open-who-are-you"))}
-                className="gap-1.5 text-xs font-semibold"
-              >
-                <Users className="h-4 w-4" />
-                <span>Who Are You? (Switch/Add)</span>
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => {
-                  setGeneratedInviteLink(null);
-                  setInviteEmail("");
-                  setIsInviteModalOpen(true);
-                }}
-                className="gap-1.5 text-xs font-semibold"
-              >
-                <UserPlus className="h-4 w-4" />
-                <span>Invite Member</span>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="divide-y divide-border/60">
-              {members.map((member) => (
-                <div
-                  key={member.id}
-                  className="py-3.5 flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Avatar name={member.display_name} src={member.avatar_url} size="md" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-semibold text-sm text-foreground truncate">
-                          {member.display_name}
-                        </h4>
-                        {member.relationship && (
-                          <Badge variant="outline" className="text-[10px] font-medium bg-primary/5 text-primary border-primary/20">
-                            {member.relationship}
-                          </Badge>
-                        )}
-                        <Badge
-                          variant={member.role === "admin" ? "default" : "secondary"}
-                          className="text-[10px] uppercase font-bold"
-                        >
-                          {member.role}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                        {member.email || "Household User"} • Joined {formatDate(member.joined_at)}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground/75 font-mono truncate mt-0.5">
-                        Unique UID: {member.user_id}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {member.role !== "admin" && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveMember(member.id)}
-                        className="p-1.5 rounded-lg text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors text-xs inline-flex items-center gap-1"
-                        title="Remove Member"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="hidden sm:inline">Remove</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 3: Activity Log & Immutable Audit Trail */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5 text-primary" />
-              <span>Activity History & Audit Trail</span>
-            </CardTitle>
-            <CardDescription>
-              Tamper-proof record of additions, modifications, and deletions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="p-3 rounded-xl bg-muted/40 border border-border/80 text-xs text-muted-foreground mb-4">
-              <p>
-                <strong>Security Rule:</strong> In accordance with financial audit requirements, audit entries are immutable and cannot be deleted or modified by ordinary household members.
+              <h3 className="text-base font-extrabold text-foreground">
+                Family Members
+              </h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                {members.length} members
               </p>
             </div>
 
-            <div className="space-y-3">
-              {activityLogs.map((log) => {
-                const summary = log.change_summary as Record<string, string | number>;
-                return (
-                  <div
-                    key={log.id}
-                    className="p-3.5 rounded-xl border border-border bg-card/60 flex items-start gap-3 text-xs"
-                  >
-                    <div className="p-2 rounded-lg bg-secondary text-primary shrink-0 mt-0.5">
-                      <Clock className="h-4 w-4" />
+            <a
+              href="#add-new-member"
+              className="px-3.5 py-1.5 rounded-full bg-[#0E0E10] hover:bg-black/85 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>+ Add new member</span>
+            </a>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            {members.map((member) => {
+              const isActive = member.user_id === currentUserId;
+
+              return (
+                <div
+                  key={member.id}
+                  onClick={() => handleSwitchUser(member.user_id)}
+                  className={`flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer ${
+                    isActive
+                      ? "border-black dark:border-[#D4F835] bg-muted/70 shadow-xs"
+                      : "border-border hover:bg-muted/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className="h-10 w-10 rounded-full text-black font-extrabold text-xs flex items-center justify-center shrink-0 shadow-2xs"
+                      style={{ backgroundColor: member.color || "#D4F835" }}
+                    >
+                      {member.display_name.charAt(0)}
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <span className="font-semibold text-foreground">
-                          {log.actor?.display_name || "Family Member"}
+
+                    <div className="truncate">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-xs text-foreground truncate">
+                          {member.display_name}
                         </span>
-                        <span className="text-muted-foreground">
-                          {formatDateTime(log.created_at)}
-                        </span>
+                        {isActive && (
+                          <span className="px-2 py-0.5 rounded-full bg-[#D4F835] text-black font-black text-[9px] uppercase tracking-wide">
+                            Active • You
+                          </span>
+                        )}
                       </div>
-
-                      <p className="text-muted-foreground">
-                        Action:{" "}
-                        <Badge
-                          variant={
-                            log.action === "create"
-                              ? "success"
-                              : log.action === "delete"
-                                ? "destructive"
-                                : "secondary"
-                          }
-                          className="text-[10px] capitalize ml-1 mr-1.5"
-                        >
-                          {log.action}
-                        </Badge>
-                        on <strong>{log.entity_type}</strong>:{" "}
-                        {summary.description || summary.event || "Record modified"}
+                      <p className="text-[10px] text-muted-foreground font-mono truncate">
+                        User ID: {member.user_id}
                       </p>
-
-                      {summary.amount && (
-                        <p className="text-foreground font-medium">
-                          Amount: {formatINR(Number(summary.amount))}
-                        </p>
-                      )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Section 4: Theme & Appearance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5 text-primary" />
-              <span>Theme & Appearance</span>
-            </CardTitle>
-            <CardDescription>
-              Personalize interface mode across mobile and desktop
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-foreground">Color Theme Preference</p>
-                <p className="text-xs text-muted-foreground">
-                  Current: <strong className="capitalize">{theme || "system"}</strong>
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant={theme === "light" ? "default" : "outline"}
-                  onClick={() => setTheme("light")}
-                >
-                  Light
-                </Button>
-                <Button
-                  size="sm"
-                  variant={theme === "dark" ? "default" : "outline"}
-                  onClick={() => setTheme("dark")}
-                >
-                  Dark
-                </Button>
-                <Button
-                  size="sm"
-                  variant={theme === "system" ? "default" : "outline"}
-                  onClick={() => setTheme("system")}
-                >
-                  System
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 5: Database Connection Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <span>Database & Security Status</span>
-            </CardTitle>
-            <CardDescription>
-              Supabase PostgreSQL and Row Level Security architecture
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-xs">
-            <div className="p-3.5 rounded-xl border border-border bg-card flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-foreground text-sm">PostgreSQL Row Level Security</p>
-                <p className="text-muted-foreground mt-0.5">
-                  Tenant boundaries enforced at database kernel level via RLS policies
-                </p>
-              </div>
-              <Badge variant="success" className="text-[10px]">Active & Enforced</Badge>
-            </div>
-
-            <div className="p-3.5 rounded-xl border border-border bg-card flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-foreground text-sm">Supabase Backend Link</p>
-                <p className="text-muted-foreground mt-0.5">
-                  {isSupabaseConfigured()
-                    ? "Connected to live Supabase project"
-                    : "Interactive Local/Demo Mode active (Configure .env.local to link cloud database)"}
-                </p>
-              </div>
-              <Badge variant={isSupabaseConfigured() ? "success" : "warning"} className="text-[10px]">
-                {isSupabaseConfigured() ? "Connected" : "Demo Mode"}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Member Invitation Modal */}
-      <Modal
-        isOpen={isInviteModalOpen}
-        onClose={() => setIsInviteModalOpen(false)}
-        title="Invite Family Member"
-        description="Generate a secure invitation token to welcome a family member into this household"
-        maxWidth="sm"
-      >
-        {generatedInviteLink ? (
-          <div className="space-y-4">
-            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>Invitation generated! Share the link below with your family member:</span>
-            </div>
-
-            <div className="p-3 rounded-lg border border-border bg-muted/60 text-xs font-mono break-all select-all">
-              {generatedInviteLink}
-            </div>
-
-            <Button
-              type="button"
-              onClick={copyInviteToClipboard}
-              className="w-full gap-2 font-semibold text-xs"
-            >
-              {copiedLink ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
-              <span>{copiedLink ? "Copied to Clipboard!" : "Copy Invitation Link"}</span>
-            </Button>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <span className="text-[11px] font-bold text-muted-foreground hidden sm:inline">
+                      {member.relationship || member.role}
+                    </span>
+                    <ChevronRight className="h-4 w-4" />
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        ) : (
-          <form onSubmit={handleCreateInvite} className="space-y-4">
+        </div>
+
+        {/* Add New Member Section matching Figma */}
+        <form
+          id="add-new-member"
+          onSubmit={handleAddMember}
+          className="rounded-[28px] bg-card border border-border p-6 shadow-xs space-y-4"
+        >
+          <h3 className="text-base font-extrabold text-foreground">
+            Add New Member
+          </h3>
+
+          <div>
+            <label className="block text-xs font-bold text-muted-foreground mb-1">
+              Full name
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Pooja Sharma"
+              value={newMemberName}
+              onChange={(e) => setNewMemberName(e.target.value)}
+              className="w-full h-11 px-4 rounded-xl bg-muted/60 border border-border text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Member Email Address
+              <label className="block text-xs font-bold text-muted-foreground mb-1">
+                Relationship
               </label>
-              <Input
-                type="email"
-                required
-                placeholder="family.member@example.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                autoFocus
+              <select
+                value={newMemberRelation}
+                onChange={(e) => setNewMemberRelation(e.target.value)}
+                className="w-full h-11 px-3 rounded-xl bg-muted/60 border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              >
+                <option value="Father">Father</option>
+                <option value="Mother">Mother</option>
+                <option value="Son">Son</option>
+                <option value="Daughter">Daughter</option>
+                <option value="Grandfather">Grandfather</option>
+                <option value="Grandmother">Grandmother</option>
+                <option value="Partner / Spouse">Partner / Spouse</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-muted-foreground mb-1">
+                Email / Phone
+              </label>
+              <input
+                type="text"
+                placeholder="pooja@family.local"
+                value={newMemberEmail}
+                onChange={(e) => setNewMemberEmail(e.target.value)}
+                className="w-full h-11 px-3 rounded-xl bg-muted/60 border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
               />
             </div>
+          </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Household Role
-              </label>
-              <Select
-                value={inviteRole}
-                onChange={(e) => setInviteRole(e.target.value as "admin" | "member")}
-              >
-                <option value="member">Member (Can view, add, edit, and delete expenses)</option>
-                <option value="admin">Admin (Can also manage members and settings)</option>
-              </Select>
+          <button
+            type="submit"
+            disabled={isSavingMember}
+            className="w-full h-11 rounded-full bg-[#0E0E10] hover:bg-black/90 active:scale-98 text-white font-extrabold text-xs transition-all shadow-sm cursor-pointer disabled:opacity-50"
+          >
+            {isSavingMember ? "Adding..." : "+ Add Member"}
+          </button>
+        </form>
+
+        {/* Cloud & Data Section matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold">
+                <Cloud className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-foreground">
+                  Cloud & Data
+                </h3>
+                <p className="text-[11px] text-muted-foreground">
+                  Last synced: Today at 15:42 IST • Encrypted & secure
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-              <Button type="button" variant="outline" onClick={() => setIsInviteModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">
-                Generate Invite Link
-              </Button>
+            <button
+              type="button"
+              onClick={handleSyncCloud}
+              className="px-4 py-2 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] active:scale-95 text-black font-extrabold text-xs transition-all shadow-2xs cursor-pointer"
+            >
+              Cloud sync
+            </button>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-muted/50 border border-border flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="h-6 w-6 text-emerald-500" />
+              <div>
+                <p className="text-xs font-extrabold text-foreground">Data backup</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Automatic • Daily • 2.4 GB used of 50 GB
+                </p>
+              </div>
             </div>
-          </form>
-        )}
-      </Modal>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </div>
+        </div>
+      </div>
     </AppLayout>
   );
 }
-

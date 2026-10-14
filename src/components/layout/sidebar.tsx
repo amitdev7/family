@@ -4,46 +4,28 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
+  Home,
   ReceiptText,
   PieChart,
   Tags,
   Repeat,
   BarChart3,
   Settings,
-  Home,
-  Users,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DataService } from "@/lib/data-service";
-import { Household } from "@/lib/types";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/expenses", label: "Expenses", icon: ReceiptText },
   { href: "/budgets", label: "Budgets", icon: PieChart },
   { href: "/categories", label: "Categories", icon: Tags },
   { href: "/recurring", label: "Recurring Bills", icon: Repeat },
   { href: "/reports", label: "Reports & Analytics", icon: BarChart3 },
-  { href: "/settings", label: "Household Settings", icon: Settings },
 ];
 
 export function Sidebar({ className = "" }: { className?: string }) {
   const pathname = usePathname();
-  const [household, setHousehold] = useState<Household | null>(null);
-  const [membersCount, setMembersCount] = useState<number>(3);
-
-  useEffect(() => {
-    DataService.getHousehold().then(setHousehold);
-    DataService.getMembers().then((mems) => setMembersCount(mems.length));
-
-    const handleUpdate = () => {
-      DataService.getHousehold().then(setHousehold);
-      DataService.getMembers().then((mems) => setMembersCount(mems.length));
-    };
-    window.addEventListener("household-user-changed", handleUpdate);
-    return () => window.removeEventListener("household-user-changed", handleUpdate);
-  }, []);
 
   const handleOpenWhoAreYou = () => {
     window.dispatchEvent(new Event("open-who-are-you"));
@@ -52,69 +34,92 @@ export function Sidebar({ className = "" }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col w-64 bg-card border-r border-border shrink-0 select-none min-h-screen",
+        "hidden md:flex flex-col items-center justify-between w-20 shrink-0 py-6 my-4 ml-4 select-none bg-[#0E0E10] text-white rounded-[32px] shadow-2xl z-30 transition-all",
         className
       )}
+      style={{ height: "calc(100vh - 2rem)" }}
     >
-      {/* Brand & Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-border/80 gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-          <Home className="h-5 w-5" />
-        </div>
-        <div>
-          <span className="font-bold text-lg tracking-tight text-foreground flex items-center gap-1.5">
-            Our Home
-          </span>
-          <p className="text-[11px] text-muted-foreground font-medium truncate leading-none">
-            Every expense. Total clarity.
-          </p>
-        </div>
-      </div>
-
-      {/* Navigation links */}
-      <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
-          Management
-        </div>
-
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              )}
-            >
-              <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* Household Profile Footer */}
-      <div className="p-4 border-t border-border/80">
-        <button
-          type="button"
-          onClick={handleOpenWhoAreYou}
-          title="Click to switch active family member"
-          className="w-full text-left p-3 rounded-xl bg-secondary/60 hover:bg-secondary/90 transition-colors flex items-center gap-3 cursor-pointer"
+      {/* Top: Glowing Neon Lime Brand Ring */}
+      <div className="flex flex-col items-center gap-6">
+        <Link
+          href="/dashboard"
+          className="group relative flex items-center justify-center h-12 w-12 rounded-full transition-transform active:scale-95"
+          title="Sharma Residence Finances"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0">
-            <Users className="h-4 w-4" />
+          {/* Lime circular ring icon matching Figma */}
+          <div className="h-10 w-10 rounded-full border-[3px] border-[#D4F835] flex items-center justify-center relative transition-all group-hover:scale-105 group-hover:shadow-[0_0_15px_rgba(212,248,53,0.5)]">
+            <div className="absolute top-0 right-0 h-2 w-2 bg-[#0E0E10] transform translate-x-0.5 -translate-y-0.5" />
           </div>
-          <div className="truncate flex-1 min-w-0">
-            <p className="text-xs font-semibold text-foreground truncate">{household?.name || "Our Home"}</p>
-            <p className="text-[11px] text-muted-foreground truncate">{membersCount} Family Members • Switch</p>
+        </Link>
+
+        {/* Main Navigation Icons */}
+        <nav className="flex flex-col items-center gap-3">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
+
+            return (
+              <div key={item.href} className="relative group">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center justify-center h-11 w-11 rounded-full transition-all duration-200",
+                    isActive
+                      ? "bg-white text-black shadow-md scale-105"
+                      : "text-[#8E8E93] hover:text-white hover:bg-white/10"
+                  )}
+                  aria-label={item.label}
+                >
+                  <Icon className="h-5 w-5 stroke-[2.2]" />
+                </Link>
+
+                {/* Floating Tooltip */}
+                <div className="absolute left-14 top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 bg-black text-white text-[11px] font-bold rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity whitespace-nowrap shadow-xl z-50 border border-white/10">
+                  {item.label}
+                </div>
+              </div>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Bottom Actions: Help & Settings */}
+      <div className="flex flex-col items-center gap-3">
+        {/* Switch Profile / Who are you shortcut */}
+        <div className="relative group">
+          <button
+            type="button"
+            onClick={handleOpenWhoAreYou}
+            className="flex items-center justify-center h-11 w-11 rounded-full text-[#8E8E93] hover:text-white hover:bg-white/10 transition-colors"
+            title="Who are you? (Switch Profile)"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </button>
+          <div className="absolute left-14 top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 bg-black text-white text-[11px] font-bold rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity whitespace-nowrap shadow-xl z-50 border border-white/10">
+            Switch Profile
           </div>
-        </button>
+        </div>
+
+        {/* Settings */}
+        <div className="relative group">
+          <Link
+            href="/settings"
+            className={cn(
+              "flex items-center justify-center h-11 w-11 rounded-full transition-all duration-200",
+              pathname === "/settings"
+                ? "bg-white text-black shadow-md scale-105"
+                : "text-[#8E8E93] hover:text-white hover:bg-white/10"
+            )}
+            aria-label="Household Settings"
+          >
+            <Settings className="h-5 w-5 stroke-[2.2]" />
+          </Link>
+          <div className="absolute left-14 top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 bg-black text-white text-[11px] font-bold rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity whitespace-nowrap shadow-xl z-50 border border-white/10">
+            Household Settings
+          </div>
+        </div>
       </div>
     </aside>
   );

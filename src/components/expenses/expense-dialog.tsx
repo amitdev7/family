@@ -2,14 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/modal";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Expense, Category, HouseholdMember, PAYMENT_METHODS, PaymentMethod } from "@/lib/types";
+import { Expense, Category, HouseholdMember, PaymentMethod } from "@/lib/types";
 import { DataService } from "@/lib/data-service";
 import { expenseFormSchema } from "@/lib/validations";
-import { Upload, AlertCircle, FileText } from "lucide-react";
+import { Upload, AlertCircle, Zap, Banknote, CreditCard, Landmark, Check } from "lucide-react";
 
 interface ExpenseDialogProps {
   isOpen: boolean;
@@ -17,6 +13,14 @@ interface ExpenseDialogProps {
   onSaved?: (expense: Expense) => void;
   expenseToEdit?: Expense | null;
 }
+
+const PAYMENT_METHOD_OPTIONS: { id: PaymentMethod; label: string; icon: React.ElementType }[] = [
+  { id: "UPI", label: "UPI", icon: Zap },
+  { id: "Cash", label: "Cash", icon: Banknote },
+  { id: "Credit Card", label: "Credit Card", icon: CreditCard },
+  { id: "Debit Card", label: "Debit Card", icon: CreditCard },
+  { id: "Net Banking", label: "Net Banking", icon: Landmark },
+];
 
 export function ExpenseDialog({
   isOpen,
@@ -52,6 +56,7 @@ export function ExpenseDialog({
         setPaidByUserId(DataService.getCurrentUser().user_id || mems[0].user_id);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -63,45 +68,39 @@ export function ExpenseDialog({
       setPaidByUserId(expenseToEdit.paid_by_user_id);
       setPaymentMethod(expenseToEdit.payment_method);
       setNotes(expenseToEdit.notes || "");
-      setReceiptFileName(expenseToEdit.receipt_path ? "Attached Receipt" : null);
+      setReceiptFileName(expenseToEdit.receipt_path || null);
     } else {
       setAmount("");
       setDescription("");
-      setExpenseDate(new Date().toISOString().split("T")[0]);
+      const today = new Date().toISOString().split("T")[0];
+      setExpenseDate(today);
+      setPaymentMethod("UPI");
       setNotes("");
       setReceiptFileName(null);
-      if (members.length > 0) {
-        setPaidByUserId(DataService.getCurrentUser().user_id || members[0].user_id);
-      }
-      if (categories.length > 0) {
-        setCategoryId(categories[0].id);
-      }
-      setPaymentMethod("UPI");
     }
-    setErrors({});
-  }, [expenseToEdit, isOpen, members, categories]);
+  }, [expenseToEdit, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
-    const formData = {
-      amount,
-      description,
+    const numAmount = parseFloat(amount);
+    const validation = expenseFormSchema.safeParse({
+      amount: isNaN(numAmount) ? 0 : numAmount,
+      description: description.trim(),
       category_id: categoryId,
       expense_date: expenseDate,
       paid_by_user_id: paidByUserId,
       payment_method: paymentMethod,
-      notes: notes || undefined,
-      receipt_path: receiptFileName ? "mock-receipt.pdf" : undefined,
-    };
+      notes: notes.trim() || undefined,
+      receipt_path: receiptFileName || undefined,
+    });
 
-    const validation = expenseFormSchema.safeParse(formData);
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {};
       validation.error.issues.forEach((err) => {
         if (err.path[0]) {
-          fieldErrors[err.path[0] as string] = err.message;
+          fieldErrors[err.path[0].toString()] = err.message;
         }
       });
       setErrors(fieldErrors);
@@ -152,180 +151,180 @@ export function ExpenseDialog({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={expenseToEdit ? "Edit Expense" : "Record New Expense"}
-      description="Add transaction details to keep your household finances accurate and updated."
-      maxWidth="lg"
+      title={expenseToEdit ? "Edit Expense" : "Expense Dialog"}
+      maxWidth="md"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-1">
         {errors.form && (
-          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-2">
+          <div className="p-3 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{errors.form}</span>
           </div>
         )}
 
-        {/* Amount & Date Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Amount (₹ INR) <span className="text-destructive">*</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-2.5 text-sm font-bold text-muted-foreground">₹</span>
-              <Input
-                type="number"
-                step="0.01"
-                min="0.01"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className={`pl-8 text-base font-semibold ${errors.amount ? "border-destructive focus-visible:ring-destructive" : ""}`}
-                autoFocus={!expenseToEdit}
-              />
-            </div>
-            {errors.amount && <p className="text-xs text-destructive mt-1">{errors.amount}</p>}
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Expense Date <span className="text-destructive">*</span>
-            </label>
-            <Input
-              type="date"
-              value={expenseDate}
-              onChange={(e) => setExpenseDate(e.target.value)}
-              className={errors.expense_date ? "border-destructive" : ""}
+        {/* Amount (INR) */}
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            Amount (INR) <span className="text-destructive">*</span>
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
+              ₹
+            </span>
+            <input
+              type="number"
+              step="any"
+              required
+              placeholder="1,250.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full h-12 pl-8 pr-4 rounded-xl bg-muted/60 border border-border text-base font-bold text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
             />
-            {errors.expense_date && <p className="text-xs text-destructive mt-1">{errors.expense_date}</p>}
           </div>
+          {errors.amount && <p className="text-xs text-destructive mt-1">{errors.amount}</p>}
         </div>
 
-        {/* Description / Title */}
+        {/* Category */}
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1.5">
-            Description / Item Name <span className="text-destructive">*</span>
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            Category <span className="text-destructive">*</span>
           </label>
-          <Input
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="w-full h-12 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+          >
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          {errors.category_id && <p className="text-xs text-destructive mt-1">{errors.category_id}</p>}
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            Description <span className="text-destructive">*</span>
+          </label>
+          <input
             type="text"
-            placeholder="e.g. DMart Monthly Provisions, BESCOM Bill, Dining"
+            required
+            placeholder="Weekly groceries from supermarket"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={errors.description ? "border-destructive" : ""}
+            className="w-full h-12 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
           />
           {errors.description && <p className="text-xs text-destructive mt-1">{errors.description}</p>}
         </div>
 
-        {/* Category & Payment Method Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Category <span className="text-destructive">*</span>
-            </label>
-            <Select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className={errors.category_id ? "border-destructive" : ""}
-            >
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </Select>
-            {errors.category_id && <p className="text-xs text-destructive mt-1">{errors.category_id}</p>}
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Payment Method <span className="text-destructive">*</span>
-            </label>
-            <Select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-            >
-              {PAYMENT_METHODS.map((method) => (
-                <option key={method} value={method}>
-                  {method}
-                </option>
-              ))}
-            </Select>
-          </div>
-        </div>
-
-        {/* Paid By Family Member */}
+        {/* Paid by */}
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1.5">
-            Paid By Family Member <span className="text-destructive">*</span>
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            Paid by <span className="text-destructive">*</span>
           </label>
-          <Select
+          <select
             value={paidByUserId}
             onChange={(e) => setPaidByUserId(e.target.value)}
-            className={errors.paid_by_user_id ? "border-destructive" : ""}
+            className="w-full h-12 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
           >
             {members.map((member) => (
               <option key={member.id} value={member.user_id}>
                 {member.display_name} ({member.relationship || member.role})
               </option>
             ))}
-          </Select>
+          </select>
           {errors.paid_by_user_id && <p className="text-xs text-destructive mt-1">{errors.paid_by_user_id}</p>}
         </div>
 
-        {/* Optional Notes */}
+        {/* Payment Method Pills matching Figma */}
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1.5">
-            Notes (Optional)
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            Payment Method
           </label>
-          <Textarea
-            rows={2}
-            placeholder="Add store location, invoice number, or extra context..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+          <div className="flex flex-wrap gap-2">
+            {PAYMENT_METHOD_OPTIONS.map((opt) => {
+              const isSelected = paymentMethod === opt.id;
+              const Icon = opt.icon;
+
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setPaymentMethod(opt.id)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-[#D4F835] text-black shadow-xs ring-1 ring-[#c2e424]"
+                      : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Date */}
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            Date
+          </label>
+          <input
+            type="date"
+            required
+            value={expenseDate}
+            onChange={(e) => setExpenseDate(e.target.value)}
+            className="w-full h-12 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
           />
         </div>
 
-        {/* Optional Receipt Upload */}
+        {/* Receipt Upload */}
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1.5">
-            Receipt Attachment (Optional)
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            Receipt
           </label>
-          <div className="flex items-center gap-3">
-            <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors">
-              <Upload className="h-4 w-4 text-primary" />
-              <span>{receiptFileName ? "Change File" : "Upload Receipt"}</span>
-              <input
-                type="file"
-                accept="image/*,application/pdf"
-                className="hidden"
-                onChange={handleReceiptChange}
-              />
-            </label>
-            {receiptFileName && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground truncate">
-                <FileText className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                <span className="truncate max-w-[200px]">{receiptFileName}</span>
-                <button
-                  type="button"
-                  onClick={() => setReceiptFileName(null)}
-                  className="text-destructive hover:underline text-[11px] ml-1"
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-          </div>
-          {errors.receipt && <p className="text-xs text-destructive mt-1">{errors.receipt}</p>}
+          <label className="border-2 border-dashed border-[#D4F835]/80 hover:border-[#D4F835] bg-[#D4F835]/5 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors text-center">
+            <Upload className="h-6 w-6 text-foreground mb-1" />
+            <span className="text-xs font-bold text-foreground">
+              {receiptFileName ? receiptFileName : "Upload receipt"}
+            </span>
+            <span className="text-[10px] text-muted-foreground mt-0.5">
+              PDF, JPG or PNG • Max 5MB
+            </span>
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              className="hidden"
+              onChange={handleReceiptChange}
+            />
+          </label>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
-          <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button type="submit" isLoading={isLoading}>
-            {expenseToEdit ? "Save Changes" : "Record Expense"}
-          </Button>
+        {/* Notes */}
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            Notes
+          </label>
+          <textarea
+            rows={2}
+            placeholder="Added milk, vegetables, fruits for the week..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full p-3 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+          />
         </div>
+
+        {/* Save Button */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full mt-4 h-12 rounded-full bg-[#0E0E10] hover:bg-black/85 active:scale-98 text-white font-extrabold text-sm transition-all shadow-md cursor-pointer disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Save"}
+        </button>
       </form>
     </Modal>
   );

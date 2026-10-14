@@ -2,10 +2,9 @@
 
 import React, { useState } from "react";
 import { Modal } from "@/components/ui/modal";
-import { Button } from "@/components/ui/button";
 import { Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
-import { AlertTriangle } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 interface DeleteExpenseDialogProps {
   isOpen: boolean;
@@ -35,40 +34,46 @@ export function DeleteExpenseDialog({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Delete Expense"
-      description="This transaction will be moved to the household archive."
-      maxWidth="sm"
-    >
-      <div className="space-y-4 pt-2">
-        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-destructive/10 text-destructive text-xs border border-destructive/20">
-          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-          <p>
-            Are you sure you want to delete <strong className="font-semibold text-foreground">&ldquo;{expense.description}&rdquo;</strong> for <strong className="font-semibold text-foreground">{formatINR(expense.amount)}</strong>?
-          </p>
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="sm">
+      <div className="text-center pt-2 pb-1">
+        {/* Lime Exclamation Badge */}
+        <div className="h-12 w-12 rounded-full bg-[#D4F835] text-black font-black text-xl flex items-center justify-center mx-auto mb-3 shadow-xs">
+          !
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <Button
+        <h3 className="text-xl font-extrabold text-foreground mb-2">
+          Delete Expense
+        </h3>
+
+        <p className="text-sm font-bold text-foreground mb-1">
+          Are you sure you want to delete this expense?
+        </p>
+
+        <p className="text-xs text-muted-foreground px-2">
+          This action cannot be undone. The expense of{" "}
+          <strong className="text-foreground">{formatINR(expense.amount)}</strong> for{" "}
+          <strong className="text-foreground">{expense.description}</strong> will be permanently deleted.
+        </p>
+
+        {/* Buttons matching Figma */}
+        <div className="grid grid-cols-2 gap-3 mt-6">
+          <button
             type="button"
-            variant="outline"
-            size="sm"
             onClick={onClose}
             disabled={isDeleting}
+            className="h-11 rounded-full border border-border bg-card text-foreground font-bold text-xs hover:bg-muted transition-colors cursor-pointer"
           >
             Cancel
-          </Button>
-          <Button
+          </button>
+          <button
             type="button"
-            variant="destructive"
-            size="sm"
             onClick={handleDelete}
-            isLoading={isDeleting}
+            disabled={isDeleting}
+            className="h-11 rounded-full bg-[#0E0E10] hover:bg-black/90 active:scale-98 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
           >
-            Delete Expense
-          </Button>
+            <span>{isDeleting ? "Deleting..." : "Delete"}</span>
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </Modal>

@@ -4,10 +4,10 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
+  Home,
   ReceiptText,
   Plus,
-  PieChart,
+  BarChart3,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,18 +20,18 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 border-t border-border bg-card/95 backdrop-blur-md px-3 flex items-center justify-around safe-area-bottom">
-      {/* 1. Dashboard */}
+    <nav className="md:hidden fixed bottom-3 left-3 right-3 z-40 h-16 rounded-[28px] bg-[#0E0E10] text-white px-5 flex items-center justify-between shadow-[0_10px_35px_rgba(0,0,0,0.5)] border border-white/10 safe-area-bottom">
+      {/* 1. Home / Dashboard */}
       <Link
         href="/dashboard"
         className={cn(
-          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-medium transition-colors",
+          "flex flex-col items-center justify-center w-12 text-[10px] font-medium transition-colors",
           pathname === "/dashboard"
-            ? "text-primary font-bold"
-            : "text-muted-foreground hover:text-foreground"
+            ? "text-[#D4F835] font-bold"
+            : "text-[#8E8E93] hover:text-white"
         )}
       >
-        <LayoutDashboard className="h-5 w-5 mb-0.5" />
+        <Home className="h-5 w-5 mb-0.5" />
         <span>Home</span>
       </Link>
 
@@ -39,39 +39,40 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
       <Link
         href="/expenses"
         className={cn(
-          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-medium transition-colors",
+          "flex flex-col items-center justify-center w-12 text-[10px] font-medium transition-colors",
           pathname.startsWith("/expenses")
-            ? "text-primary font-bold"
-            : "text-muted-foreground hover:text-foreground"
+            ? "text-[#D4F835] font-bold"
+            : "text-[#8E8E93] hover:text-white"
         )}
       >
         <ReceiptText className="h-5 w-5 mb-0.5" />
         <span>Expenses</span>
       </Link>
 
-      {/* 3. Center Add Button */}
-      <div className="-mt-5">
+      {/* 3. Center Elevated Quick Add Button */}
+      <div className="-mt-6 flex flex-col items-center">
         <button
           type="button"
           onClick={onAddExpenseClick}
-          aria-label="Add new expense"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary-hover active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          aria-label="Quick Add Expense"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-[#D4F835] text-black shadow-[0_6px_20px_rgba(212,248,53,0.5)] hover:brightness-110 active:scale-95 transition-all cursor-pointer focus:outline-none"
         >
-          <Plus className="h-6 w-6 stroke-[2.5]" />
+          <Plus className="h-6 w-6 stroke-[3]" />
         </button>
+        <span className="text-[9px] font-bold text-[#D4F835] mt-0.5">Quick Add</span>
       </div>
 
       {/* 4. Budgets */}
       <Link
         href="/budgets"
         className={cn(
-          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-medium transition-colors",
+          "flex flex-col items-center justify-center w-12 text-[10px] font-medium transition-colors",
           pathname.startsWith("/budgets")
-            ? "text-primary font-bold"
-            : "text-muted-foreground hover:text-foreground"
+            ? "text-[#D4F835] font-bold"
+            : "text-[#8E8E93] hover:text-white"
         )}
       >
-        <PieChart className="h-5 w-5 mb-0.5" />
+        <BarChart3 className="h-5 w-5 mb-0.5" />
         <span>Budgets</span>
       </Link>
 
@@ -79,10 +80,10 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
       <Link
         href="/settings"
         className={cn(
-          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-medium transition-colors",
+          "flex flex-col items-center justify-center w-12 text-[10px] font-medium transition-colors",
           pathname.startsWith("/settings")
-            ? "text-primary font-bold"
-            : "text-muted-foreground hover:text-foreground"
+            ? "text-[#D4F835] font-bold"
+            : "text-[#8E8E93] hover:text-white"
         )}
       >
         <Settings className="h-5 w-5 mb-0.5" />
@@ -91,4 +92,3 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
     </nav>
   );
 }
-

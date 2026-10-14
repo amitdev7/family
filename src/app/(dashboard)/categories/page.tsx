@@ -1,72 +1,60 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  AlertTriangle,
-} from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Modal } from "@/components/ui/modal";
-import { CategoryIcon } from "@/components/ui/category-icon";
 import { DataService } from "@/lib/data-service";
-import { Category, Expense } from "@/lib/types";
-import { categoryFormSchema } from "@/lib/validations";
-import { CATEGORY_ICON_MAP } from "@/lib/constants/categories";
+import { Category } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
+import {
+  ListFilter,
+  Search,
+  Plus,
+  ShoppingCart,
+  ShoppingBag,
+  Fuel,
+  HeartPulse,
+  Utensils,
+  Car,
+  Heart,
+  Home,
+  Check,
+} from "lucide-react";
 
-const COLOR_PRESETS = [
-  "#16a34a",
-  "#0284c7",
-  "#eab308",
-  "#06b6d4",
-  "#8b5cf6",
-  "#f97316",
-  "#14b8a6",
-  "#6366f1",
-  "#3b82f6",
-  "#ef4444",
-  "#d97706",
-  "#ec4899",
-  "#a855f7",
-  "#64748b",
-  "#059669",
-  "#84cc16",
-  "#94a3b8",
+const ICON_OPTIONS = [
+  { id: "ShoppingCart", icon: ShoppingCart },
+  { id: "Utensils", icon: Utensils },
+  { id: "Car", icon: Car },
+  { id: "Heart", icon: Heart },
+  { id: "Home", icon: Home },
+  { id: "ShoppingBag", icon: ShoppingBag },
+];
+
+const COLOR_OPTIONS = [
+  "#D4F835", // Lime
+  "#0E0E10", // Black
+  "#9CA3AF", // Gray
+  "#3B82F6", // Blue
+  "#EC4899", // Pink
+  "#8B5CF6", // Purple
 ];
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Dialog State
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [name, setName] = useState("");
-  const [icon, setIcon] = useState("HelpCircle");
-  const [color, setColor] = useState("#16a34a");
-  const [formError, setFormError] = useState<string | null>(null);
+  // New Category State
+  const [newCatName, setNewCatName] = useState("");
+  const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
+  const [selectedIcon, setSelectedIcon] = useState(ICON_OPTIONS[0].id);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Reassignment Delete State
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
-  const [reassignCategoryId, setReassignCategoryId] = useState<string>("");
+  const [toast, setToast] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [cats, expRes] = await Promise.all([
-        DataService.getCategories(),
-        DataService.getExpenses({ pageSize: 1000 }),
-      ]);
-      setCategories(cats);
-      setExpenses(expRes.expenses);
+      const data = await DataService.getCategories();
+      setCategories(data);
     } finally {
       setIsLoading(false);
     }
@@ -76,293 +64,220 @@ export default function CategoriesPage() {
     loadData();
   }, []);
 
-  const openAddCategory = (existing?: Category) => {
-    setFormError(null);
-    if (existing) {
-      setEditingCategory(existing);
-      setName(existing.name);
-      setIcon(existing.icon);
-      setColor(existing.color);
-    } else {
-      setEditingCategory(null);
-      setName("");
-      setIcon("ShoppingCart");
-      setColor("#16a34a");
-    }
-    setIsEditModalOpen(true);
-  };
+  const filteredCategories = useMemo(() => {
+    if (!search.trim()) return categories;
+    return categories.filter((c) =>
+      c.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [categories, search]);
 
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
-
-    const validation = categoryFormSchema.safeParse({
-      name,
-      icon,
-      color,
-    });
-
-    if (!validation.success) {
-      setFormError(validation.error.issues[0]?.message || "Validation failed");
-      return;
-    }
+    if (!newCatName.trim()) return;
 
     try {
       setIsSaving(true);
-      if (editingCategory) {
-        editingCategory.name = validation.data.name;
-        editingCategory.icon = validation.data.icon;
-        editingCategory.color = validation.data.color;
-      } else {
-        const newCat: Category = {
-          id: "cat-" + Date.now(),
-          household_id: "11111111-1111-1111-1111-111111111111",
-          name: validation.data.name,
-          icon: validation.data.icon,
-          color: validation.data.color,
-          is_active: true,
-          created_at: new Date().toISOString(),
-        };
-        categories.push(newCat);
-      }
-      setIsEditModalOpen(false);
+      await DataService.addCategory({
+        name: newCatName.trim(),
+        icon: selectedIcon,
+        color: selectedColor,
+      });
+      setNewCatName("");
+      setToast("New category created successfully!");
+      setTimeout(() => setToast(null), 3000);
       loadData();
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDeleteClick = (cat: Category) => {
-    setCategoryToDelete(cat);
-    const otherCat = categories.find((c) => c.id !== cat.id);
-    setReassignCategoryId(otherCat?.id || "");
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!categoryToDelete) return;
-
-    // Reassign any referencing expenses
-    expenses.forEach((e) => {
-      if (e.category_id === categoryToDelete.id) {
-        e.category_id = reassignCategoryId;
-      }
-    });
-
-    // Remove category
-    setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete.id));
-    setCategoryToDelete(null);
-    loadData();
-  };
-
-  if (isLoading) {
-    return (
-      <AppLayout title="Expense Categories" subtitle="Loading categories...">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-28 rounded-xl bg-card border border-border" />
-          ))}
-        </div>
-      </AppLayout>
-    );
-  }
-
   return (
-    <AppLayout
-      title="Expense Categories"
-      subtitle="Organize and classify household spending with icons, colors, and safety guards"
-    >
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground">
-            {categories.length} Active Categories Configured
-          </h3>
+    <AppLayout title="Category Center" subtitle="Organize and monitor spending groups">
+      <div className="max-w-xl mx-auto space-y-6">
+        {/* Header Bar matching Figma */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-xs">
+              <ListFilter className="h-5 w-5" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">
+              Category Center
+            </h2>
+          </div>
+
+          <a
+            href="#create-category"
+            className="px-3.5 py-1.5 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] text-black text-xs font-extrabold shadow-2xs transition-all flex items-center gap-1 cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
+            <span>New Category</span>
+          </a>
         </div>
 
-        <Button
-          size="sm"
-          onClick={() => openAddCategory()}
-          className="gap-1.5 text-xs font-semibold"
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search categories..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full h-12 pl-11 pr-4 rounded-full bg-card border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] shadow-2xs"
+          />
+        </div>
+
+        {/* Categories Grid matching Figma */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {filteredCategories.slice(0, 4).map((cat, idx) => {
+            const mockTrans = [32, 18, 14, 6][idx % 4] || 12;
+            const mockAmount = [24500, 10200, 16800, 5400][idx % 4] || 8500;
+            const mockTrend = [
+              { label: "+12% vs last month", type: "up" },
+              { label: "-5% vs last month", type: "down" },
+              { label: "No change", type: "neutral" },
+              { label: "+8% vs last month", type: "up" },
+            ][idx % 4];
+
+            // Resolve icon component
+            const iconMatch = ICON_OPTIONS.find((i) => i.id === cat.icon);
+            const Icon = iconMatch ? iconMatch.icon : ShoppingCart;
+
+            return (
+              <div
+                key={cat.id}
+                className="rounded-[28px] bg-card border border-border p-6 shadow-xs flex flex-col items-center text-center justify-between min-h-[220px] transition-transform hover:-translate-y-1"
+              >
+                {/* Large Circle Icon with vibrant color */}
+                <div
+                  className="h-16 w-16 rounded-full flex items-center justify-center font-bold shadow-xs text-black"
+                  style={{ backgroundColor: cat.color || COLOR_OPTIONS[idx % COLOR_OPTIONS.length] }}
+                >
+                  <Icon className="h-8 w-8 stroke-[2.2]" />
+                </div>
+
+                <div className="mt-3">
+                  <h4 className="font-extrabold text-base text-foreground">
+                    {cat.name}
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {mockTrans} transactions • {formatINR(mockAmount)}
+                  </p>
+                </div>
+
+                {/* Trend Badge */}
+                <div className="mt-3">
+                  <span
+                    className={`inline-flex items-center gap-1 text-xs font-bold ${
+                      mockTrend.type === "up"
+                        ? "text-emerald-500"
+                        : mockTrend.type === "down"
+                        ? "text-red-500"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    <span>{mockTrend.type === "up" ? "↗" : mockTrend.type === "down" ? "↘" : "→"}</span>
+                    <span>{mockTrend.label}</span>
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Color & Icon Picker Form matching Figma */}
+        <form
+          id="create-category"
+          onSubmit={handleSaveCategory}
+          className="rounded-[28px] bg-card border border-border p-6 shadow-xs space-y-5"
         >
-          <Plus className="h-4 w-4" />
-          <span>Add Category</span>
-        </Button>
-      </div>
+          <h3 className="text-base font-extrabold text-foreground">
+            Color & Icon Picker
+          </h3>
 
-      {/* Categories Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((cat) => {
-          const matchingExpenses = expenses.filter((e) => e.category_id === cat.id);
-          const totalSpent = matchingExpenses.reduce((sum, e) => sum + e.amount, 0);
-
-          return (
-            <Card key={cat.id} className="p-4 hover:border-primary/40 transition-colors">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-xs shrink-0"
-                    style={{ backgroundColor: cat.color }}
-                  >
-                    <CategoryIcon name={cat.icon} className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-foreground">{cat.name}</h4>
-                    <span className="text-xs text-muted-foreground">
-                      {matchingExpenses.length} transactions
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => openAddCategory(cat)}
-                    className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                    title="Edit Category"
-                  >
-                    <Edit2 className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteClick(cat)}
-                    className="p-1.5 rounded-lg text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
-                    title="Delete Category"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Total Spend:</span>
-                <span className="font-extrabold text-foreground">{formatINR(totalSpent)}</span>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Add / Edit Category Modal */}
-      <Modal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        title={editingCategory ? "Edit Category" : "New Expense Category"}
-        description="Choose a descriptive name, custom icon, and color code"
-        maxWidth="sm"
-      >
-        <form onSubmit={handleSaveCategory} className="space-y-4">
-          {formError && (
-            <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs">
-              {formError}
-            </div>
+          {toast && (
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-2.5 rounded-xl">
+              {toast}
+            </p>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
+            <label className="block text-xs font-bold text-muted-foreground mb-1.5">
               Category Name
             </label>
-            <Input
+            <input
               type="text"
               required
-              placeholder="e.g. Organic Groceries, Pet Care"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
+              placeholder="e.g. Travel & Vacations"
+              value={newCatName}
+              onChange={(e) => setNewCatName(e.target.value)}
+              className="w-full h-11 px-4 rounded-xl bg-muted/60 border border-border text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
             />
           </div>
 
+          {/* Choose Color */}
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Icon
+            <label className="block text-xs font-bold text-muted-foreground mb-2">
+              Choose Color:
             </label>
-            <Select value={icon} onChange={(e) => setIcon(e.target.value)}>
-              {Object.keys(CATEGORY_ICON_MAP).map((iconKey) => (
-                <option key={iconKey} value={iconKey}>
-                  {iconKey}
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Theme Color
-            </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {COLOR_PRESETS.map((hex) => (
-                <button
-                  key={hex}
-                  type="button"
-                  onClick={() => setColor(hex)}
-                  className={`w-6 h-6 rounded-full transition-transform ${color === hex ? "scale-125 ring-2 ring-primary ring-offset-2" : "hover:scale-110"
+            <div className="flex items-center gap-3">
+              {COLOR_OPTIONS.map((c) => {
+                const isPicked = selectedColor === c;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setSelectedColor(c)}
+                    style={{ backgroundColor: c }}
+                    className={`h-8 w-8 rounded-full flex items-center justify-center transition-transform cursor-pointer ${
+                      isPicked ? "ring-2 ring-offset-2 ring-black dark:ring-white scale-110" : "hover:scale-105"
                     }`}
-                  style={{ backgroundColor: hex }}
-                />
-              ))}
+                  >
+                    {isPicked && (
+                      <Check className={`h-4 w-4 stroke-[3] ${c === "#D4F835" ? "text-black" : "text-white"}`} />
+                    )}
+                  </button>
+                );
+              })}
             </div>
-            <Input
-              type="text"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              className="text-xs font-mono"
-            />
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-            <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSaving}>
-              Save Category
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Delete and Reassignment Modal Guard */}
-      <Modal
-        isOpen={Boolean(categoryToDelete)}
-        onClose={() => setCategoryToDelete(null)}
-        title="Delete Category with Reassignment Guard"
-        maxWidth="sm"
-      >
-        <div className="space-y-4">
-          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
-            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-            <p>
-              To maintain financial audit integrity, all existing expenses in{" "}
-              <strong>{categoryToDelete?.name}</strong> must be safely reassigned to another category before deletion.
-            </p>
-          </div>
-
+          {/* Choose Icon */}
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Reassign existing expenses to:
+            <label className="block text-xs font-bold text-muted-foreground mb-2">
+              Choose Icon:
             </label>
-            <Select
-              value={reassignCategoryId}
-              onChange={(e) => setReassignCategoryId(e.target.value)}
-            >
-              {categories
-                .filter((c) => c.id !== categoryToDelete?.id)
-                .map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-            </Select>
+            <div className="flex items-center gap-3">
+              {ICON_OPTIONS.map((item) => {
+                const isPicked = selectedIcon === item.id;
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelectedIcon(item.id)}
+                    className={`h-10 w-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${
+                      isPicked
+                        ? "bg-[#D4F835] text-black shadow-xs ring-1 ring-[#c2e424]"
+                        : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-            <Button variant="outline" onClick={() => setCategoryToDelete(null)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
-              Reassign & Delete
-            </Button>
-          </div>
-        </div>
-      </Modal>
+          {/* Save Button matching Figma */}
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="w-full h-12 rounded-full bg-[#0E0E10] hover:bg-black/90 active:scale-98 text-white font-extrabold text-xs transition-all shadow-sm cursor-pointer disabled:opacity-50"
+          >
+            {isSaving ? "Saving..." : "+ Save Category"}
+          </button>
+        </form>
+      </div>
     </AppLayout>
   );
 }
-

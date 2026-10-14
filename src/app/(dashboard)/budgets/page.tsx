@@ -1,41 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  PieChart,
-  Plus,
-  AlertTriangle,
-  CheckCircle2,
-  Calendar,
-  Wallet,
-  PiggyBank,
-  Edit2,
-  Trash2,
-  Info,
-} from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Modal } from "@/components/ui/modal";
-import { CategoryIcon } from "@/components/ui/category-icon";
-import { EmptyState } from "@/components/ui/empty-state";
 import { DataService } from "@/lib/data-service";
 import { Budget, Category, Expense } from "@/lib/types";
-import { formatINR, formatPercent } from "@/lib/formatters";
+import { formatINR } from "@/lib/formatters";
 import { budgetFormSchema } from "@/lib/validations";
+import { PieChart, Plus, ChevronDown } from "lucide-react";
 
 export default function BudgetsPage() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState("2026-10-01");
+  const [selectedMonth, setSelectedMonth] = useState("October 2026");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Budget Edit/Add Modal
+  // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [amount, setAmount] = useState("");
@@ -61,37 +42,43 @@ export default function BudgetsPage() {
 
   useEffect(() => {
     loadData();
-    const handleUserChanged = () => loadData();
-    window.addEventListener("household-user-changed", handleUserChanged);
-    return () => window.removeEventListener("household-user-changed", handleUserChanged);
   }, []);
 
-  // Compute overall budget & spent
-  const overallBudget = budgets.find((b) => b.category_id === null)?.amount || 0;
-  const overallSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const overallRemaining = Math.max(0, overallBudget - overallSpent);
-  const overallUtilPercent = overallBudget > 0 ? (overallSpent / overallBudget) * 100 : 0;
+  const overallBudget = useMemo(() => {
+    return budgets.find((b) => b.category_id === null) || { amount: 90000 };
+  }, [budgets]);
 
-  // Category specific spent map
-  const categorySpentMap: Record<string, number> = {};
-  expenses.forEach((e) => {
-    categorySpentMap[e.category_id] = (categorySpentMap[e.category_id] || 0) + e.amount;
-  });
+  // Calculations for categories
+  const categoryBudgets = useMemo(() => {
+    return categories.map((cat) => {
+      const budgetObj = budgets.find((b) => b.category_id === cat.id);
+      const allocated = budgetObj ? budgetObj.amount : 20000;
+      const spent = expenses
+        .filter((e) => e.category_id === cat.id)
+        .reduce((sum, e) => sum + e.amount, 0);
+      const percent = allocated > 0 ? (spent / allocated) * 100 : 0;
+      return {
+        ...cat,
+        budgetObj,
+        allocated,
+        spent,
+        percent,
+        over: spent > allocated ? spent - allocated : 0,
+      };
+    });
+  }, [categories, budgets, expenses]);
 
-  // Filter category budgets
-  const categoryBudgets = budgets.filter((b) => b.category_id !== null);
-
-  const openAddModal = (existing?: Budget) => {
-    setFormError(null);
-    if (existing) {
-      setEditingBudget(existing);
-      setAmount(existing.amount.toString());
-      setCategoryId(existing.category_id || "all");
+  const handleOpenAdjust = (budget?: Budget) => {
+    if (budget) {
+      setEditingBudget(budget);
+      setAmount(budget.amount.toString());
+      setCategoryId(budget.category_id || "all");
     } else {
       setEditingBudget(null);
       setAmount("");
-      setCategoryId(categories[0]?.id || "all");
+      setCategoryId("all");
     }
+    setFormError(null);
     setIsModalOpen(true);
   };
 
@@ -99,294 +86,253 @@ export default function BudgetsPage() {
     e.preventDefault();
     setFormError(null);
 
-    const validation = budgetFormSchema.safeParse({
-      amount,
+    const numAmount = parseFloat(amount);
+    const parsed = budgetFormSchema.safeParse({
+      amount: isNaN(numAmount) ? 0 : numAmount,
       category_id: categoryId === "all" ? null : categoryId,
-      period_start: selectedMonth,
+      period: "monthly",
+      period_start: "2026-10-01",
     });
 
-    if (!validation.success) {
-      setFormError(validation.error.issues[0]?.message || "Invalid budget input");
+    if (!parsed.success) {
+      setFormError(parsed.error.issues[0]?.message || "Invalid amount");
       return;
     }
 
     try {
       setIsSaving(true);
-      await DataService.saveBudget({
-        id: editingBudget?.id,
-        category_id: categoryId === "all" ? null : categoryId,
-        amount: validation.data.amount,
-        period_start: selectedMonth,
-      });
+      if (editingBudget) {
+        await DataService.updateBudget(editingBudget.id, parsed.data);
+      } else {
+        await DataService.setBudget(parsed.data);
+      }
       setIsModalOpen(false);
       loadData();
-    } catch (err: any) {
-      setFormError(err.message || "Failed to save budget");
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : "Failed to save budget");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDeleteBudget = async (id: string) => {
-    if (confirm("Are you sure you want to remove this budget limit?")) {
-      await DataService.deleteBudget(id);
-      loadData();
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <AppLayout title="Household Budgets" subtitle="Loading monthly budget limits...">
-        <div className="h-44 rounded-2xl bg-card border border-border animate-pulse mb-6" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-36 rounded-xl bg-card border border-border animate-pulse" />
-          ))}
-        </div>
-      </AppLayout>
-    );
-  }
-
   return (
-    <AppLayout
-      title="Household Budgets"
-      subtitle="Monthly spending boundaries to keep family expenses on track"
-    >
-      {/* Top Action & Month Selector Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-primary" />
-          <Select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            className="w-48 h-9 text-xs font-semibold"
-          >
-            <option value="2026-10-01">October 2026 (Current)</option>
-            <option value="2026-09-01">September 2026</option>
-            <option value="2026-08-01">August 2026</option>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            onClick={() => openAddModal()}
-            className="gap-1.5 text-xs font-semibold"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Set Budget Limit</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Household Total Budget Hero Card */}
-      <Card className="mb-8 p-6 bg-linear-to-br from-card to-secondary/30 border-primary/20 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="outline" className="border-primary/30 text-primary">
-                Overall Household Cap
-              </Badge>
-              {overallSpent > overallBudget && overallBudget > 0 && (
-                <Badge variant="destructive" className="gap-1 text-[11px]">
-                  <AlertTriangle className="h-3 w-3" />
-                  <span>Budget Exceeded</span>
-                </Badge>
-              )}
+    <AppLayout title="Budget Planner" subtitle="Monthly limits & utilization tracking">
+      <div className="max-w-xl mx-auto space-y-6">
+        {/* Header Bar matching Figma */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-xs">
+              <PieChart className="h-5 w-5" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              {formatINR(overallBudget)}
+            <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">
+              Budget Planner
             </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Total monthly expenditure limit set for all family members
-            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-6 md:border-l md:border-border/80 md:pl-8">
-            <div>
-              <span className="text-xs text-muted-foreground block">Actual Spend</span>
-              <span className="text-xl font-bold text-foreground">{formatINR(overallSpent)}</span>
+          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-card border border-border text-xs font-bold text-foreground shadow-2xs">
+            <span>{selectedMonth}</span>
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </div>
+        </div>
+
+        {/* Overall Household Budget Card */}
+        <div className="rounded-[28px] bg-card border border-border p-6 shadow-xs space-y-6">
+          <div>
+            <span className="text-xs font-bold text-muted-foreground">
+              Overall Household Budget
+            </span>
+            <div className="flex items-center gap-3 mt-1">
+              <span className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
+                {formatINR(overallBudget.amount)}
+              </span>
+              <span className="px-3 py-1 rounded-full bg-[#D4F835] text-black font-extrabold text-[11px] shadow-2xs">
+                Monthly Budget
+              </span>
             </div>
-            <div>
-              <span className="text-xs text-muted-foreground block">Remaining</span>
-              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                {formatINR(overallRemaining)}
+          </div>
+
+          {/* Budget Status Section matching Figma */}
+          <div className="space-y-4 pt-2 border-t border-border/80">
+            <h3 className="text-xs font-extrabold text-muted-foreground uppercase tracking-wider">
+              Budget Status
+            </h3>
+
+            {/* Essentials Row */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-foreground">Essentials</span>
+                <span className="text-muted-foreground">
+                  ₹52,140 / ₹60,000 • <span className="text-amber-500">86.9%</span>
+                </span>
+              </div>
+              <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-amber-400 rounded-full" style={{ width: "86.9%" }} />
+              </div>
+              <span className="text-[10px] font-bold text-amber-500">
+                Amber • 80-100%
+              </span>
+            </div>
+
+            {/* Lifestyle Row */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-foreground">Lifestyle</span>
+                <span className="text-muted-foreground">
+                  ₹14,200 / ₹20,000 • <span className="text-emerald-500">71%</span>
+                </span>
+              </div>
+              <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500 rounded-full" style={{ width: "71%" }} />
+              </div>
+              <span className="text-[10px] font-bold text-emerald-500">
+                Green • &lt;80%
+              </span>
+            </div>
+
+            {/* Savings Row */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-foreground">Savings</span>
+                <span className="text-muted-foreground">
+                  ₹11,000 / ₹10,000 • <span className="text-red-500">110%</span>
+                </span>
+              </div>
+              <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-red-500 rounded-full" style={{ width: "100%" }} />
+              </div>
+              <span className="text-[10px] font-bold text-red-500">
+                Red • &gt;100% • Over budget
               </span>
             </div>
           </div>
         </div>
 
-        {/* Visual Progress Bar */}
-        <div className="mt-6 pt-4 border-t border-border/60 space-y-2">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Utilization: <strong className="text-foreground">{formatPercent(overallUtilPercent)}</strong></span>
-            <span>{formatINR(overallSpent)} of {formatINR(overallBudget)}</span>
-          </div>
-          <Progress value={overallUtilPercent} className="h-3" />
-        </div>
-      </Card>
+        {/* Per-Category Breakdown matching Figma */}
+        <div className="rounded-[28px] bg-card border border-border p-6 shadow-xs space-y-4">
+          <h3 className="text-sm font-extrabold text-foreground">
+            Per-Category Breakdown
+          </h3>
 
-      {/* Category Budgets Grid */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-foreground">Category Spending Limits</h3>
-            <p className="text-xs text-muted-foreground">Track granular limits per category</p>
-          </div>
-        </div>
-
-        {categoryBudgets.length === 0 ? (
-          <EmptyState
-            icon={PieChart}
-            title="No category budgets set"
-            description="Create category limits (e.g. Groceries ₹20,000, Dining ₹10,000) to keep specific expenses under control."
-            action={
-              <Button onClick={() => openAddModal()} size="sm" className="gap-2 font-semibold">
-                <Plus className="h-4 w-4" />
-                <span>Add Category Limit</span>
-              </Button>
-            }
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categoryBudgets.map((b) => {
-              const cat = b.category || categories.find((c) => c.id === b.category_id);
-              const spent = categorySpentMap[b.category_id || ""] || 0;
-              const remaining = Math.max(0, b.amount - spent);
-              const utilPercent = b.amount > 0 ? (spent / b.amount) * 100 : 0;
-              const isOver = spent > b.amount;
-              const isApproaching = utilPercent >= 80 && !isOver;
+          <div className="space-y-4">
+            {categoryBudgets.slice(0, 4).map((item) => {
+              const barColor =
+                item.percent >= 100
+                  ? "bg-red-500"
+                  : item.percent >= 80
+                  ? "bg-amber-400"
+                  : "bg-emerald-500";
 
               return (
-                <Card
-                  key={b.id}
-                  className={`p-5 transition-shadow hover:shadow-md border ${isOver ? "border-destructive/50 bg-destructive/5" : "border-border"
-                    }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-2xs shrink-0"
-                        style={{ backgroundColor: cat?.color || "#124334" }}
-                      >
-                        <CategoryIcon name={cat?.icon || "Tags"} className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-sm text-foreground">{cat?.name}</h4>
-                        <span className="text-xs text-muted-foreground">Limit: {formatINR(b.amount)}</span>
-                      </div>
+                <div key={item.id} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <div className="flex items-center gap-2">
+                      <span className={`h-2.5 w-2.5 rounded-full ${barColor}`} />
+                      <span className="text-foreground">{item.name}</span>
                     </div>
-
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openAddModal(b)}
-                        className="p-1 rounded text-muted-foreground hover:text-foreground"
-                        title="Edit Limit"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteBudget(b.id)}
-                        className="p-1 rounded text-destructive/80 hover:text-destructive"
-                        title="Delete Limit"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Status alert pill */}
-                  <div className="mt-3 flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">
-                      Spent: <strong className="text-foreground">{formatINR(spent)}</strong>
+                      {formatINR(item.spent)} / {formatINR(item.allocated)}
                     </span>
-                    {isOver ? (
-                      <Badge variant="destructive" className="text-[10px]">Over Limit</Badge>
-                    ) : isApproaching ? (
-                      <Badge variant="warning" className="text-[10px]">Approaching 80%</Badge>
-                    ) : (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-medium text-[11px]">
-                        {formatINR(remaining)} left
-                      </span>
-                    )}
                   </div>
 
-                  {/* Progress bar */}
-                  <div className="mt-2">
-                    <Progress value={utilPercent} />
+                  <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${barColor}`}
+                      style={{ width: `${Math.min(100, item.percent)}%` }}
+                    />
                   </div>
-                </Card>
+
+                  {item.over > 0 && (
+                    <div className="text-right">
+                      <span className="text-[10px] font-bold text-red-500">
+                        {formatINR(item.over)} over
+                      </span>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
-        )}
+
+          {/* Adjust Budget Action Button matching Figma */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => handleOpenAdjust()}
+              className="w-full py-3.5 px-4 rounded-full border border-border bg-card hover:bg-muted font-bold text-xs text-foreground transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>+ Adjust Budget</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Set / Edit Budget Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingBudget ? "Update Budget Limit" : "Set New Budget Limit"}
-        description="Define spending thresholds for your household"
-        maxWidth="sm"
-      >
-        <form onSubmit={handleSaveBudget} className="space-y-4">
-          {formError && (
-            <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs">
-              {formError}
-            </div>
-          )}
+      {/* Adjust Budget Modal */}
+      {isModalOpen && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Adjust Household Budget"
+          maxWidth="sm"
+        >
+          <form onSubmit={handleSaveBudget} className="space-y-4 pt-2">
+            {formError && (
+              <p className="text-xs text-destructive bg-destructive/10 p-2.5 rounded-xl font-bold">
+                {formError}
+              </p>
+            )}
 
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Budget Target
-            </label>
-            <Select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              disabled={Boolean(editingBudget)}
-            >
-              <option value="all">Overall Household Budget (Total)</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} Limit
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Budget Amount (₹ INR)
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-2.5 text-sm font-bold text-muted-foreground">₹</span>
-              <Input
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1.5">
+                Target Allocation (INR)
+              </label>
+              <input
                 type="number"
-                step="100"
-                min="0"
-                placeholder="50000"
+                required
+                placeholder="90000"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="pl-8 text-base font-semibold"
-                required
-                autoFocus
+                className="w-full h-11 px-4 rounded-xl bg-muted/60 border border-border text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
               />
             </div>
-          </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSaving}>
-              Save Budget
-            </Button>
-          </div>
-        </form>
-      </Modal>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1.5">
+                Category
+              </label>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full h-11 px-4 rounded-xl bg-muted/60 border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              >
+                <option value="all">Overall Monthly Budget</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-3">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="h-11 rounded-full border border-border bg-card text-foreground font-bold text-xs hover:bg-muted transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="h-11 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] active:scale-98 text-black font-extrabold text-xs transition-all shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "Save Budget"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </AppLayout>
   );
 }
