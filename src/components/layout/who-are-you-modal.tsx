@@ -119,6 +119,16 @@ export function WhoAreYouModal({
       <div className="p-6 sm:p-8 space-y-6 select-none">
         {/* Top Header */}
         <div className="text-center space-y-1">
+          <div className="w-13 h-13 mx-auto mb-2 relative flex items-center justify-center">
+            <Image
+              src="/logo.svg"
+              alt="Family"
+              width={52}
+              height={52}
+              className="object-contain drop-shadow-md hover:scale-105 transition-transform"
+              priority
+            />
+          </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4F835]/20 text-[#0E0E10] dark:text-[#D4F835] text-xs font-black mb-1">
             <Sparkles className="h-3.5 w-3.5" />
             <span>{t.welcome}</span>

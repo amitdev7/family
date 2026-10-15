@@ -109,10 +109,24 @@ export default function WelcomeEntryPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-xl">
         {/* 3D Hero House Art & Header */}
         <div className="text-center space-y-2 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <div className="w-10 h-10 relative flex items-center justify-center">
+              <Image
+                src="/logo.svg"
+                alt="Family Logo"
+                width={40}
+                height={40}
+                priority
+                className="object-contain drop-shadow-md"
+              />
+            </div>
+            <span className="text-xl font-black tracking-tight text-foreground">Family</span>
+          </div>
+
           <div className="relative mx-auto w-36 h-28 sm:w-44 sm:h-32 mb-1 flex items-center justify-center">
             <Image
               src={HERO_IMAGES.familyHouse}
-              alt="FamilyFlow Smart Home"
+              alt="Family Smart Home"
               width={200}
               height={150}
               priority

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Plus,
   ChevronDown,
@@ -73,7 +74,21 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 h-16 w-full border-b border-border/80 bg-card/90 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 select-none">
       {/* Title & Subtitle */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <Link
+          href="/dashboard"
+          className="md:hidden h-8 w-8 relative flex items-center justify-center shrink-0 rounded-xl overflow-hidden hover:scale-105 transition-transform"
+          title="Family"
+        >
+          <Image
+            src="/logo.svg"
+            alt="Family"
+            width={32}
+            height={32}
+            className="object-contain"
+            priority
+          />
+        </Link>
         <div>
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-foreground leading-tight truncate">
             {title}
