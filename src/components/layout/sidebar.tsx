@@ -46,17 +46,12 @@ export function Sidebar({ className = "" }: { className?: string }) {
       <div className="flex flex-col items-center gap-6">
         <Link
           href="/dashboard"
-          className="group relative flex h-11 w-11 items-center justify-center rounded-2xl overflow-hidden hover:scale-110 transition-transform p-0.5"
-          title="Family"
+          className="group relative flex h-11 w-11 items-center justify-center"
+          title="Our Home"
         >
-          <Image
-            src="/logo.svg"
-            alt="Family"
-            width={40}
-            height={40}
-            className="object-contain"
-            priority
-          />
+          <div className="h-10 w-10 rounded-full border-[3px] border-[#D4F835] border-t-transparent flex items-center justify-center transition-transform group-hover:rotate-45">
+            <div className="h-3.5 w-3.5 rounded-full bg-[#D4F835]" />
+          </div>
         </Link>
 
         {/* Navigation Items */}

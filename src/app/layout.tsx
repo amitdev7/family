@@ -23,17 +23,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Family — Smart Family Finance & Expense Management",
+  title: "FamilyFlow — Smart Family Finance & Expense Management",
   description: "Unified household expense tracker, budget planner, shared family balances, and real-time financial analytics.",
   keywords: ["family expense tracker", "budget planner", "household finance", "shared expenses", "money received"],
-  authors: [{ name: "Family" }],
+  authors: [{ name: "FamilyFlow" }],
   icons: {
-    icon: [
-      { url: "/logo.svg", type: "image/svg+xml" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    shortcut: "/logo.svg",
-    apple: "/logo.svg",
+    icon: "/favicon.ico",
   },
 };
 
