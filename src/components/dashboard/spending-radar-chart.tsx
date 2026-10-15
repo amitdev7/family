@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { formatINR } from "@/lib/formatters";
 import { PieChart as PieIcon, Activity } from "lucide-react";
+import { NAV_3D_ICONS } from "@/lib/assets";
 
 interface SpendingRadarChartProps {
   categorySpending?: Array<{
@@ -104,6 +106,15 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
       {/* Header with View Mode Switcher */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
+          <div className="w-6 h-6 relative shrink-0">
+            <Image
+              src={NAV_3D_ICONS.reports}
+              alt="Spending Radar"
+              width={24}
+              height={24}
+              className="object-contain"
+            />
+          </div>
           <h3 className="font-bold text-lg text-foreground tracking-tight">
             Spending Radar
           </h3>
@@ -117,11 +128,10 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
           <button
             type="button"
             onClick={() => setViewMode("radar")}
-            className={`p-1.5 rounded-full transition-all cursor-pointer ${
-              viewMode === "radar"
-                ? "bg-[#D4F835] text-black shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`p-1.5 rounded-full transition-all cursor-pointer ${viewMode === "radar"
+              ? "bg-[#D4F835] text-black shadow-xs"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
             title="Radar View"
           >
             <Activity className="h-3.5 w-3.5" />
@@ -129,11 +139,10 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
           <button
             type="button"
             onClick={() => setViewMode("donut")}
-            className={`p-1.5 rounded-full transition-all cursor-pointer ${
-              viewMode === "donut"
-                ? "bg-[#D4F835] text-black shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`p-1.5 rounded-full transition-all cursor-pointer ${viewMode === "donut"
+              ? "bg-[#D4F835] text-black shadow-xs"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
             title="Donut Breakdown View"
           >
             <PieIcon className="h-3.5 w-3.5" />

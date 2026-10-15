@@ -27,7 +27,13 @@ import { DataService } from "@/lib/data-service";
 import { Category, HouseholdMember, ReceivedMoney, MoneySummary } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 import Image from "next/image";
-import { CATEGORY_IMAGES, EMPTY_STATE_IMAGES, MEMBER_AVATARS, FEATURE_IMAGES } from "@/lib/assets";
+import {
+  CATEGORY_IMAGES,
+  EMPTY_STATE_IMAGES,
+  MEMBER_AVATARS,
+  FEATURE_IMAGES,
+  METRIC_3D_ICONS,
+} from "@/lib/assets";
 
 const getMemberAvatar = (id?: string, name?: string) => {
   if (id && MEMBER_AVATARS[id]) return MEMBER_AVATARS[id];
@@ -251,18 +257,20 @@ export default function BudgetsPage() {
                     <PieChart className="h-7 w-7 stroke-[2.2]" />
                   )}
                 </div>
-                <span
-                  className="absolute -bottom-1 -right-1 h-5 w-5 bg-black/90 rounded-full p-1 border border-white/20 shadow-xs flex items-center justify-center"
-                  title={currentUser?.relationship || "Active User"}
-                >
-                  {currentUser?.role === "admin" || currentUser?.display_name === "Amit" ? (
-                    <Shield className="h-3 w-3 text-[#D4F835]" />
-                  ) : currentUser?.display_name === "Ajay" ? (
-                    <Star className="h-3 w-3 text-emerald-400" />
-                  ) : (
-                    <Sparkles className="h-3 w-3 text-amber-400" />
-                  )}
-                </span>
+                {currentUser && (MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.roleBadge || getMemberAvatar(undefined, currentUser.display_name)?.roleBadge) && (
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0E0E10] rounded-full p-0.5 border border-white/20 shadow-xs flex items-center justify-center">
+                    <Image
+                      src={
+                        MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.roleBadge ||
+                        getMemberAvatar(undefined, currentUser.display_name)!.roleBadge
+                      }
+                      alt="Role Badge"
+                      width={16}
+                      height={16}
+                      className="object-contain"
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
@@ -311,8 +319,14 @@ export default function BudgetsPage() {
                 <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                   Money Received
                 </span>
-                <div className="h-7 w-7 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                  <ArrowDownLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+                <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
+                  <Image
+                    src={METRIC_3D_ICONS.received}
+                    alt="Money Received"
+                    width={32}
+                    height={32}
+                    className="object-contain drop-shadow"
+                  />
                 </div>
               </div>
               <div className="mt-2 text-xl sm:text-2xl font-black text-emerald-400 font-mono tracking-tight">
@@ -329,8 +343,14 @@ export default function BudgetsPage() {
                 <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                   Total Spent
                 </span>
-                <div className="h-7 w-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
-                  <ArrowUpRight className="h-3.5 w-3.5 stroke-[2.5]" />
+                <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
+                  <Image
+                    src={METRIC_3D_ICONS.spent}
+                    alt="Total Spent"
+                    width={32}
+                    height={32}
+                    className="object-contain drop-shadow"
+                  />
                 </div>
               </div>
               <div className="mt-2 text-xl sm:text-2xl font-black text-rose-300 font-mono tracking-tight">
@@ -347,8 +367,14 @@ export default function BudgetsPage() {
                 <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                   Remaining Pool
                 </span>
-                <div className="h-7 w-7 rounded-xl bg-[#D4F835] text-black flex items-center justify-center font-bold">
-                  <Wallet className="h-3.5 w-3.5" />
+                <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
+                  <Image
+                    src={METRIC_3D_ICONS.wallet}
+                    alt="Remaining Pool"
+                    width={32}
+                    height={32}
+                    className="object-contain drop-shadow"
+                  />
                 </div>
               </div>
               <div className={`mt-2 text-xl sm:text-2xl font-black font-mono tracking-tight ${moneyLeft >= 0 ? "text-[#D4F835]" : "text-rose-400"}`}>
@@ -371,11 +397,11 @@ export default function BudgetsPage() {
                 </span>
                 <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
                   <Image
-                    src={FEATURE_IMAGES.fuelGauge}
+                    src={METRIC_3D_ICONS.fuelGauge}
                     alt="Safe Daily Spend"
                     width={32}
                     height={32}
-                    className="object-contain"
+                    className="object-contain drop-shadow"
                   />
                 </div>
               </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Check, Sparkles, Globe, Shield, Star } from "lucide-react";
+import { Check, Sparkles, Globe } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
@@ -119,6 +119,16 @@ export function WhoAreYouModal({
       <div className="p-6 sm:p-8 space-y-6 select-none">
         {/* Top Header */}
         <div className="text-center space-y-1">
+          <div className="w-13 h-13 mx-auto mb-2 relative flex items-center justify-center">
+            <Image
+              src="/logo.svg"
+              alt="Family"
+              width={52}
+              height={52}
+              className="object-contain drop-shadow-md hover:scale-105 transition-transform"
+              priority
+            />
+          </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4F835]/20 text-[#0E0E10] dark:text-[#D4F835] text-xs font-black mb-1">
             <Sparkles className="h-3.5 w-3.5" />
             <span>{t.welcome}</span>
@@ -219,15 +229,17 @@ export function WhoAreYouModal({
                       {member.display_name.slice(0, 1)}
                     </div>
                   )}
-                  <span className="absolute -bottom-1 -right-1 h-5 w-5 bg-card rounded-full p-1 border border-border shadow-xs flex items-center justify-center">
-                    {member.role === "admin" || member.display_name === "Amit" ? (
-                      <Shield className="h-3 w-3 text-[#D4F835]" />
-                    ) : member.display_name === "Ajay" ? (
-                      <Star className="h-3 w-3 text-emerald-500" />
-                    ) : (
-                      <Sparkles className="h-3 w-3 text-amber-500" />
-                    )}
-                  </span>
+                  {avatarData?.roleBadge && (
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-card border border-border p-0.5 shadow-sm flex items-center justify-center">
+                      <Image
+                        src={avatarData.roleBadge}
+                        alt="Role Badge"
+                        width={16}
+                        height={16}
+                        className="object-contain"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-2 text-center w-full">

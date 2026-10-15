@@ -18,8 +18,6 @@ import {
   Plus,
   X,
   Sparkles,
-  Calendar,
-  ArrowUpRight,
   CheckCircle2,
   Shield,
   Star,
@@ -33,7 +31,14 @@ import { DataService } from "@/lib/data-service";
 import { Expense, Category, HouseholdMember } from "@/lib/types";
 import { formatINR, formatDate } from "@/lib/formatters";
 import Image from "next/image";
-import { CATEGORY_IMAGES, EMPTY_STATE_IMAGES, MEMBER_AVATARS } from "@/lib/assets";
+import {
+  CATEGORY_IMAGES,
+  EMPTY_STATE_IMAGES,
+  MEMBER_AVATARS,
+  NAV_3D_ICONS,
+  METRIC_3D_ICONS,
+  PAYMENT_3D_ICONS,
+} from "@/lib/assets";
 
 // Rich Category Visual Mapping
 const CATEGORY_META_MAP: Record<
@@ -164,12 +169,12 @@ function getPaymentBadge(method: string) {
 }
 
 const PAYMENT_METHOD_FILTER_TABS = [
-  { id: "all", label: "All Methods", icon: CreditCard },
-  { id: "Cash", label: "Cash (Default)", icon: Banknote },
-  { id: "UPI", label: "UPI", icon: Zap },
-  { id: "Credit Card", label: "Credit Card", icon: CreditCard },
-  { id: "Debit Card", label: "Debit Card", icon: CreditCard },
-  { id: "Net Banking", label: "Net Banking", icon: Building },
+  { id: "all", label: "All Methods", image: NAV_3D_ICONS.expenses },
+  { id: "Cash", label: "Cash (Default)", image: PAYMENT_3D_ICONS.cash },
+  { id: "UPI", label: "UPI", image: PAYMENT_3D_ICONS.upi },
+  { id: "Credit Card", label: "Credit Card", image: PAYMENT_3D_ICONS.card },
+  { id: "Debit Card", label: "Debit Card", image: PAYMENT_3D_ICONS.card },
+  { id: "Net Banking", label: "Net Banking", image: PAYMENT_3D_ICONS.bank },
 ];
 
 export default function ExpensesPage() {
@@ -415,8 +420,14 @@ export default function ExpensesPage() {
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
                 Total Expenses
               </span>
-              <div className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold">
-                <ArrowUpRight className="h-4 w-4" />
+              <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src={METRIC_3D_ICONS.spent}
+                  alt="Total Expenses"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow"
+                />
               </div>
             </div>
 
@@ -441,8 +452,14 @@ export default function ExpensesPage() {
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
                 Cash Spent (Default)
               </span>
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                <Banknote className="h-4 w-4" />
+              <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src={PAYMENT_3D_ICONS.cash}
+                  alt="Cash Spent"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow"
+                />
               </div>
             </div>
 
@@ -469,8 +486,14 @@ export default function ExpensesPage() {
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
                 This Month
               </span>
-              <div className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
-                <Calendar className="h-4 w-4" />
+              <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src={METRIC_3D_ICONS.wallet}
+                  alt="This Month"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow"
+                />
               </div>
             </div>
 
@@ -497,8 +520,14 @@ export default function ExpensesPage() {
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
                 Avg. Ticket Size
               </span>
-              <div className="h-9 w-9 rounded-xl bg-[#D4F835]/20 text-black dark:text-[#D4F835] flex items-center justify-center font-bold">
-                <Sparkles className="h-4 w-4" />
+              <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src={METRIC_3D_ICONS.fuelGauge}
+                  alt="Avg Ticket Size"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow"
+                />
               </div>
             </div>
 
@@ -535,7 +564,15 @@ export default function ExpensesPage() {
                   : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                   }`}
               >
-                {tab.icon && <tab.icon className="h-3.5 w-3.5 shrink-0" />}
+                {tab.image && (
+                  <Image
+                    src={tab.image}
+                    alt={tab.label}
+                    width={18}
+                    height={18}
+                    className="object-contain"
+                  />
+                )}
                 <span>{tab.label}</span>
               </button>
             );

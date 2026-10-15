@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Tags,
   Search,
   ShoppingCart,
   Utensils,
@@ -19,7 +18,7 @@ import { DataService } from "@/lib/data-service";
 import { Category, Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 import Image from "next/image";
-import { CATEGORY_IMAGES } from "@/lib/assets";
+import { CATEGORY_IMAGES, NAV_3D_ICONS } from "@/lib/assets";
 
 const COLOR_SWATCHES = [
   { name: "Lime", hex: "#D4F835", bg: "bg-[#D4F835]" },
@@ -110,8 +109,14 @@ export default function CategoriesPage() {
         {/* Top Header Bar matching Figma image_20261014_111556.jpg */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-xs">
-              <Tags className="h-5 w-5" />
+            <div className="h-10 w-10 relative flex items-center justify-center shrink-0">
+              <Image
+                src={NAV_3D_ICONS.categories}
+                alt="Category Center"
+                width={36}
+                height={36}
+                className="object-contain"
+              />
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
               Category Center

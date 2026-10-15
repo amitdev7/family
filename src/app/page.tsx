@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Check, Globe, Sparkles, Shield, Star } from "lucide-react";
+import { Check, Globe, Sparkles } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
@@ -109,10 +109,24 @@ export default function WelcomeEntryPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-xl">
         {/* 3D Hero House Art & Header */}
         <div className="text-center space-y-2 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <div className="w-10 h-10 relative flex items-center justify-center">
+              <Image
+                src="/logo.svg"
+                alt="Family Logo"
+                width={40}
+                height={40}
+                priority
+                className="object-contain drop-shadow-md"
+              />
+            </div>
+            <span className="text-xl font-black tracking-tight text-foreground">Family</span>
+          </div>
+
           <div className="relative mx-auto w-36 h-28 sm:w-44 sm:h-32 mb-1 flex items-center justify-center">
             <Image
               src={HERO_IMAGES.familyHouse}
-              alt="FamilyFlow Smart Home"
+              alt="Family Smart Home"
               width={200}
               height={150}
               priority
@@ -232,15 +246,17 @@ export default function WelcomeEntryPage() {
                           {member.display_name.slice(0, 1)}
                         </div>
                       )}
-                      <span className="absolute -bottom-1 -right-1 h-5 w-5 bg-card rounded-full p-1 border border-border shadow-xs flex items-center justify-center">
-                        {member.role === "admin" || member.display_name === "Amit" ? (
-                          <Shield className="h-3 w-3 text-[#D4F835]" />
-                        ) : member.display_name === "Ajay" ? (
-                          <Star className="h-3 w-3 text-emerald-500" />
-                        ) : (
-                          <Sparkles className="h-3 w-3 text-amber-500" />
-                        )}
-                      </span>
+                      {avatarData?.roleBadge && (
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-card border border-border p-0.5 shadow-sm flex items-center justify-center">
+                          <Image
+                            src={avatarData.roleBadge}
+                            alt="Role Badge"
+                            width={18}
+                            height={18}
+                            className="object-contain"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-2 text-center w-full">

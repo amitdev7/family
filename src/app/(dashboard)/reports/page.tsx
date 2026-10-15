@@ -7,7 +7,7 @@ import { DataService } from "@/lib/data-service";
 import { HouseholdMember, DashboardMetrics, Category, Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 import Image from "next/image";
-import { MEMBER_AVATARS } from "@/lib/assets";
+import { MEMBER_AVATARS, NAV_3D_ICONS } from "@/lib/assets";
 
 const getMemberAvatar = (id?: string, name?: string) => {
   if (id && MEMBER_AVATARS[id]) return MEMBER_AVATARS[id];
@@ -180,13 +180,24 @@ export default function ReportsPage() {
       <div className="max-w-2xl mx-auto space-y-6 select-none pb-12">
         {/* Top Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              Reports &amp; Analytics
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Real-time household financial breakdown and historical trends
-            </p>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 relative flex items-center justify-center shrink-0">
+              <Image
+                src={NAV_3D_ICONS.reports}
+                alt="Reports & Analytics"
+                width={36}
+                height={36}
+                className="object-contain"
+              />
+            </div>
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                Reports &amp; Analytics
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Real-time household financial breakdown and historical trends
+              </p>
+            </div>
           </div>
 
           <button
@@ -235,19 +246,32 @@ export default function ReportsPage() {
                     className="rounded-[24px] bg-card border border-border/80 p-4 shadow-xs flex flex-col items-center text-center space-y-2 hover:border-border transition-colors"
                   >
                     {/* Circular Avatar */}
-                    <div
-                      className={`h-14 w-14 rounded-full flex items-center justify-center font-bold text-base shadow-xs overflow-hidden ${colorClass}`}
-                    >
-                      {avatar?.image ? (
-                        <Image
-                          src={avatar.image}
-                          alt={spender.displayName}
-                          width={56}
-                          height={56}
-                          className="object-cover w-full h-full"
-                        />
-                      ) : (
-                        <span>{initial}</span>
+                    <div className="relative">
+                      <div
+                        className={`h-14 w-14 rounded-2xl flex items-center justify-center font-bold text-base shadow-xs overflow-hidden ${colorClass}`}
+                      >
+                        {avatar?.image ? (
+                          <Image
+                            src={avatar.image}
+                            alt={spender.displayName}
+                            width={56}
+                            height={56}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <span>{initial}</span>
+                        )}
+                      </div>
+                      {avatar?.roleBadge && (
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-card border border-border p-0.5 shadow-sm flex items-center justify-center">
+                          <Image
+                            src={avatar.roleBadge}
+                            alt="Role Badge"
+                            width={16}
+                            height={16}
+                            className="object-contain"
+                          />
+                        </div>
                       )}
                     </div>
 

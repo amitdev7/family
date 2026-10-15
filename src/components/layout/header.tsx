@@ -2,15 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Plus,
   ChevronDown,
   Bell,
   Check,
   Globe,
-  Shield,
-  Star,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -77,7 +75,21 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 h-16 w-full border-b border-border/80 bg-card/90 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 select-none">
       {/* Title & Subtitle */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <Link
+          href="/dashboard"
+          className="md:hidden h-8 w-8 relative flex items-center justify-center shrink-0 rounded-xl overflow-hidden hover:scale-105 transition-transform"
+          title="Family"
+        >
+          <Image
+            src="/logo.svg"
+            alt="Family"
+            width={32}
+            height={32}
+            className="object-contain"
+            priority
+          />
+        </Link>
         <div>
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-foreground leading-tight truncate">
             {title}
@@ -120,7 +132,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                 />
               </div>
             ) : (
-              <Globe className="h-4 w-4 text-[#D4F835]" />
+              <Globe className="h-4 w-4 text-muted-foreground" />
             )}
             <span className="hidden sm:inline">
               {currentLang === "hi"
@@ -225,15 +237,17 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
           <span className="text-xs font-bold text-zinc-200 truncate max-w-[120px]">
             {currentUser?.display_name || "Amit"}
           </span>
-          <span className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center">
-            {currentUser?.role === "admin" || currentUser?.display_name === "Amit" ? (
-              <Shield className="h-2.5 w-2.5 text-[#D4F835]" />
-            ) : currentUser?.display_name === "Ajay" ? (
-              <Star className="h-2.5 w-2.5 text-emerald-400" />
-            ) : (
-              <Sparkles className="h-2.5 w-2.5 text-amber-400" />
-            )}
-          </span>
+          {avatarInfo?.roleBadge && (
+            <div className="w-4 h-4 relative shrink-0">
+              <Image
+                src={avatarInfo.roleBadge}
+                alt="Role"
+                width={16}
+                height={16}
+                className="object-contain"
+              />
+            </div>
+          )}
         </div>
 
         {/* Notification Bell */}
@@ -311,12 +325,16 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                     <p className="text-xs font-black truncate">
                       {currentUser?.display_name || "Amit"}
                     </p>
-                    {currentUser?.role === "admin" || currentUser?.display_name === "Amit" ? (
-                      <Shield className="h-3 w-3 text-[#D4F835]" />
-                    ) : currentUser?.display_name === "Ajay" ? (
-                      <Star className="h-3 w-3 text-emerald-500" />
-                    ) : (
-                      <Sparkles className="h-3 w-3 text-amber-500" />
+                    {avatarInfo?.roleBadge && (
+                      <div className="w-4 h-4 relative shrink-0">
+                        <Image
+                          src={avatarInfo.roleBadge}
+                          alt="Role"
+                          width={16}
+                          height={16}
+                          className="object-contain"
+                        />
+                      </div>
                     )}
                   </div>
                   <Badge

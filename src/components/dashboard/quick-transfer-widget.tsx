@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, CheckCircle2, Shield, Star, Sparkles } from "lucide-react";
+import { Check, CheckCircle2 } from "lucide-react";
 import { HouseholdMember } from "@/lib/types";
 import { MEMBER_AVATARS, FEATURE_IMAGES } from "@/lib/assets";
 
@@ -44,12 +44,14 @@ export function QuickTransferWidget({
           name: m.display_name,
           role: m.relationship || (m.role === "admin" ? "Admin" : "Member"),
           image: avatarInfo?.image,
+          roleBadge: avatarInfo?.roleBadge,
           initial: m.display_name.slice(0, 1).toUpperCase(),
         };
       })
       : DEMO_AVATARS.map((d) => ({
         ...d,
         image: MEMBER_AVATARS[d.id]?.image,
+        roleBadge: MEMBER_AVATARS[d.id]?.roleBadge,
         initial: d.name.slice(0, 1),
       }));
 
@@ -60,7 +62,7 @@ export function QuickTransferWidget({
     setIsSending(true);
     setTimeout(() => {
       setIsSending(false);
-      setSuccessMsg(`Sent ₹${amount} to ${selectedPerson.name} (${selectedPerson.role})!`);
+      setSuccessMsg(`Sent ₹${amount} to ${selectedPerson.name} instantly via UPI`);
       setTimeout(() => setSuccessMsg(null), 3500);
     }, 500);
   };
@@ -71,6 +73,15 @@ export function QuickTransferWidget({
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
+            <div className="w-6 h-6 relative shrink-0">
+              <Image
+                src={FEATURE_IMAGES.transferBeam}
+                alt="Transfer"
+                width={24}
+                height={24}
+                className="object-contain"
+              />
+            </div>
             <h3 className="font-bold text-lg text-foreground tracking-tight">
               Quick Transfer
             </h3>
@@ -113,15 +124,17 @@ export function QuickTransferWidget({
                     )}
                   </div>
 
-                  <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-card rounded-full p-0.5 border border-border shadow-2xs flex items-center justify-center">
-                    {person.role?.toLowerCase().includes("admin") || person.name === "Amit" ? (
-                      <Shield className="h-2.5 w-2.5 text-[#D4F835]" />
-                    ) : person.name === "Ajay" ? (
-                      <Star className="h-2.5 w-2.5 text-emerald-500" />
-                    ) : (
-                      <Sparkles className="h-2.5 w-2.5 text-amber-500" />
-                    )}
-                  </span>
+                  {person.roleBadge && (
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-card rounded-full p-0.5 border border-border shadow-2xs flex items-center justify-center">
+                      <Image
+                        src={person.roleBadge}
+                        alt="Role Badge"
+                        width={12}
+                        height={12}
+                        className="object-contain"
+                      />
+                    </div>
+                  )}
 
                   {isSelected && (
                     <div className="absolute -top-1.5 -left-1.5 h-4 w-4 rounded-full bg-[#D4F835] text-black flex items-center justify-center shadow-xs">
@@ -157,70 +170,56 @@ export function QuickTransferWidget({
         </div>
 
         <div className="flex items-center rounded-2xl bg-secondary/60 border border-border px-4 py-2.5 focus-within:ring-2 focus-within:ring-[#D4F835] focus-within:bg-card transition-all">
-          <span className="text-muted-foreground font-bold text-base mr-2">₹</span>
+          <span className="text-lg font-bold text-muted-foreground mr-1.5 font-mono">₹</span>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter custom amount"
-            className="w-full bg-transparent text-sm font-black text-foreground focus:outline-none"
+            className="w-full bg-transparent text-lg font-bold text-foreground focus:outline-none font-mono"
+            placeholder="0"
+            min="1"
           />
-          <span className="text-[11px] font-semibold text-muted-foreground shrink-0">
-            To: {selectedPerson.name}
-          </span>
         </div>
+      </div>
 
+      {/* Instant Action CTA */}
+      <div>
         {successMsg && (
-          <div className="p-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold text-center flex items-center justify-center gap-1.5 animate-in fade-in">
+          <div className="mb-2 p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
             <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
-      </div>
 
-      {/* Buttons */}
-      <div className="space-y-2">
         <button
           type="button"
           onClick={handleSend}
-          disabled={isSending}
-          className="w-full py-3 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-sm transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-xs disabled:opacity-50 active:scale-98"
+          disabled={isSending || !amount || parseFloat(amount) <= 0}
+          className="w-full py-3 rounded-full bg-[#D4F835] text-black hover:bg-[#c5ea28] font-black text-xs transition-all shadow-md shadow-[#D4F835]/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-98"
         >
           {isSending ? (
             <span>Sending to {selectedPerson.name}...</span>
           ) : (
-            <>
-              <div className="w-5 h-5 relative shrink-0">
-                <Image
-                  src={FEATURE_IMAGES.transferBeam}
-                  alt="Transfer"
-                  width={20}
-                  height={20}
-                  className="object-contain"
-                />
-              </div>
-              <span>Send ₹{amount || 0} to {selectedPerson.name}</span>
-            </>
+            <span>Send ₹{amount || "0"} to {selectedPerson.name}</span>
           )}
         </button>
 
-        <div className="flex items-center gap-2 text-xs">
-          <Link
-            href="/expenses"
-            className="flex-1 py-2 rounded-full bg-secondary text-foreground hover:bg-secondary/80 font-semibold text-center transition-colors truncate"
-          >
-            Transactions &gt;
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              if (onAddExpenseClick) onAddExpenseClick();
-              else window.dispatchEvent(new Event("open-add-expense"));
-            }}
-            className="flex-1 py-2 rounded-full bg-secondary text-foreground hover:bg-secondary/80 font-semibold text-center transition-colors truncate cursor-pointer"
-          >
-            + Log Expense
-          </button>
+        {/* Bottom helper footnote */}
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium pt-2 mt-2 border-t border-border/40">
+          <span>Linked: HDFC Family Pooled</span>
+          {onAddExpenseClick ? (
+            <button
+              type="button"
+              onClick={onAddExpenseClick}
+              className="text-foreground hover:underline font-bold cursor-pointer"
+            >
+              Log as Expense &gt;
+            </button>
+          ) : (
+            <Link href="/expenses" className="text-foreground hover:underline font-bold">
+              View Ledger &gt;
+            </Link>
+          )}
         </div>
       </div>
     </div>

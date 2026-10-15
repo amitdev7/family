@@ -3,26 +3,24 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  Wallet,
-  ArrowDownLeft,
-  ArrowUpRight,
   Plus,
   TrendingUp,
   Sparkles,
   Calendar,
   Clock,
   CheckCircle2,
-  Sun,
-  CloudSun,
-  Sunset,
-  Moon,
-  Shield,
-  Star,
+  ArrowDownLeft,
 } from "lucide-react";
 import Image from "next/image";
 import { formatINR } from "@/lib/formatters";
 import { HouseholdMember } from "@/lib/types";
-import { MEMBER_AVATARS, FEATURE_IMAGES } from "@/lib/assets";
+import {
+  MEMBER_AVATARS,
+  FEATURE_IMAGES,
+  WEATHER_3D_ICONS,
+  METRIC_3D_ICONS,
+  ROLE_3D_BADGES,
+} from "@/lib/assets";
 
 interface DashboardHeroBannerProps {
   currentUser: HouseholdMember | null;
@@ -30,8 +28,9 @@ interface DashboardHeroBannerProps {
   totalReceived?: number;
   totalSpent?: number;
   moneyLeft?: number;
-  onAddExpenseClick: () => void;
-  onReceiveMoneyClick: () => void;
+  greeting?: string;
+  onAddExpenseClick?: () => void;
+  onReceiveMoneyClick?: () => void;
 }
 
 export function DashboardHeroBanner({
@@ -40,49 +39,42 @@ export function DashboardHeroBanner({
   totalReceived = 0,
   totalSpent = 0,
   moneyLeft = 0,
+  greeting = "Welcome Back",
   onAddExpenseClick,
   onReceiveMoneyClick,
 }: DashboardHeroBannerProps) {
-
-  const [greeting, setGreeting] = useState("Good day");
-  const [greetingTimeType, setGreetingTimeType] = useState<"morning" | "afternoon" | "evening" | "night">("morning");
   const [currentTime, setCurrentTime] = useState("");
   const [currentDate, setCurrentDate] = useState("");
+  const [greetingTimeType, setGreetingTimeType] = useState<"morning" | "afternoon" | "evening" | "night">("morning");
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const hour = now.getHours();
-
-      if (hour >= 4 && hour < 12) {
-        setGreeting("Good morning");
-        setGreetingTimeType("morning");
-      } else if (hour >= 12 && hour < 17) {
-        setGreeting("Good afternoon");
-        setGreetingTimeType("afternoon");
-      } else if (hour >= 17 && hour < 22) {
-        setGreeting("Good evening");
-        setGreetingTimeType("evening");
-      } else {
-        setGreeting("Good night");
-        setGreetingTimeType("night");
-      }
-
       setCurrentTime(
-        now.toLocaleTimeString("en-US", {
+        now.toLocaleTimeString("en-IN", {
           hour: "2-digit",
           minute: "2-digit",
           hour12: true,
         })
       );
-
       setCurrentDate(
-        now.toLocaleDateString("en-US", {
+        now.toLocaleDateString("en-IN", {
           weekday: "short",
           month: "short",
           day: "numeric",
         })
       );
+
+      const hour = now.getHours();
+      if (hour >= 5 && hour < 12) {
+        setGreetingTimeType("morning");
+      } else if (hour >= 12 && hour < 17) {
+        setGreetingTimeType("afternoon");
+      } else if (hour >= 17 && hour < 21) {
+        setGreetingTimeType("evening");
+      } else {
+        setGreetingTimeType("night");
+      }
     };
 
     updateTime();
@@ -93,29 +85,33 @@ export function DashboardHeroBanner({
   const safeToSpendDaily = Math.max(0, Math.round(moneyLeft / 16));
 
   const renderRoleBadge = () => {
-    const role = (currentUser?.relationship || currentUser?.role || "").toLowerCase();
-    if (role.includes("admin") || role.includes("father") || currentUser?.display_name === "Amit") {
-      return <Shield className="h-3 w-3 text-[#D4F835]" />;
-    }
-    if (role.includes("mother") || role.includes("member") || currentUser?.display_name === "Ajay") {
-      return <Star className="h-3 w-3 text-emerald-400" />;
-    }
-    return <Sparkles className="h-3 w-3 text-amber-400" />;
+    const badgeSrc = currentUser && MEMBER_AVATARS[currentUser.user_id]?.roleBadge
+      ? MEMBER_AVATARS[currentUser.user_id].roleBadge
+      : ROLE_3D_BADGES.user;
+    return (
+      <Image
+        src={badgeSrc}
+        alt="Role Badge"
+        width={16}
+        height={16}
+        className="object-contain"
+      />
+    );
   };
 
   const renderGreetingIcon = () => {
-    switch (greetingTimeType) {
-      case "morning":
-        return <Sun className="h-4 w-4 text-amber-400 animate-spin-slow shrink-0" />;
-      case "afternoon":
-        return <CloudSun className="h-4 w-4 text-amber-300 shrink-0" />;
-      case "evening":
-        return <Sunset className="h-4 w-4 text-orange-400 shrink-0" />;
-      case "night":
-        return <Moon className="h-4 w-4 text-indigo-300 shrink-0" />;
-      default:
-        return <Sun className="h-4 w-4 text-amber-400 shrink-0" />;
-    }
+    const iconSrc = WEATHER_3D_ICONS[greetingTimeType] || WEATHER_3D_ICONS.morning;
+    return (
+      <div className="h-6 w-6 relative inline-flex items-center justify-center shrink-0">
+        <Image
+          src={iconSrc}
+          alt={greetingTimeType}
+          width={24}
+          height={24}
+          className="object-contain drop-shadow"
+        />
+      </div>
+    );
   };
 
   return (
@@ -143,7 +139,7 @@ export function DashboardHeroBanner({
               )}
             </div>
             <span
-              className="absolute -bottom-1 -right-1 h-5 w-5 bg-black/90 rounded-full p-1 border border-white/20 shadow-xs flex items-center justify-center"
+              className="absolute -bottom-1 -right-1 h-5 w-5 bg-black/90 rounded-full p-0.5 border border-white/20 shadow-xs flex items-center justify-center"
               title={currentUser?.relationship || "Active User"}
             >
               {renderRoleBadge()}
@@ -162,7 +158,7 @@ export function DashboardHeroBanner({
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
-              Family Financial Overview
+              Household Finance & Real-Time Cash Tracker
             </h2>
           </div>
         </div>
@@ -184,11 +180,17 @@ export function DashboardHeroBanner({
         {/* Metric 1: Total Family Balance */}
         <div className="rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 p-4 transition-all duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
-              <span>Net Balance</span>
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              Net Balance
             </span>
-            <div className="h-7 w-7 rounded-xl bg-[#D4F835]/20 text-[#D4F835] flex items-center justify-center">
-              <Wallet className="h-3.5 w-3.5" />
+            <div className="h-8 w-8 relative flex items-center justify-center">
+              <Image
+                src={METRIC_3D_ICONS.wallet}
+                alt="Net Balance"
+                width={32}
+                height={32}
+                className="object-contain drop-shadow"
+              />
             </div>
           </div>
           <div className="mt-2 text-lg sm:text-2xl font-black text-white tracking-tight font-mono">
@@ -206,8 +208,14 @@ export function DashboardHeroBanner({
             <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
               Received (Inflow)
             </span>
-            <div className="h-7 w-7 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <ArrowDownLeft className="h-3.5 w-3.5" />
+            <div className="h-8 w-8 relative flex items-center justify-center">
+              <Image
+                src={METRIC_3D_ICONS.received}
+                alt="Received"
+                width={32}
+                height={32}
+                className="object-contain drop-shadow"
+              />
             </div>
           </div>
           <div className="mt-2 text-lg sm:text-2xl font-black text-emerald-400 tracking-tight font-mono">
@@ -224,8 +232,14 @@ export function DashboardHeroBanner({
             <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
               Total Spent
             </span>
-            <div className="h-7 w-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
-              <ArrowUpRight className="h-3.5 w-3.5" />
+            <div className="h-8 w-8 relative flex items-center justify-center">
+              <Image
+                src={METRIC_3D_ICONS.spent}
+                alt="Spent"
+                width={32}
+                height={32}
+                className="object-contain drop-shadow"
+              />
             </div>
           </div>
           <div className="mt-2 text-lg sm:text-2xl font-black text-rose-300 tracking-tight font-mono">
@@ -245,11 +259,11 @@ export function DashboardHeroBanner({
             </span>
             <div className="h-8 w-8 relative flex items-center justify-center">
               <Image
-                src={FEATURE_IMAGES.fuelGauge}
+                src={METRIC_3D_ICONS.fuelGauge}
                 alt="Fuel Gauge"
                 width={32}
                 height={32}
-                className="object-contain"
+                className="object-contain drop-shadow"
               />
             </div>
           </div>

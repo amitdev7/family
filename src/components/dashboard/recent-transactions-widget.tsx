@@ -19,7 +19,7 @@ import { Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 import { Modal } from "@/components/ui/modal";
 import Image from "next/image";
-import { CATEGORY_IMAGES, EMPTY_STATE_IMAGES } from "@/lib/assets";
+import { CATEGORY_IMAGES, EMPTY_STATE_IMAGES, NAV_3D_ICONS, FLOW_3D_ICONS, PAYMENT_3D_ICONS } from "@/lib/assets";
 
 interface RecentTransactionsWidgetProps {
   expenses: Expense[];
@@ -91,6 +91,15 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
+              <div className="w-6 h-6 relative shrink-0">
+                <Image
+                  src={NAV_3D_ICONS.expenses}
+                  alt="Recent Transactions"
+                  width={24}
+                  height={24}
+                  className="object-contain"
+                />
+              </div>
               <h3 className="font-bold text-lg text-foreground tracking-tight">
                 Recent Transactions
               </h3>
@@ -192,15 +201,27 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
                         <span className="font-medium text-foreground/80 truncate">
                           {expense.paid_by?.display_name?.split(" ")[0] || "Family"}
                         </span>
-                        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-secondary font-bold text-foreground/80 border border-border">
+                        <span className="inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full bg-secondary font-bold text-foreground/80 border border-border">
                           {isCash ? (
                             <>
-                              <Banknote className="h-3 w-3 text-emerald-500 shrink-0" />
+                              <Image
+                                src={PAYMENT_3D_ICONS.cash}
+                                alt="Cash"
+                                width={14}
+                                height={14}
+                                className="object-contain shrink-0"
+                              />
                               <span>Cash</span>
                             </>
                           ) : (
                             <>
-                              <Zap className="h-3 w-3 text-[#D4F835] shrink-0" />
+                              <Image
+                                src={PAYMENT_3D_ICONS.upi}
+                                alt="UPI"
+                                width={14}
+                                height={14}
+                                className="object-contain shrink-0"
+                              />
                               <span>{expense.payment_method || "UPI"}</span>
                             </>
                           )}
@@ -210,8 +231,15 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
                   </div>
 
                   <div className="text-right shrink-0 pl-3">
-                    <div className="font-black text-sm text-foreground font-mono">
-                      - {formatINR(expense.amount)}
+                    <div className="flex items-center justify-end gap-1 font-black text-sm text-foreground font-mono">
+                      <Image
+                        src={FLOW_3D_ICONS.outflow}
+                        alt="Outflow"
+                        width={14}
+                        height={14}
+                        className="object-contain shrink-0"
+                      />
+                      <span>-{formatINR(expense.amount)}</span>
                     </div>
                     <span className="text-[10px] font-semibold text-muted-foreground group-hover:underline">
                       Receipt &gt;

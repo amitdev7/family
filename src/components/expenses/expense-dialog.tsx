@@ -5,15 +5,13 @@ import {
   X,
   Calendar,
   UploadCloud,
-  Zap,
-  Banknote,
-  CreditCard,
-  Building,
   ChevronDown,
 } from "lucide-react";
+import Image from "next/image";
 import { Modal } from "@/components/ui/modal";
 import { Expense, Category, HouseholdMember } from "@/lib/types";
 import { DataService } from "@/lib/data-service";
+import { PAYMENT_3D_ICONS } from "@/lib/assets";
 
 interface ExpenseDialogProps {
   isOpen: boolean;
@@ -24,11 +22,11 @@ interface ExpenseDialogProps {
 }
 
 const PAYMENT_METHOD_PILLS = [
-  { name: "Cash", icon: Banknote, label: "Cash" },
-  { name: "UPI", icon: Zap, label: "UPI" },
-  { name: "Credit Card", icon: CreditCard, label: "Credit Card" },
-  { name: "Debit Card", icon: CreditCard, label: "Debit Card" },
-  { name: "Net Banking", icon: Building, label: "Net Banking" },
+  { name: "Cash", image: PAYMENT_3D_ICONS.cash, label: "Cash (Default)" },
+  { name: "UPI", image: PAYMENT_3D_ICONS.upi, label: "UPI" },
+  { name: "Credit Card", image: PAYMENT_3D_ICONS.card, label: "Credit Card" },
+  { name: "Debit Card", image: PAYMENT_3D_ICONS.card, label: "Debit Card" },
+  { name: "Net Banking", image: PAYMENT_3D_ICONS.bank, label: "Net Banking" },
 ];
 
 const PRESET_EXPENSE_AMOUNTS = [100, 250, 500, 1000, 2000, 5000];
@@ -276,7 +274,6 @@ export function ExpenseDialog({
           </label>
           <div className="flex flex-wrap gap-2">
             {PAYMENT_METHOD_PILLS.map((pill) => {
-              const Icon = pill.icon;
               const isSelected = paymentMethod === pill.name;
 
               return (
@@ -284,12 +281,20 @@ export function ExpenseDialog({
                   key={pill.name}
                   type="button"
                   onClick={() => setPaymentMethod(pill.name)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isSelected
-                    ? "bg-[#D4F835] text-black shadow-xs ring-2 ring-black/10"
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isSelected
+                    ? "bg-[#D4F835] text-black shadow-xs ring-2 ring-black/10 scale-102"
                     : "bg-secondary/70 text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }`}
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  {pill.image && (
+                    <Image
+                      src={pill.image}
+                      alt={pill.label}
+                      width={16}
+                      height={16}
+                      className="object-contain"
+                    />
+                  )}
                   <span>{pill.label}</span>
                 </button>
               );

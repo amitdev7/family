@@ -2,15 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  ReceiptText,
-  Plus,
-  BarChart2,
-  PieChart,
-} from "lucide-react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NAV_3D_ICONS } from "@/lib/assets";
 
 interface MobileNavProps {
   onAddExpenseClick?: () => void;
@@ -21,17 +17,25 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
 
   return (
     <nav className="md:hidden fixed bottom-4 left-4 right-4 max-w-md mx-auto z-40 h-16 bg-[#0E0E10] text-white rounded-[32px] px-3 flex items-center justify-around shadow-2xl border border-zinc-800/80 select-none">
-      {/* 1. Home */}
+      {/* 1. Home / Dashboard */}
       <Link
         href="/dashboard"
         className={cn(
-          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-colors",
+          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-all",
           pathname === "/dashboard"
-            ? "text-[#D4F835]"
-            : "text-zinc-400 hover:text-white"
+            ? "text-[#D4F835] scale-105"
+            : "text-zinc-400 hover:text-white opacity-80"
         )}
       >
-        <Home className={cn("h-5 w-5 mb-0.5", pathname === "/dashboard" ? "stroke-[2.5]" : "stroke-[1.8]")} />
+        <div className="h-6 w-6 relative flex items-center justify-center mb-0.5">
+          <Image
+            src={NAV_3D_ICONS.dashboard}
+            alt="Dashboard"
+            width={22}
+            height={22}
+            className="object-contain"
+          />
+        </div>
         <span>Home</span>
       </Link>
 
@@ -39,13 +43,21 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
       <Link
         href="/expenses"
         className={cn(
-          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-colors",
+          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-all",
           pathname.startsWith("/expenses")
-            ? "text-[#D4F835]"
-            : "text-zinc-400 hover:text-white"
+            ? "text-[#D4F835] scale-105"
+            : "text-zinc-400 hover:text-white opacity-80"
         )}
       >
-        <ReceiptText className={cn("h-5 w-5 mb-0.5", pathname.startsWith("/expenses") ? "stroke-[2.5]" : "stroke-[1.8]")} />
+        <div className="h-6 w-6 relative flex items-center justify-center mb-0.5">
+          <Image
+            src={NAV_3D_ICONS.expenses}
+            alt="Expenses"
+            width={22}
+            height={22}
+            className="object-contain"
+          />
+        </div>
         <span>Expenses</span>
       </Link>
 
@@ -66,13 +78,21 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
       <Link
         href="/budgets"
         className={cn(
-          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-colors",
+          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-all",
           pathname.startsWith("/budgets")
-            ? "text-[#D4F835]"
-            : "text-zinc-400 hover:text-white"
+            ? "text-[#D4F835] scale-105"
+            : "text-zinc-400 hover:text-white opacity-80"
         )}
       >
-        <PieChart className={cn("h-5 w-5 mb-0.5", pathname.startsWith("/budgets") ? "stroke-[2.5]" : "stroke-[1.8]")} />
+        <div className="h-6 w-6 relative flex items-center justify-center mb-0.5">
+          <Image
+            src={NAV_3D_ICONS.budgets}
+            alt="Budgets"
+            width={22}
+            height={22}
+            className="object-contain"
+          />
+        </div>
         <span>Budgets</span>
       </Link>
 
@@ -80,13 +100,21 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
       <Link
         href="/reports"
         className={cn(
-          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-colors",
+          "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-all",
           pathname.startsWith("/reports")
-            ? "text-[#D4F835]"
-            : "text-zinc-400 hover:text-white"
+            ? "text-[#D4F835] scale-105"
+            : "text-zinc-400 hover:text-white opacity-80"
         )}
       >
-        <BarChart2 className={cn("h-5 w-5 mb-0.5", pathname.startsWith("/reports") ? "stroke-[2.5]" : "stroke-[1.8]")} />
+        <div className="h-6 w-6 relative flex items-center justify-center mb-0.5">
+          <Image
+            src={NAV_3D_ICONS.reports}
+            alt="Reports"
+            width={22}
+            height={22}
+            className="object-contain"
+          />
+        </div>
         <span>Reports</span>
       </Link>
     </nav>
