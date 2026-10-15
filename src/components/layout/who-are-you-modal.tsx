@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Check, Sparkles, Globe } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
@@ -11,38 +12,33 @@ import {
   getSavedLanguage,
   saveLanguage,
 } from "@/lib/translations";
+import {
+  MEMBER_AVATARS,
+  FLAG_IMAGES,
+} from "@/lib/assets";
 
 const MEMBER_STYLES: Record<
   string,
-  { bg: string; text: string; avatarBg: string; pillBg: string; emoji: string }
+  { pillBg: string; border: string }
 > = {
   "usr-amit": {
-    bg: "bg-blue-600",
-    text: "text-white",
-    avatarBg: "bg-blue-800 text-white",
-    pillBg: "bg-white/20 text-white",
-    emoji: "👑",
+    pillBg: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
+    border: "border-blue-500/30",
   },
   "usr-ajay": {
-    bg: "bg-pink-500",
-    text: "text-white",
-    avatarBg: "bg-pink-700 text-white",
-    pillBg: "bg-white/20 text-white",
-    emoji: "🌸",
+    pillBg: "bg-pink-500/20 text-pink-700 dark:text-pink-300",
+    border: "border-pink-500/30",
   },
   "usr-chhotu": {
-    bg: "bg-emerald-500",
-    text: "text-white",
-    avatarBg: "bg-emerald-700 text-white",
-    pillBg: "bg-white/20 text-white",
-    emoji: "🧸",
+    pillBg: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300",
+    border: "border-emerald-500/30",
   },
 };
 
-const LANGUAGE_OPTIONS: Array<{ id: Language; label: string; flag: string }> = [
-  { id: "en", label: "English", flag: "🇬🇧" },
-  { id: "hi", label: "हिन्दी", flag: "🇮🇳" },
-  { id: "hinglish", label: "Hinglish", flag: "💬" },
+const LANGUAGE_OPTIONS: Array<{ id: Language; label: string; fallbackFlag: string }> = [
+  { id: "en", label: "English", fallbackFlag: "🇬🇧" },
+  { id: "hi", label: "हिन्दी", fallbackFlag: "🇮🇳" },
+  { id: "hinglish", label: "Hinglish", fallbackFlag: "💬" },
 ];
 
 interface WhoAreYouModalProps {
@@ -74,7 +70,7 @@ export function WhoAreYouModal({
   useEffect(() => {
     loadInitialData();
 
-    // Check if new user has identified on this device
+    // Check if user has identified on this device
     const identified = DataService.hasUserIdentified();
     if (!identified) {
       setIsOpen(true);
@@ -135,7 +131,7 @@ export function WhoAreYouModal({
           </p>
         </div>
 
-        {/* 1. Language Choice Pills */}
+        {/* 1. Language Choice Pills with 3D Flags */}
         <div className="space-y-2 p-3.5 rounded-2xl bg-secondary/50 border border-border/80">
           <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
             <span className="flex items-center gap-1.5 text-foreground font-extrabold">
@@ -148,17 +144,32 @@ export function WhoAreYouModal({
           <div className="grid grid-cols-3 gap-2 pt-1">
             {LANGUAGE_OPTIONS.map((lang) => {
               const isSelected = selectedLanguage === lang.id;
+              const flagSrc = FLAG_IMAGES[lang.id];
+
               return (
                 <button
                   key={lang.id}
                   type="button"
                   onClick={() => handleSelectLanguage(lang.id)}
-                  className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${isSelected
-                    ? "bg-[#D4F835] text-black border-transparent shadow-xs scale-102"
-                    : "bg-card hover:bg-secondary/80 text-foreground border-border/80"
-                    }`}
+                  className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer border ${
+                    isSelected
+                      ? "bg-[#D4F835] text-black border-transparent shadow-xs scale-102"
+                      : "bg-card hover:bg-secondary/80 text-foreground border-border/80"
+                  }`}
                 >
-                  <span>{lang.flag}</span>
+                  {flagSrc ? (
+                    <div className="w-5 h-5 relative shrink-0">
+                      <Image
+                        src={flagSrc}
+                        alt={lang.label}
+                        width={20}
+                        height={20}
+                        className="rounded-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <span>{lang.fallbackFlag}</span>
+                  )}
                   <span>{lang.label}</span>
                 </button>
               );
@@ -166,16 +177,14 @@ export function WhoAreYouModal({
           </div>
         </div>
 
-        {/* 2. Strictly 3 Members Selection Grid (Amit, Ajay, Chhotu) */}
+        {/* 2. Strictly 3 Members Selection Grid (Amit, Ajay, Chhotu) with 3D Avatars */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
           {members.map((member) => {
             const isSelected = member.user_id === selectedUserId;
+            const avatarData = MEMBER_AVATARS[member.user_id];
             const style = MEMBER_STYLES[member.user_id] || {
-              bg: "bg-blue-600",
-              text: "text-white",
-              avatarBg: "bg-blue-800 text-white",
-              pillBg: "bg-white/20 text-white",
-              emoji: "👤",
+              pillBg: "bg-secondary text-foreground",
+              border: "border-border",
             };
 
             return (
@@ -183,11 +192,13 @@ export function WhoAreYouModal({
                 key={member.id}
                 type="button"
                 onClick={() => setSelectedUserId(member.user_id)}
-                className={`relative flex flex-col items-center justify-between p-5 rounded-2xl transition-all duration-200 text-center cursor-pointer shadow-md ${style.bg
-                  } ${style.text} ${isSelected
-                    ? "ring-4 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-xl"
-                    : "hover:scale-102 opacity-85 hover:opacity-100"
-                  }`}
+                className={`relative flex flex-col items-center justify-between p-4 rounded-2xl transition-all duration-200 text-center cursor-pointer border ${
+                  style.border
+                } ${
+                  isSelected
+                    ? "bg-secondary/90 border-[#D4F835] ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-103 shadow-xl"
+                    : "bg-secondary/30 hover:bg-secondary/60 opacity-90 hover:opacity-100"
+                }`}
               >
                 {/* Selected Check Badge */}
                 {isSelected && (
@@ -196,23 +207,33 @@ export function WhoAreYouModal({
                   </div>
                 )}
 
-                {/* Avatar Initial Circle */}
-                <div
-                  className={`h-14 w-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner relative ${style.avatarBg}`}
-                >
-                  <span>{member.display_name.slice(0, 1).toUpperCase()}</span>
-                  <span className="absolute -bottom-1 -right-1 text-sm">
-                    {style.emoji}
+                {/* 3D Character Avatar Image */}
+                <div className="relative w-16 h-16 my-1 flex items-center justify-center">
+                  {avatarData?.image ? (
+                    <Image
+                      src={avatarData.image}
+                      alt={member.display_name}
+                      width={64}
+                      height={64}
+                      className="rounded-2xl object-cover drop-shadow-md hover:scale-105 transition-transform"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground font-black text-lg flex items-center justify-center">
+                      {member.display_name.slice(0, 1)}
+                    </div>
+                  )}
+                  <span className="absolute -bottom-1 -right-1 text-xs bg-card rounded-full p-0.5 border border-border shadow-xs">
+                    {avatarData?.emoji || "👤"}
                   </span>
                 </div>
 
-                <div className="mt-3">
-                  <h3 className="font-extrabold text-base tracking-tight leading-tight">
+                <div className="mt-2 text-center w-full">
+                  <h3 className="font-extrabold text-base tracking-tight leading-tight text-foreground">
                     {member.display_name}
                   </h3>
                   <div className="mt-1">
                     <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold backdrop-blur-xs ${style.pillBg}`}
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${style.pillBg}`}
                     >
                       {member.role === "admin" ? "Admin" : "Member"}
                     </span>

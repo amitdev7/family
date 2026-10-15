@@ -13,6 +13,8 @@ import {
 import { cn } from "@/lib/utils";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
+import Image from "next/image";
+import { MEMBER_AVATARS } from "@/lib/assets";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -93,10 +95,20 @@ export function Sidebar({ className = "" }: { className?: string }) {
       {/* Bottom Section - Active Member Indicator */}
       <div className="flex flex-col items-center gap-2">
         <div
-          className="h-10 w-10 rounded-full bg-[#D4F835] text-black font-extrabold text-xs flex items-center justify-center shadow-md select-none"
+          className="h-10 w-10 rounded-full bg-[#D4F835] text-black font-extrabold text-xs flex items-center justify-center shadow-md select-none overflow-hidden border border-white/20"
           title={`Active Member: ${currentUser?.display_name || "User"}`}
         >
-          {currentUser?.display_name ? currentUser.display_name.slice(0, 1).toUpperCase() : "A"}
+          {MEMBER_AVATARS[currentUser?.user_id || currentUser?.id || ""]?.image ? (
+            <Image
+              src={MEMBER_AVATARS[currentUser?.user_id || currentUser?.id || ""].image}
+              alt={currentUser?.display_name || "User"}
+              width={40}
+              height={40}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <span>{currentUser?.display_name ? currentUser.display_name.slice(0, 1).toUpperCase() : "A"}</span>
+          )}
         </div>
       </div>
     </aside>

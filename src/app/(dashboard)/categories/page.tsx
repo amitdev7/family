@@ -18,6 +18,8 @@ import { AppLayout } from "@/components/layout/app-layout";
 import { DataService } from "@/lib/data-service";
 import { Category, Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
+import Image from "next/image";
+import { CATEGORY_IMAGES } from "@/lib/assets";
 
 const COLOR_SWATCHES = [
   { name: "Lime", hex: "#D4F835", bg: "bg-[#D4F835]" },
@@ -147,11 +149,23 @@ export default function CategoriesPage() {
                 key={i}
                 className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs flex flex-col items-center text-center space-y-3"
               >
-                {/* Icon Circle */}
+                {/* 3D Category Badge */}
                 <div
-                  className={`h-14 w-14 rounded-full flex items-center justify-center shadow-xs ${card.bg}`}
+                  className="h-16 w-16 rounded-2xl flex items-center justify-center p-1 relative"
                 >
-                  <Icon className="h-7 w-7" />
+                  {CATEGORY_IMAGES[card.id] ? (
+                    <Image
+                      src={CATEGORY_IMAGES[card.id]}
+                      alt={card.name}
+                      width={60}
+                      height={60}
+                      className="object-contain drop-shadow-md hover:scale-105 transition-transform"
+                    />
+                  ) : (
+                    <div className={`h-14 w-14 rounded-full flex items-center justify-center shadow-xs ${card.bg}`}>
+                      <Icon className="h-7 w-7" />
+                    </div>
+                  )}
                 </div>
 
                 <div>

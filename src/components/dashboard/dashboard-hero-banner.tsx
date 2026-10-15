@@ -6,7 +6,6 @@ import {
   Wallet,
   ArrowDownLeft,
   ArrowUpRight,
-  ShieldCheck,
   Plus,
   TrendingUp,
   Sparkles,
@@ -14,8 +13,10 @@ import {
   Clock,
   CheckCircle2,
 } from "lucide-react";
+import Image from "next/image";
 import { formatINR } from "@/lib/formatters";
 import { HouseholdMember } from "@/lib/types";
+import { MEMBER_AVATARS, FEATURE_IMAGES } from "@/lib/assets";
 
 interface DashboardHeroBannerProps {
   currentUser: HouseholdMember | null;
@@ -111,8 +112,18 @@ export function DashboardHeroBanner({
         <div className="flex items-center gap-3.5">
           {/* Avatar with Status Ring */}
           <div className="relative">
-            <div className="h-13 w-13 rounded-2xl bg-[#D4F835] text-black font-black text-lg flex items-center justify-center shadow-lg shadow-[#D4F835]/20 shrink-0 transform transition-transform hover:scale-105">
-              <span>{currentUser?.display_name?.slice(0, 1) || "A"}</span>
+            <div className="h-14 w-14 rounded-2xl overflow-hidden bg-[#D4F835] text-black font-black text-lg flex items-center justify-center shadow-lg shadow-[#D4F835]/20 shrink-0 transform transition-transform hover:scale-105 relative">
+              {currentUser && MEMBER_AVATARS[currentUser.user_id]?.image ? (
+                <Image
+                  src={MEMBER_AVATARS[currentUser.user_id].image}
+                  alt={currentUser.display_name}
+                  width={56}
+                  height={56}
+                  className="object-cover"
+                />
+              ) : (
+                <span>{currentUser?.display_name?.slice(0, 1) || "A"}</span>
+              )}
             </div>
             <span
               className="absolute -bottom-1 -right-1 text-sm bg-black/80 rounded-full p-0.5 border border-white/20 shadow-xs"
@@ -214,8 +225,14 @@ export function DashboardHeroBanner({
               <Sparkles className="h-3 w-3" />
               <span>Safe Daily Spend</span>
             </span>
-            <div className="h-7 w-7 rounded-xl bg-[#D4F835] text-black flex items-center justify-center font-bold">
-              ₹
+            <div className="h-8 w-8 relative flex items-center justify-center">
+              <Image
+                src={FEATURE_IMAGES.fuelGauge}
+                alt="Fuel Gauge"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             </div>
           </div>
           <div className="mt-2 text-lg sm:text-2xl font-black text-[#D4F835] tracking-tight font-mono">
@@ -231,7 +248,15 @@ export function DashboardHeroBanner({
       {/* Bottom Bar: Quick Action Buttons */}
       <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/10">
         <div className="flex items-center gap-2 text-xs text-zinc-400">
-          <ShieldCheck className="h-4 w-4 text-[#D4F835]" />
+          <div className="w-5 h-5 relative shrink-0">
+            <Image
+              src={FEATURE_IMAGES.securityShield}
+              alt="Security Shield"
+              width={20}
+              height={20}
+              className="object-contain"
+            />
+          </div>
           <span>Real-time Supabase Cloud Sync • Cash Priority Active</span>
         </div>
 

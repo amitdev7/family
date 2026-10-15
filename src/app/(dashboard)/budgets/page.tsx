@@ -24,6 +24,20 @@ import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
 import { Category, HouseholdMember, ReceivedMoney, MoneySummary } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
+import Image from "next/image";
+import { CATEGORY_IMAGES, EMPTY_STATE_IMAGES, MEMBER_AVATARS, FEATURE_IMAGES } from "@/lib/assets";
+
+const getMemberAvatar = (id?: string, name?: string) => {
+  if (id && MEMBER_AVATARS[id]) return MEMBER_AVATARS[id];
+  if (name) {
+    const lower = name.toLowerCase();
+    const found = Object.values(MEMBER_AVATARS).find(
+      (a) => a.name.toLowerCase() === lower
+    );
+    if (found) return found;
+  }
+  return null;
+};
 
 const PRESET_AMOUNTS = [1000, 2000, 5000, 10000, 25000, 50000];
 
@@ -235,8 +249,21 @@ export default function BudgetsPage() {
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 pb-6 border-b border-white/10">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="h-14 w-14 rounded-2xl bg-[#D4F835] text-black font-black text-xl flex items-center justify-center shadow-lg shadow-[#D4F835]/20 shrink-0 transform transition-transform hover:scale-105">
-                  <PieChart className="h-7 w-7 stroke-[2.2]" />
+                <div className="h-14 w-14 rounded-2xl bg-[#D4F835] text-black font-black text-xl flex items-center justify-center shadow-lg shadow-[#D4F835]/20 shrink-0 transform transition-transform hover:scale-105 overflow-hidden">
+                  {currentUser && (MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.image || getMemberAvatar(undefined, currentUser.display_name)?.image) ? (
+                    <Image
+                      src={
+                        MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.image ||
+                        getMemberAvatar(undefined, currentUser.display_name)!.image
+                      }
+                      alt={currentUser.display_name || "Active Member"}
+                      width={56}
+                      height={56}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <PieChart className="h-7 w-7 stroke-[2.2]" />
+                  )}
                 </div>
                 <span
                   className="absolute -bottom-1 -right-1 text-sm bg-black/80 rounded-full p-0.5 border border-white/20 shadow-xs"
@@ -350,8 +377,14 @@ export default function BudgetsPage() {
                   <Sparkles className="h-3 w-3" />
                   <span>Safe Daily Spend</span>
                 </span>
-                <div className="h-7 w-7 rounded-xl bg-[#D4F835] text-black flex items-center justify-center font-black text-xs">
-                  ₹
+                <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
+                  <Image
+                    src={FEATURE_IMAGES.fuelGauge}
+                    alt="Safe Daily Spend"
+                    width={32}
+                    height={32}
+                    className="object-contain"
+                  />
                 </div>
               </div>
               <div className="mt-2 text-xl sm:text-2xl font-black text-[#D4F835] font-mono tracking-tight">
@@ -403,6 +436,7 @@ export default function BudgetsPage() {
                 ];
                 const avatarBg = colorPalette[idx % colorPalette.length];
                 const emoji = ROLE_EMOJI_MAP[m.relationship] || "👤";
+                const memberAvatar = getMemberAvatar(m.memberId, m.memberName);
 
                 return (
                   <div
@@ -411,8 +445,18 @@ export default function BudgetsPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`relative h-12 w-12 rounded-2xl ${avatarBg} flex items-center justify-center font-black text-base shadow-xs shrink-0`}>
-                          <span>{m.memberName.charAt(0).toUpperCase()}</span>
+                        <div className={`relative h-12 w-12 rounded-2xl ${avatarBg} flex items-center justify-center font-black text-base shadow-xs shrink-0 overflow-hidden`}>
+                          {memberAvatar?.image ? (
+                            <Image
+                              src={memberAvatar.image}
+                              alt={m.memberName}
+                              width={48}
+                              height={48}
+                              className="object-cover w-full h-full"
+                            />
+                          ) : (
+                            <span>{m.memberName.charAt(0).toUpperCase()}</span>
+                          )}
                           <span className="absolute -bottom-1 -right-1 text-xs bg-card rounded-full p-0.5 border border-border shadow-2xs">
                             {emoji}
                           </span>
@@ -451,22 +495,28 @@ export default function BudgetsPage() {
               })}
             </div>
           ) : (
-            <div className="p-8 rounded-2xl bg-secondary/20 border border-dashed border-border text-center space-y-3">
-              <div className="h-12 w-12 rounded-full bg-primary/10 text-primary mx-auto flex items-center justify-center">
-                <Banknote className="h-6 w-6 text-[#D4F835]" />
+            <div className="p-8 rounded-2xl bg-secondary/20 border border-dashed border-border text-center space-y-3 flex flex-col items-center">
+              <div className="w-24 h-20 relative flex items-center justify-center mb-1">
+                <Image
+                  src={EMPTY_STATE_IMAGES.inflow}
+                  alt="No money inflow recorded"
+                  width={96}
+                  height={80}
+                  className="object-contain drop-shadow-md"
+                />
               </div>
               <div>
                 <p className="font-extrabold text-sm text-foreground">
                   No Family Money Inflow Recorded Yet
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                  Click the button below to record funds or an allowance from Father, Mother, or any family member. Cash is set as default!
+                  Click the button below to record funds or an allowance from Amit, Ajay, or Chhotu. Cash is set as default!
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsReceiveModalOpen(true)}
-                className="px-5 py-2.5 rounded-full bg-[#D4F835] hover:bg-[#c6ea27] text-black font-extrabold text-xs transition-colors cursor-pointer shadow-xs"
+                className="px-5 py-2.5 rounded-full bg-[#D4F835] hover:bg-[#c6ea27] text-black font-extrabold text-xs transition-colors cursor-pointer shadow-xs active:scale-95"
               >
                 + Record Received Money
               </button>
@@ -553,13 +603,23 @@ export default function BudgetsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className="h-11 w-11 rounded-2xl flex items-center justify-center font-bold text-lg shadow-2xs"
+                        className="h-11 w-11 rounded-2xl flex items-center justify-center font-bold text-lg shadow-2xs overflow-hidden border border-border/80 bg-secondary/80 shrink-0 relative"
                         style={{
                           backgroundColor: `${c.color || "#3b82f6"}25`,
                           color: c.color || "#3b82f6",
                         }}
                       >
-                        {c.icon || "🏷️"}
+                        {CATEGORY_IMAGES[c.categoryId] ? (
+                          <Image
+                            src={CATEGORY_IMAGES[c.categoryId]}
+                            alt={c.categoryName}
+                            width={36}
+                            height={36}
+                            className="object-contain p-0.5"
+                          />
+                        ) : (
+                          c.icon || "🏷️"
+                        )}
                       </div>
                       <div>
                         <h4 className="font-extrabold text-sm text-foreground">
@@ -640,8 +700,20 @@ export default function BudgetsPage() {
           </div>
 
           {filteredCategories.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground text-xs">
-              No category data available for this selection.
+            <div className="p-10 rounded-2xl bg-secondary/20 border border-dashed border-border text-center flex flex-col items-center justify-center gap-2">
+              <div className="w-24 h-20 relative flex items-center justify-center mb-1">
+                <Image
+                  src={EMPTY_STATE_IMAGES.budgets}
+                  alt="No budgets"
+                  width={96}
+                  height={80}
+                  className="object-contain drop-shadow-md"
+                />
+              </div>
+              <p className="font-bold text-sm text-foreground">No category budget targets found</p>
+              <p className="text-xs text-muted-foreground max-w-sm">
+                No budget allocation is configured for this selection. Adjust or create category budget targets above.
+              </p>
             </div>
           )}
         </div>
@@ -688,6 +760,7 @@ export default function BudgetsPage() {
               {filteredHistory.map((entry) => {
                 const emoji = ROLE_EMOJI_MAP[entry.relationship || ""] || "👤";
                 const isCash = !entry.payment_method || entry.payment_method === "Cash";
+                const senderAvatar = getMemberAvatar(entry.from_member_id, entry.from_member_name);
 
                 return (
                   <div
@@ -695,8 +768,18 @@ export default function BudgetsPage() {
                     className="p-4 rounded-2xl bg-secondary/30 border border-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-secondary/50 transition-all group"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="h-11 w-11 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg shrink-0 shadow-2xs">
-                        <span>{emoji}</span>
+                      <div className="h-11 w-11 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg shrink-0 shadow-2xs overflow-hidden relative">
+                        {senderAvatar?.image ? (
+                          <Image
+                            src={senderAvatar.image}
+                            alt={entry.from_member_name}
+                            width={44}
+                            height={44}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <span>{emoji}</span>
+                        )}
                       </div>
 
                       <div className="min-w-0">
@@ -757,8 +840,18 @@ export default function BudgetsPage() {
               })}
             </div>
           ) : (
-            <div className="p-8 text-center text-muted-foreground text-xs rounded-2xl bg-secondary/20 border border-dashed border-border">
-              No inflow records matching this filter.
+            <div className="p-10 text-center text-muted-foreground text-xs rounded-2xl bg-secondary/20 border border-dashed border-border flex flex-col items-center justify-center gap-2">
+              <div className="w-24 h-20 relative flex items-center justify-center mb-1">
+                <Image
+                  src={EMPTY_STATE_IMAGES.inflow}
+                  alt="No inflow records"
+                  width={96}
+                  height={80}
+                  className="object-contain drop-shadow-md"
+                />
+              </div>
+              <p className="font-bold text-sm text-foreground">No inflow records matching this filter</p>
+              <p className="text-xs text-muted-foreground">Switch payment filters or record money received from family members.</p>
             </div>
           )}
         </div>

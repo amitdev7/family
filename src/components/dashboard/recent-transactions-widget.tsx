@@ -11,7 +11,6 @@ import {
   Film,
   CreditCard,
   Banknote,
-  Receipt,
   Calendar,
   User,
   CheckCircle2,
@@ -19,6 +18,8 @@ import {
 import { Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 import { Modal } from "@/components/ui/modal";
+import Image from "next/image";
+import { CATEGORY_IMAGES, EMPTY_STATE_IMAGES } from "@/lib/assets";
 
 interface RecentTransactionsWidgetProps {
   expenses: Expense[];
@@ -133,8 +134,16 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
         {/* Transaction Rows */}
         <div className="space-y-2 flex-1 my-2">
           {displayExpenses.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-              <Receipt className="h-9 w-9 text-muted-foreground/40 mb-2 stroke-[1.5]" />
+            <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+              <div className="w-24 h-20 relative mb-2 flex items-center justify-center">
+                <Image
+                  src={EMPTY_STATE_IMAGES.expenses}
+                  alt="No transactions"
+                  width={96}
+                  height={80}
+                  className="object-contain drop-shadow-md"
+                />
+              </div>
               <p className="text-xs font-semibold">No transactions found for this filter.</p>
               <button
                 type="button"
@@ -147,6 +156,7 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
           ) : (
             displayExpenses.map((expense) => {
               const meta = getMerchantMeta(expense.description);
+              const catImg = CATEGORY_IMAGES[expense.category_id];
               const Icon = meta.icon;
               const isCash = !expense.payment_method || expense.payment_method === "Cash";
 
@@ -159,12 +169,19 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`h-10.5 w-10.5 rounded-2xl flex items-center justify-center text-base shrink-0 shadow-2xs relative ${meta.bg}`}
+                      className="h-11 w-11 rounded-2xl flex items-center justify-center text-base shrink-0 shadow-2xs relative bg-secondary/80 overflow-hidden"
                     >
-                      <Icon className="h-5 w-5" />
-                      <span className="absolute -bottom-1 -right-1 text-xs">
-                        {meta.emoji}
-                      </span>
+                      {catImg ? (
+                        <Image
+                          src={catImg}
+                          alt={expense.description}
+                          width={38}
+                          height={38}
+                          className="object-contain"
+                        />
+                      ) : (
+                        <Icon className="h-5 w-5" />
+                      )}
                     </div>
 
                     <div className="min-w-0">

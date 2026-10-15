@@ -1,16 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Plus,
   ChevronDown,
   Bell,
-  Globe,
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
@@ -20,6 +19,10 @@ import {
   saveLanguage,
   TRANSLATIONS,
 } from "@/lib/translations";
+import {
+  MEMBER_AVATARS,
+  FLAG_IMAGES,
+} from "@/lib/assets";
 
 interface HeaderProps {
   title: string;
@@ -63,15 +66,8 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
     setIsLangMenuOpen(false);
   };
 
-  const initials = currentUser?.display_name
-    ? currentUser.display_name
-      .split(" ")
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase()
-    : "AM";
-
+  const avatarInfo = currentUser ? MEMBER_AVATARS[currentUser.user_id] : null;
+  const flagSrc = FLAG_IMAGES[currentLang];
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
   return (
@@ -98,7 +94,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Language Selector Pill */}
+        {/* Language Selector Pill with 3D Flag */}
         <div className="relative">
           <button
             type="button"
@@ -106,31 +102,36 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
               setIsLangMenuOpen(!isLangMenuOpen);
               setIsUserMenuOpen(false);
             }}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-secondary/80 hover:bg-secondary text-foreground text-xs font-bold transition-colors cursor-pointer border border-border/60"
+            className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-secondary/80 hover:bg-secondary text-foreground text-xs font-bold transition-colors cursor-pointer border border-border/60"
             title="Choose Language"
           >
-            <Globe className="h-3.5 w-3.5 text-[#D4F835]" />
+            {flagSrc ? (
+              <div className="w-5 h-5 relative shrink-0">
+                <Image
+                  src={flagSrc}
+                  alt={currentLang}
+                  width={20}
+                  height={20}
+                  className="rounded-full object-contain"
+                />
+              </div>
+            ) : (
+              <span>🌐</span>
+            )}
             <span className="hidden sm:inline">
               {currentLang === "hi"
-                ? "🇮🇳 हिन्दी"
+                ? "हिन्दी"
                 : currentLang === "hinglish"
-                ? "💬 Hinglish"
-                : "🇬🇧 English"}
-            </span>
-            <span className="sm:hidden">
-              {currentLang === "hi"
-                ? "🇮🇳"
-                : currentLang === "hinglish"
-                ? "💬"
-                : "🇬🇧"}
+                ? "Hinglish"
+                : "English"}
             </span>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </button>
 
           {isLangMenuOpen && (
-            <div className="absolute right-0 mt-2 w-40 rounded-2xl border border-border bg-card p-1.5 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-border bg-card p-1.5 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
               <div className="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                Language
+                Select Language
               </div>
               <button
                 type="button"
@@ -141,7 +142,16 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                     : "hover:bg-secondary text-foreground"
                 }`}
               >
-                <span>🇬🇧 English</span>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={FLAG_IMAGES.en}
+                    alt="English"
+                    width={18}
+                    height={18}
+                    className="rounded-full object-contain"
+                  />
+                  <span>English</span>
+                </div>
                 {currentLang === "en" && (
                   <Check className="h-3.5 w-3.5 stroke-[3]" />
                 )}
@@ -155,7 +165,16 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                     : "hover:bg-secondary text-foreground"
                 }`}
               >
-                <span>🇮🇳 हिन्दी</span>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={FLAG_IMAGES.hi}
+                    alt="Hindi"
+                    width={18}
+                    height={18}
+                    className="rounded-full object-contain"
+                  />
+                  <span>हिन्दी</span>
+                </div>
                 {currentLang === "hi" && (
                   <Check className="h-3.5 w-3.5 stroke-[3]" />
                 )}
@@ -169,7 +188,16 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                     : "hover:bg-secondary text-foreground"
                 }`}
               >
-                <span>💬 Hinglish</span>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={FLAG_IMAGES.hinglish}
+                    alt="Hinglish"
+                    width={18}
+                    height={18}
+                    className="rounded-full object-contain"
+                  />
+                  <span>Hinglish</span>
+                </div>
                 {currentLang === "hinglish" && (
                   <Check className="h-3.5 w-3.5 stroke-[3]" />
                 )}
@@ -178,14 +206,25 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
           )}
         </div>
 
-        {/* Active Member Badge */}
-        <div className="hidden md:flex items-center bg-[#0E0E10] text-white rounded-full py-1.5 px-3.5 gap-2 shadow-xs border border-zinc-800">
-          <div className="h-5 w-5 rounded-full bg-[#D4F835] text-black font-bold text-[9px] flex items-center justify-center shrink-0">
-            {initials}
+        {/* Active Member Badge with 3D Character Avatar */}
+        <div className="hidden md:flex items-center bg-[#0E0E10] text-white rounded-full py-1 px-3 gap-2 shadow-xs border border-zinc-800">
+          <div className="h-7 w-7 rounded-full overflow-hidden bg-[#D4F835] text-black font-bold text-[10px] flex items-center justify-center shrink-0 relative">
+            {avatarInfo?.image ? (
+              <Image
+                src={avatarInfo.image}
+                alt={currentUser?.display_name || "User"}
+                width={28}
+                height={28}
+                className="object-cover"
+              />
+            ) : (
+              <span>{currentUser?.display_name?.slice(0, 1) || "A"}</span>
+            )}
           </div>
           <span className="text-xs font-bold text-zinc-200 truncate max-w-[120px]">
             {currentUser?.display_name || "Amit"}
           </span>
+          <span className="text-xs">{avatarInfo?.emoji || "👑"}</span>
         </div>
 
         {/* Notification Bell */}
@@ -214,7 +253,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
         {/* Theme Toggle */}
         <ThemeToggle />
 
-        {/* Family Member Avatar Dropdown */}
+        {/* Family Member Avatar Dropdown with 3D Avatar */}
         <div className="relative">
           <button
             type="button"
@@ -225,30 +264,56 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
             className="flex items-center gap-1.5 p-1 rounded-full hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
             aria-label="User profile"
           >
-            <Avatar
-              name={currentUser?.display_name || "User"}
-              size="sm"
-              className="ring-1 ring-border"
-            />
+            <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-border bg-card flex items-center justify-center relative">
+              {avatarInfo?.image ? (
+                <Image
+                  src={avatarInfo.image}
+                  alt={currentUser?.display_name || "User"}
+                  width={32}
+                  height={32}
+                  className="object-cover"
+                />
+              ) : (
+                <span className="text-xs font-black">
+                  {currentUser?.display_name?.slice(0, 1) || "A"}
+                </span>
+              )}
+            </div>
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground hidden sm:inline" />
           </button>
 
           {/* Dropdown Menu */}
           {isUserMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border bg-card p-3 text-foreground shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-extrabold truncate">
-                  {currentUser?.display_name || "Amit"}
-                </p>
-                <Badge
-                  variant="secondary"
-                  className="text-[10px] py-0 px-2 rounded-full bg-[#D4F835] text-black font-black"
-                >
-                  {currentUser?.role === "admin" ? "Admin" : "Member"}
-                </Badge>
+            <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-border bg-card p-3 text-foreground shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center gap-3 pb-2 border-b border-border/60">
+                <div className="h-11 w-11 rounded-2xl overflow-hidden bg-secondary relative shrink-0">
+                  {avatarInfo?.image ? (
+                    <Image
+                      src={avatarInfo.image}
+                      alt={currentUser?.display_name || "User"}
+                      width={44}
+                      height={44}
+                      className="object-cover"
+                    />
+                  ) : null}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-black truncate">
+                      {currentUser?.display_name || "Amit"}
+                    </p>
+                    <span className="text-xs">{avatarInfo?.emoji || "👑"}</span>
+                  </div>
+                  <Badge
+                    variant="secondary"
+                    className="text-[9px] py-0 px-1.5 mt-0.5 rounded-full bg-[#D4F835] text-black font-black"
+                  >
+                    {currentUser?.role === "admin" ? "Admin" : "Member"}
+                  </Badge>
+                </div>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1">
-                Household Member Profile
+              <p className="text-[11px] text-muted-foreground mt-2">
+                Active Household Profile
               </p>
             </div>
           )}

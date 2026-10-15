@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Check, Send, CheckCircle2 } from "lucide-react";
+import { Check, CheckCircle2 } from "lucide-react";
 import { HouseholdMember } from "@/lib/types";
+import { MEMBER_AVATARS, FEATURE_IMAGES } from "@/lib/assets";
 
 interface QuickTransferWidgetProps {
   members?: HouseholdMember[];
@@ -11,9 +13,9 @@ interface QuickTransferWidgetProps {
 }
 
 const DEMO_AVATARS = [
-  { id: "usr-amit", name: "Amit", role: "Admin", emoji: "👑", bg: "bg-blue-600 text-white", initial: "A" },
-  { id: "usr-ajay", name: "Ajay", role: "Member", emoji: "🌸", bg: "bg-pink-500 text-white", initial: "A" },
-  { id: "usr-chhotu", name: "Chhotu", role: "Member", emoji: "🧸", bg: "bg-emerald-500 text-white", initial: "C" },
+  { id: "usr-amit", name: "Amit", role: "Admin", emoji: "👑" },
+  { id: "usr-ajay", name: "Ajay", role: "Member", emoji: "🌸" },
+  { id: "usr-chhotu", name: "Chhotu", role: "Member", emoji: "🧸" },
 ];
 
 const PRESET_AMOUNTS = ["500", "1000", "2000", "5000"];
@@ -22,7 +24,6 @@ export function QuickTransferWidget({
   members,
   onAddExpenseClick,
 }: QuickTransferWidgetProps) {
-
   const [selectedId, setSelectedId] = useState<string>(() => members?.[0]?.user_id || "usr-amit");
   const [amount, setAmount] = useState<string>("1000");
   const [isSending, setIsSending] = useState(false);
@@ -38,16 +39,21 @@ export function QuickTransferWidget({
     members && members.length > 0
       ? members.map((m) => {
         const match = DEMO_AVATARS.find((a) => a.id === m.user_id);
+        const avatarInfo = MEMBER_AVATARS[m.user_id];
         return {
           id: m.user_id,
           name: m.display_name,
           role: m.relationship || (m.role === "admin" ? "Admin" : "Member"),
-          emoji: match?.emoji || "👤",
-          bg: match?.bg || "bg-blue-600 text-white",
+          emoji: match?.emoji || avatarInfo?.emoji || "👤",
+          image: avatarInfo?.image,
           initial: m.display_name.slice(0, 1).toUpperCase(),
         };
       })
-      : DEMO_AVATARS;
+      : DEMO_AVATARS.map((d) => ({
+        ...d,
+        image: MEMBER_AVATARS[d.id]?.image,
+        initial: d.name.slice(0, 1),
+      }));
 
   const selectedPerson = displayList.find((p) => p.id === selectedId) || displayList[0];
 
@@ -79,8 +85,8 @@ export function QuickTransferWidget({
           </span>
         </div>
 
-        {/* Avatars Row with Relationship Emojis & Online Indicators */}
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+        {/* Avatars Row with 3D Character Avatars */}
+        <div className="flex items-center gap-3.5 overflow-x-auto pb-2 scrollbar-none">
           {displayList.slice(0, 5).map((person) => {
             const isSelected = person.id === selectedId;
 
@@ -89,24 +95,38 @@ export function QuickTransferWidget({
                 <button
                   type="button"
                   onClick={() => setSelectedId(person.id)}
-                  className={`relative flex h-13 w-13 rounded-2xl items-center justify-center font-black text-sm transition-all cursor-pointer ${person.bg
-                    } ${isSelected
-                      ? "ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-md"
-                      : "hover:scale-105 opacity-85 hover:opacity-100"
-                    }`}
+                  className={`relative flex h-14 w-14 rounded-2xl items-center justify-center p-0.5 transition-all cursor-pointer ${
+                    isSelected
+                      ? "ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-md bg-secondary/80"
+                      : "hover:scale-105 opacity-85 hover:opacity-100 bg-secondary/30"
+                  }`}
                   title={`${person.name} (${person.role})`}
                 >
-                  <span>{person.initial}</span>
+                  <div className="w-full h-full rounded-[14px] overflow-hidden flex items-center justify-center bg-secondary/50">
+                    {person.image ? (
+                      <Image
+                        src={person.image}
+                        alt={person.name}
+                        width={56}
+                        height={56}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span className="font-black text-sm">{person.initial}</span>
+                    )}
+                  </div>
+
                   <span className="absolute -bottom-1 -right-1 text-xs bg-card rounded-full p-0.5 border border-border shadow-2xs">
                     {person.emoji}
                   </span>
+
                   {isSelected && (
-                    <div className="absolute -top-1.5 -left-1.5 h-4 w-4 rounded-full bg-black text-[#D4F835] flex items-center justify-center border border-white/20">
+                    <div className="absolute -top-1.5 -left-1.5 h-4 w-4 rounded-full bg-[#D4F835] text-black flex items-center justify-center shadow-xs">
                       <Check className="h-2.5 w-2.5 stroke-[3]" />
                     </div>
                   )}
                 </button>
-                <span className="text-[11px] font-bold text-foreground truncate max-w-[54px] text-center">
+                <span className="text-[11px] font-bold text-foreground truncate max-w-[56px] text-center">
                   {person.name}
                 </span>
               </div>
@@ -161,14 +181,22 @@ export function QuickTransferWidget({
           type="button"
           onClick={handleSend}
           disabled={isSending}
-          className="w-full py-3 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50 active:scale-98"
+          className="w-full py-3 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 font-bold text-sm transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-xs disabled:opacity-50 active:scale-98"
         >
           {isSending ? (
             <span>Sending to {selectedPerson.name}...</span>
           ) : (
             <>
+              <div className="w-5 h-5 relative shrink-0">
+                <Image
+                  src={FEATURE_IMAGES.transferBeam}
+                  alt="Transfer"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
+              </div>
               <span>Send ₹{amount || 0} to {selectedPerson.name}</span>
-              <Send className="h-3.5 w-3.5 text-[#D4F835]" />
             </>
           )}
         </button>

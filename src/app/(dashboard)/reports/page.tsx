@@ -6,6 +6,20 @@ import { AppLayout } from "@/components/layout/app-layout";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember, DashboardMetrics, Category, Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
+import Image from "next/image";
+import { MEMBER_AVATARS } from "@/lib/assets";
+
+const getMemberAvatar = (id?: string, name?: string) => {
+  if (id && MEMBER_AVATARS[id]) return MEMBER_AVATARS[id];
+  if (name) {
+    const lower = name.toLowerCase();
+    const found = Object.values(MEMBER_AVATARS).find(
+      (a) => a.name.toLowerCase() === lower
+    );
+    if (found) return found;
+  }
+  return null;
+};
 
 const AVATAR_COLORS = [
   "bg-amber-400 text-black",
@@ -211,6 +225,7 @@ export default function ReportsPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {topSpenders.slice(0, 3).map((spender, i) => {
+                const avatar = getMemberAvatar(spender.userId, spender.displayName);
                 const colorClass = AVATAR_COLORS[i % AVATAR_COLORS.length];
                 const initial = (spender.displayName || "M").slice(0, 1).toUpperCase();
 
@@ -221,9 +236,19 @@ export default function ReportsPage() {
                   >
                     {/* Circular Avatar */}
                     <div
-                      className={`h-13 w-13 rounded-full flex items-center justify-center font-bold text-base shadow-xs ${colorClass}`}
+                      className={`h-14 w-14 rounded-full flex items-center justify-center font-bold text-base shadow-xs overflow-hidden ${colorClass}`}
                     >
-                      {initial}
+                      {avatar?.image ? (
+                        <Image
+                          src={avatar.image}
+                          alt={spender.displayName}
+                          width={56}
+                          height={56}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <span>{initial}</span>
+                      )}
                     </div>
 
                     <div>

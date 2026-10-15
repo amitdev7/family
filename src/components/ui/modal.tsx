@@ -39,7 +39,7 @@ export function Modal({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, preventBackdropClose]);
 
   if (!isOpen) return null;
 

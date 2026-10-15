@@ -12,6 +12,8 @@ import { DataService } from "@/lib/data-service";
 import { formatINR } from "@/lib/formatters";
 import { Modal } from "@/components/ui/modal";
 import { ReceivedMoney, HouseholdMember, Category } from "@/lib/types";
+import Image from "next/image";
+import { EMPTY_STATE_IMAGES, MEMBER_AVATARS } from "@/lib/assets";
 
 interface MoneyReceivedWidgetProps {
   onRefresh?: () => void;
@@ -96,13 +98,6 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
       ? Math.max(0, Math.min(100, Math.round((moneyLeft / totalReceived) * 100)))
       : 0;
 
-  const roleEmojiMap: Record<string, string> = {
-    Father: "👑",
-    Mother: "🌸",
-    Son: "🎓",
-    Daughter: "🎨",
-    Parent: "🏡",
-  };
 
   return (
     <>
@@ -196,20 +191,47 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
           </div>
 
           {recentReceived.length === 0 ? (
-            <p className="text-xs text-zinc-500 py-3 text-center">
-              No received money logged yet.
-            </p>
+            <div className="py-2 text-center flex flex-col items-center justify-center">
+              <div className="w-20 h-16 relative mb-1 flex items-center justify-center">
+                <Image
+                  src={EMPTY_STATE_IMAGES.inflow}
+                  alt="No money received"
+                  width={80}
+                  height={64}
+                  className="object-contain drop-shadow-md"
+                />
+              </div>
+              <p className="text-[11px] text-zinc-400">
+                No received money logged yet.
+              </p>
+            </div>
           ) : (
             recentReceived.slice(0, 2).map((item) => {
-              const emoji = roleEmojiMap[item.relationship || ""] || "👤";
+              const avatar =
+                (item.from_member_id ? MEMBER_AVATARS[item.from_member_id] : null) ||
+                Object.values(MEMBER_AVATARS).find(
+                  (a) => a.name.toLowerCase() === item.from_member_name?.toLowerCase()
+                );
               return (
                 <div
                   key={item.id}
                   className="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/5 text-xs"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">{emoji}</span>
-                    <div>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="h-7 w-7 rounded-lg overflow-hidden bg-white/10 shrink-0 relative flex items-center justify-center">
+                      {avatar?.image ? (
+                        <Image
+                          src={avatar.image}
+                          alt={item.from_member_name}
+                          width={28}
+                          height={28}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span className="text-xs">{avatar?.emoji || "👤"}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
                       <p className="font-bold text-white text-xs truncate max-w-[120px]">
                         {item.from_member_name}
                       </p>

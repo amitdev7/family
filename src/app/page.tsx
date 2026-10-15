@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Check, Globe, Sparkles, Home } from "lucide-react";
+import { Check, Globe, Sparkles } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
@@ -12,38 +13,40 @@ import {
   getSavedLanguage,
   saveLanguage,
 } from "@/lib/translations";
+import {
+  MEMBER_AVATARS,
+  FLAG_IMAGES,
+  HERO_IMAGES,
+} from "@/lib/assets";
 
 const MEMBER_STYLES: Record<
   string,
-  { bg: string; text: string; avatarBg: string; pillBg: string; emoji: string }
+  { bg: string; text: string; pillBg: string; border: string }
 > = {
   "usr-amit": {
-    bg: "bg-blue-600",
-    text: "text-white",
-    avatarBg: "bg-blue-800 text-white",
-    pillBg: "bg-white/20 text-white",
-    emoji: "👑",
+    bg: "bg-blue-600/10 hover:bg-blue-600/20",
+    text: "text-blue-600 dark:text-blue-400",
+    pillBg: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
+    border: "border-blue-500/30",
   },
   "usr-ajay": {
-    bg: "bg-pink-500",
-    text: "text-white",
-    avatarBg: "bg-pink-700 text-white",
-    pillBg: "bg-white/20 text-white",
-    emoji: "🌸",
+    bg: "bg-pink-600/10 hover:bg-pink-600/20",
+    text: "text-pink-600 dark:text-pink-400",
+    pillBg: "bg-pink-500/20 text-pink-700 dark:text-pink-300",
+    border: "border-pink-500/30",
   },
   "usr-chhotu": {
-    bg: "bg-emerald-500",
-    text: "text-white",
-    avatarBg: "bg-emerald-700 text-white",
-    pillBg: "bg-white/20 text-white",
-    emoji: "🧸",
+    bg: "bg-emerald-600/10 hover:bg-emerald-600/20",
+    text: "text-emerald-600 dark:text-emerald-400",
+    pillBg: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300",
+    border: "border-emerald-500/30",
   },
 };
 
-const LANGUAGE_OPTIONS: Array<{ id: Language; label: string; flag: string }> = [
-  { id: "en", label: "English", flag: "🇬🇧" },
-  { id: "hi", label: "हिन्दी", flag: "🇮🇳" },
-  { id: "hinglish", label: "Hinglish", flag: "💬" },
+const LANGUAGE_OPTIONS: Array<{ id: Language; label: string; fallbackFlag: string }> = [
+  { id: "en", label: "English", fallbackFlag: "🇬🇧" },
+  { id: "hi", label: "हिन्दी", fallbackFlag: "🇮🇳" },
+  { id: "hinglish", label: "Hinglish", fallbackFlag: "💬" },
 ];
 
 export default function WelcomeEntryPage() {
@@ -98,16 +101,23 @@ export default function WelcomeEntryPage() {
     members.find((m) => m.user_id === selectedUserId)?.display_name || "Amit";
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 relative select-none">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 relative select-none">
       <div className="absolute top-6 right-6">
         <ThemeToggle />
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg">
-        {/* Logo and Brand Header */}
-        <div className="text-center space-y-2 mb-6">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0E0E10] text-[#D4F835] shadow-lg mb-2">
-            <Home className="h-7 w-7 stroke-[2.2]" />
+      <div className="sm:mx-auto sm:w-full sm:max-w-xl">
+        {/* 3D Hero House Art & Header */}
+        <div className="text-center space-y-2 mb-4">
+          <div className="relative mx-auto w-36 h-28 sm:w-44 sm:h-32 mb-1 flex items-center justify-center">
+            <Image
+              src={HERO_IMAGES.familyHouse}
+              alt="FamilyFlow Smart Home"
+              width={200}
+              height={150}
+              priority
+              className="object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+            />
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4F835]/20 text-[#0E0E10] dark:text-[#D4F835] text-xs font-black">
@@ -124,8 +134,8 @@ export default function WelcomeEntryPage() {
         </div>
 
         {/* Card Container */}
-        <div className="rounded-[32px] border border-border bg-card p-6 sm:p-8 shadow-xl space-y-6">
-          {/* 1. Language Selection Pills */}
+        <div className="rounded-[32px] border border-border bg-card p-6 sm:p-7 shadow-2xl space-y-5">
+          {/* 1. Language Selection Pills with 3D Flags */}
           <div className="space-y-2 p-3.5 rounded-2xl bg-secondary/50 border border-border/80">
             <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
               <span className="flex items-center gap-1.5 text-foreground font-extrabold">
@@ -138,17 +148,32 @@ export default function WelcomeEntryPage() {
             <div className="grid grid-cols-3 gap-2 pt-1">
               {LANGUAGE_OPTIONS.map((lang) => {
                 const isSelected = selectedLanguage === lang.id;
+                const flagSrc = FLAG_IMAGES[lang.id];
+
                 return (
                   <button
                     key={lang.id}
                     type="button"
                     onClick={() => handleSelectLanguage(lang.id)}
-                    className={`py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${isSelected
-                      ? "bg-[#D4F835] text-black border-transparent shadow-xs scale-102"
-                      : "bg-card hover:bg-secondary/80 text-foreground border-border/80"
-                      }`}
+                    className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer border ${
+                      isSelected
+                        ? "bg-[#D4F835] text-black border-transparent shadow-md scale-102 font-extrabold"
+                        : "bg-card hover:bg-secondary text-foreground border-border/80"
+                    }`}
                   >
-                    <span>{lang.flag}</span>
+                    {flagSrc ? (
+                      <div className="w-5 h-5 relative shrink-0">
+                        <Image
+                          src={flagSrc}
+                          alt={lang.label}
+                          width={20}
+                          height={20}
+                          className="rounded-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <span>{lang.fallbackFlag}</span>
+                    )}
                     <span>{lang.label}</span>
                   </button>
                 );
@@ -156,7 +181,7 @@ export default function WelcomeEntryPage() {
             </div>
           </div>
 
-          {/* 2. Strictly 3 Members (Amit, Ajay, Chhotu) */}
+          {/* 2. Strictly 3 Members (Amit, Ajay, Chhotu) with 3D Pixar Avatars */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-muted-foreground px-1">
               <span className="text-foreground font-extrabold">
@@ -168,12 +193,12 @@ export default function WelcomeEntryPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               {members.map((member, idx) => {
                 const isSelected = member.user_id === selectedUserId;
+                const avatarData = MEMBER_AVATARS[member.user_id];
                 const style = MEMBER_STYLES[member.user_id] || {
-                  bg: "bg-blue-600",
-                  text: "text-white",
-                  avatarBg: "bg-blue-800 text-white",
-                  pillBg: "bg-white/20 text-white",
-                  emoji: "👤",
+                  bg: "bg-secondary/40",
+                  text: "text-foreground",
+                  pillBg: "bg-secondary text-foreground",
+                  border: "border-border",
                 };
 
                 return (
@@ -181,11 +206,13 @@ export default function WelcomeEntryPage() {
                     key={member.id}
                     type="button"
                     onClick={() => setSelectedUserId(member.user_id)}
-                    className={`relative flex flex-col items-center justify-between p-5 rounded-2xl transition-all duration-200 text-center cursor-pointer shadow-md ${style.bg
-                      } ${style.text} ${isSelected
-                        ? "ring-4 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-xl"
-                        : "hover:scale-102 opacity-85 hover:opacity-100"
-                      }`}
+                    className={`relative flex flex-col items-center justify-between p-4 rounded-2xl transition-all duration-200 text-center cursor-pointer border ${
+                      style.border
+                    } ${
+                      isSelected
+                        ? "bg-secondary/90 border-[#D4F835] ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-103 shadow-xl"
+                        : "bg-secondary/30 hover:bg-secondary/60 opacity-90 hover:opacity-100"
+                    }`}
                   >
                     {isSelected && (
                       <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#D4F835] text-black flex items-center justify-center shadow-xs">
@@ -193,25 +220,36 @@ export default function WelcomeEntryPage() {
                       </div>
                     )}
 
-                    <div
-                      className={`h-14 w-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner relative ${style.avatarBg}`}
-                    >
-                      <span>{member.display_name.slice(0, 1).toUpperCase()}</span>
-                      <span className="absolute -bottom-1 -right-1 text-sm">
-                        {style.emoji}
+                    {/* 3D Character Avatar Image */}
+                    <div className="relative w-18 h-18 my-1 flex items-center justify-center">
+                      {avatarData?.image ? (
+                        <Image
+                          src={avatarData.image}
+                          alt={member.display_name}
+                          width={72}
+                          height={72}
+                          className="rounded-2xl object-cover drop-shadow-md hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-2xl bg-primary text-primary-foreground font-black text-xl flex items-center justify-center">
+                          {member.display_name.slice(0, 1)}
+                        </div>
+                      )}
+                      <span className="absolute -bottom-1 -right-1 text-xs bg-card rounded-full p-0.5 border border-border shadow-xs">
+                        {avatarData?.emoji || "👤"}
                       </span>
                     </div>
 
-                    <div className="mt-3">
-                      <span className="text-[10px] uppercase font-black tracking-wider opacity-80 block mb-0.5">
+                    <div className="mt-2 text-center w-full">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground block">
                         Member {idx + 1}
                       </span>
-                      <h3 className="font-extrabold text-base tracking-tight leading-tight">
+                      <h3 className="font-extrabold text-base tracking-tight leading-tight text-foreground mt-0.5">
                         {member.display_name}
                       </h3>
                       <div className="mt-1">
                         <span
-                          className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold backdrop-blur-xs ${style.pillBg}`}
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${style.pillBg}`}
                         >
                           {member.role === "admin" ? "Admin" : "Member"}
                         </span>
@@ -229,14 +267,14 @@ export default function WelcomeEntryPage() {
               type="button"
               onClick={handleEnterHousehold}
               disabled={isEntering}
-              className="w-full py-4 px-6 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 text-sm font-black transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
+              className="w-full py-3.5 px-6 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 text-sm font-black transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
             >
               <span>
                 {t.continueAs} {selectedMemberName}
               </span>
               <span className="text-[#D4F835] font-bold text-base">→</span>
             </button>
-            <p className="text-[11px] text-center text-muted-foreground font-medium mt-3">
+            <p className="text-[11px] text-center text-muted-foreground font-medium mt-2.5">
               Direct access • Your selection is saved permanently for this device
             </p>
           </div>

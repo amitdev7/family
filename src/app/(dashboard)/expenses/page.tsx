@@ -29,6 +29,8 @@ import { DeleteDialog } from "@/components/expenses/delete-dialog";
 import { DataService } from "@/lib/data-service";
 import { Expense, Category, HouseholdMember } from "@/lib/types";
 import { formatINR, formatDate } from "@/lib/formatters";
+import Image from "next/image";
+import { CATEGORY_IMAGES, EMPTY_STATE_IMAGES, MEMBER_AVATARS } from "@/lib/assets";
 
 // Role emoji map for avatar and badges
 const ROLE_EMOJI_MAP: Record<string, string> = {
@@ -702,8 +704,14 @@ export default function ExpensesPage() {
                   <tr>
                     <td colSpan={7} className="py-16 text-center text-sm text-muted-foreground">
                       <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
-                        <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center text-xl">
-                          🔍
+                        <div className="w-28 h-20 relative flex items-center justify-center mb-1">
+                          <Image
+                            src={EMPTY_STATE_IMAGES.expenses}
+                            alt="No expenses"
+                            width={112}
+                            height={80}
+                            className="object-contain drop-shadow-md"
+                          />
                         </div>
                         <p className="font-bold text-foreground">No matching expenses found</p>
                         <p className="text-xs text-muted-foreground">
@@ -752,9 +760,19 @@ export default function ExpensesPage() {
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
                             <div
-                              className={`h-10 w-10 rounded-2xl flex items-center justify-center text-base shrink-0 shadow-2xs border ${categoryMeta.bg} ${categoryMeta.border}`}
+                              className="h-10 w-10 rounded-2xl flex items-center justify-center text-base shrink-0 shadow-2xs border border-border/80 bg-secondary/80 overflow-hidden"
                             >
-                              <span>{categoryMeta.emoji}</span>
+                              {CATEGORY_IMAGES[expense.category_id] ? (
+                                <Image
+                                  src={CATEGORY_IMAGES[expense.category_id]}
+                                  alt={expense.description}
+                                  width={34}
+                                  height={34}
+                                  className="object-contain"
+                                />
+                              ) : (
+                                <span>{categoryMeta.emoji}</span>
+                              )}
                             </div>
 
                             <div className="flex flex-col max-w-[220px]">
@@ -787,9 +805,19 @@ export default function ExpensesPage() {
 
                         {/* Paid By */}
                         <td className="py-4 px-6 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-full bg-[#D4F835] text-black font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
-                              {memberRoleEmoji}
+                          <div className="flex items-center gap-2.5">
+                            <div className="h-7 w-7 rounded-full overflow-hidden bg-[#D4F835] text-black font-black text-xs flex items-center justify-center shrink-0 shadow-xs relative">
+                              {MEMBER_AVATARS[expense.paid_by?.user_id || ""]?.image ? (
+                                <Image
+                                  src={MEMBER_AVATARS[expense.paid_by?.user_id || ""].image}
+                                  alt={expense.paid_by?.display_name || "Member"}
+                                  width={28}
+                                  height={28}
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <span>{memberRoleEmoji}</span>
+                              )}
                             </div>
                             <div className="flex flex-col">
                               <span className="text-xs font-bold text-foreground">
@@ -913,8 +941,17 @@ export default function ExpensesPage() {
               Loading expenses...
             </div>
           ) : expenses.length === 0 ? (
-            <div className="rounded-[28px] bg-card border border-border p-8 text-center text-sm text-muted-foreground">
-              No matching expenses found.
+            <div className="rounded-[28px] bg-card border border-border p-8 text-center text-sm text-muted-foreground flex flex-col items-center justify-center">
+              <div className="w-24 h-18 relative mb-2 flex items-center justify-center">
+                <Image
+                  src={EMPTY_STATE_IMAGES.expenses}
+                  alt="No expenses"
+                  width={96}
+                  height={72}
+                  className="object-contain drop-shadow-md"
+                />
+              </div>
+              <p className="font-bold text-foreground text-xs">No matching expenses found</p>
             </div>
           ) : (
             expenses.map((expense) => {
@@ -922,6 +959,7 @@ export default function ExpensesPage() {
               const paymentBadge = getPaymentBadge(expense.payment_method);
               const memberRoleEmoji =
                 ROLE_EMOJI_MAP[expense.paid_by?.relationship || ""] || "👤";
+              const catImg = CATEGORY_IMAGES[expense.category_id];
 
               return (
                 <div
@@ -932,9 +970,19 @@ export default function ExpensesPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`h-11 w-11 rounded-2xl flex items-center justify-center text-lg shrink-0 border ${categoryMeta.bg} ${categoryMeta.border}`}
+                        className="h-11 w-11 rounded-2xl flex items-center justify-center text-lg shrink-0 border border-border/80 bg-secondary/80 overflow-hidden"
                       >
-                        {categoryMeta.emoji}
+                        {catImg ? (
+                          <Image
+                            src={catImg}
+                            alt={expense.description}
+                            width={36}
+                            height={36}
+                            className="object-contain"
+                          />
+                        ) : (
+                          categoryMeta.emoji
+                        )}
                       </div>
                       <div>
                         <h4 className="font-black text-sm text-foreground">
@@ -970,7 +1018,19 @@ export default function ExpensesPage() {
                     </span>
 
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary text-foreground font-semibold text-[11px]">
-                      <span>{memberRoleEmoji}</span>
+                      <div className="h-4 w-4 rounded-full overflow-hidden shrink-0 flex items-center justify-center">
+                        {MEMBER_AVATARS[expense.paid_by?.user_id || ""]?.image ? (
+                          <Image
+                            src={MEMBER_AVATARS[expense.paid_by?.user_id || ""].image}
+                            alt={expense.paid_by?.display_name || "Member"}
+                            width={16}
+                            height={16}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <span>{memberRoleEmoji}</span>
+                        )}
+                      </div>
                       <span>{expense.paid_by?.display_name || "Member"}</span>
                     </span>
                   </div>
