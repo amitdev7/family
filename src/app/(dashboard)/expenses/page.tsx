@@ -18,6 +18,8 @@ import {
   Plus,
   X,
   Sparkles,
+  Calendar,
+  ArrowUpRight,
   CheckCircle2,
   Shield,
   Star,

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import {
+  Tags,
   Search,
   ShoppingCart,
   Utensils,
