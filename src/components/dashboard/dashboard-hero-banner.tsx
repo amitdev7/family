@@ -6,7 +6,6 @@ import {
   Wallet,
   ArrowDownLeft,
   ArrowUpRight,
-  ShieldCheck,
   Plus,
   TrendingUp,
   Sparkles,

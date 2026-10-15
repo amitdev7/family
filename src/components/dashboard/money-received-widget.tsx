@@ -98,13 +98,6 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
       ? Math.max(0, Math.min(100, Math.round((moneyLeft / totalReceived) * 100)))
       : 0;
 
-  const roleEmojiMap: Record<string, string> = {
-    Father: "👑",
-    Mother: "🌸",
-    Son: "🎓",
-    Daughter: "🎨",
-    Parent: "🏡",
-  };
 
   return (
     <>
@@ -212,7 +205,11 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
             </div>
           ) : (
             recentReceived.slice(0, 2).map((item) => {
-              const avatar = MEMBER_AVATARS[item.from_member_id];
+              const avatar =
+                (item.from_member_id ? MEMBER_AVATARS[item.from_member_id] : null) ||
+                Object.values(MEMBER_AVATARS).find(
+                  (a) => a.name.toLowerCase() === item.from_member_name?.toLowerCase()
+                );
               return (
                 <div
                   key={item.id}

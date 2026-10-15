@@ -11,7 +11,6 @@ import {
   Film,
   CreditCard,
   Banknote,
-  Receipt,
   Calendar,
   User,
   CheckCircle2,
