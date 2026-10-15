@@ -155,11 +155,10 @@ export default function WelcomeEntryPage() {
                     key={lang.id}
                     type="button"
                     onClick={() => handleSelectLanguage(lang.id)}
-                    className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer border ${
-                      isSelected
-                        ? "bg-[#D4F835] text-black border-transparent shadow-md scale-102 font-extrabold"
-                        : "bg-card hover:bg-secondary text-foreground border-border/80"
-                    }`}
+                    className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer border ${isSelected
+                      ? "bg-[#D4F835] text-black border-transparent shadow-md scale-102 font-extrabold"
+                      : "bg-card hover:bg-secondary text-foreground border-border/80"
+                      }`}
                   >
                     {flagSrc ? (
                       <div className="w-5 h-5 relative shrink-0">
@@ -206,13 +205,11 @@ export default function WelcomeEntryPage() {
                     key={member.id}
                     type="button"
                     onClick={() => setSelectedUserId(member.user_id)}
-                    className={`relative flex flex-col items-center justify-between p-4 rounded-2xl transition-all duration-200 text-center cursor-pointer border ${
-                      style.border
-                    } ${
-                      isSelected
+                    className={`relative flex flex-col items-center justify-between p-4 rounded-2xl transition-all duration-200 text-center cursor-pointer border ${style.border
+                      } ${isSelected
                         ? "bg-secondary/90 border-[#D4F835] ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-103 shadow-xl"
                         : "bg-secondary/30 hover:bg-secondary/60 opacity-90 hover:opacity-100"
-                    }`}
+                      }`}
                   >
                     {isSelected && (
                       <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#D4F835] text-black flex items-center justify-center shadow-xs">

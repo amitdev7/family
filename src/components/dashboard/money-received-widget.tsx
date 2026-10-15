@@ -98,6 +98,13 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
       ? Math.max(0, Math.min(100, Math.round((moneyLeft / totalReceived) * 100)))
       : 0;
 
+  const roleEmojiMap: Record<string, string> = {
+    Father: "👑",
+    Mother: "🌸",
+    Son: "🎓",
+    Daughter: "🎨",
+    Parent: "🏡",
+  };
 
   return (
     <>
@@ -140,13 +147,12 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
               Remaining Balance
             </span>
             <span
-              className={`text-xs font-black px-2 py-0.5 rounded-full ${
-                percentLeft > 40
-                  ? "bg-[#D4F835]/20 text-[#D4F835]"
-                  : percentLeft > 20
+              className={`text-xs font-black px-2 py-0.5 rounded-full ${percentLeft > 40
+                ? "bg-[#D4F835]/20 text-[#D4F835]"
+                : percentLeft > 20
                   ? "bg-amber-400/20 text-amber-300"
                   : "bg-rose-500/20 text-rose-400"
-              }`}
+                }`}
             >
               {percentLeft}% Left
             </span>
@@ -161,13 +167,12 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
           <div className="space-y-1">
             <div className="h-2.5 rounded-full bg-zinc-800 overflow-hidden flex">
               <div
-                className={`h-full transition-all duration-700 ${
-                  percentLeft > 40
-                    ? "bg-[#D4F835]"
-                    : percentLeft > 20
+                className={`h-full transition-all duration-700 ${percentLeft > 40
+                  ? "bg-[#D4F835]"
+                  : percentLeft > 20
                     ? "bg-amber-400"
                     : "bg-rose-500"
-                }`}
+                  }`}
                 style={{ width: `${percentLeft}%` }}
               />
             </div>
@@ -207,11 +212,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
             </div>
           ) : (
             recentReceived.slice(0, 2).map((item) => {
-              const avatar =
-                (item.from_member_id ? MEMBER_AVATARS[item.from_member_id] : null) ||
-                Object.values(MEMBER_AVATARS).find(
-                  (a) => a.name.toLowerCase() === item.from_member_name?.toLowerCase()
-                );
+              const avatar = MEMBER_AVATARS[item.from_member_id];
               return (
                 <div
                   key={item.id}
@@ -340,11 +341,10 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
                     key={method}
                     type="button"
                     onClick={() => setPaymentMethod(method)}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                      paymentMethod === method
-                        ? "bg-[#D4F835] text-black border-transparent shadow-xs"
-                        : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
-                    }`}
+                    className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${paymentMethod === method
+                      ? "bg-[#D4F835] text-black border-transparent shadow-xs"
+                      : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
+                      }`}
                   >
                     {method === "Cash" ? "💵 Cash" : method === "UPI" ? "⚡ UPI" : "🏦 Bank"}
                   </button>

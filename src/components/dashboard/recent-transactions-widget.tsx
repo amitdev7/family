@@ -11,6 +11,7 @@ import {
   Film,
   CreditCard,
   Banknote,
+  Receipt,
   Calendar,
   User,
   CheckCircle2,
@@ -118,11 +119,10 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                    isActive
-                      ? "bg-[#D4F835] text-black shadow-xs scale-102"
-                      : "bg-secondary/70 text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${isActive
+                    ? "bg-[#D4F835] text-black shadow-xs scale-102"
+                    : "bg-secondary/70 text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}
                 >
                   {tab.label}
                 </button>

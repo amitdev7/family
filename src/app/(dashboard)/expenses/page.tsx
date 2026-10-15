@@ -555,8 +555,8 @@ export default function ExpensesPage() {
                   setPage(1);
                 }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${isSelected
-                    ? "bg-[#D4F835] text-black shadow-md shadow-[#D4F835]/20 ring-2 ring-black/10 scale-102"
-                    : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  ? "bg-[#D4F835] text-black shadow-md shadow-[#D4F835]/20 ring-2 ring-black/10 scale-102"
+                  : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                   }`}
               >
                 <span>{tab.emoji}</span>
@@ -911,8 +911,8 @@ export default function ExpensesPage() {
                     type="button"
                     onClick={() => setPage(pageNum)}
                     className={`h-8 w-8 rounded-full flex items-center justify-center font-black text-xs transition-all cursor-pointer ${isActive
-                        ? "bg-[#D4F835] text-black shadow-md shadow-[#D4F835]/20 scale-105"
-                        : "hover:bg-secondary text-foreground"
+                      ? "bg-[#D4F835] text-black shadow-md shadow-[#D4F835]/20 scale-105"
+                      : "hover:bg-secondary text-foreground"
                       }`}
                   >
                     {pageNum}

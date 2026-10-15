@@ -122,8 +122,8 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
               {currentLang === "hi"
                 ? "हिन्दी"
                 : currentLang === "hinglish"
-                ? "Hinglish"
-                : "English"}
+                  ? "Hinglish"
+                  : "English"}
             </span>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </button>
@@ -136,11 +136,10 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => handleSwitchLanguage("en")}
-                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
-                  currentLang === "en"
-                    ? "bg-[#D4F835] text-black"
-                    : "hover:bg-secondary text-foreground"
-                }`}
+                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${currentLang === "en"
+                  ? "bg-[#D4F835] text-black"
+                  : "hover:bg-secondary text-foreground"
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <Image
@@ -159,11 +158,10 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => handleSwitchLanguage("hi")}
-                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
-                  currentLang === "hi"
-                    ? "bg-[#D4F835] text-black"
-                    : "hover:bg-secondary text-foreground"
-                }`}
+                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${currentLang === "hi"
+                  ? "bg-[#D4F835] text-black"
+                  : "hover:bg-secondary text-foreground"
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <Image
@@ -182,11 +180,10 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => handleSwitchLanguage("hinglish")}
-                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
-                  currentLang === "hinglish"
-                    ? "bg-[#D4F835] text-black"
-                    : "hover:bg-secondary text-foreground"
-                }`}
+                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${currentLang === "hinglish"
+                  ? "bg-[#D4F835] text-black"
+                  : "hover:bg-secondary text-foreground"
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <Image

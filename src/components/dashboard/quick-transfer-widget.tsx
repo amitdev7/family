@@ -95,11 +95,10 @@ export function QuickTransferWidget({
                 <button
                   type="button"
                   onClick={() => setSelectedId(person.id)}
-                  className={`relative flex h-14 w-14 rounded-2xl items-center justify-center p-0.5 transition-all cursor-pointer ${
-                    isSelected
-                      ? "ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-md bg-secondary/80"
-                      : "hover:scale-105 opacity-85 hover:opacity-100 bg-secondary/30"
-                  }`}
+                  className={`relative flex h-14 w-14 rounded-2xl items-center justify-center p-0.5 transition-all cursor-pointer ${isSelected
+                    ? "ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-md bg-secondary/80"
+                    : "hover:scale-105 opacity-85 hover:opacity-100 bg-secondary/30"
+                    }`}
                   title={`${person.name} (${person.role})`}
                 >
                   <div className="w-full h-full rounded-[14px] overflow-hidden flex items-center justify-center bg-secondary/50">

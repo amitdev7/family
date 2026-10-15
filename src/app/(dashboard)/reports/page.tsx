@@ -299,13 +299,12 @@ export default function ReportsPage() {
                     <td className="py-3 px-2 text-foreground font-mono font-bold">{row.amount}</td>
                     <td className="py-3 px-2">
                       <span
-                        className={`inline-flex items-center gap-0.5 text-xs font-bold ${
-                          row.change === "—"
-                            ? "text-muted-foreground"
-                            : row.isUp
+                        className={`inline-flex items-center gap-0.5 text-xs font-bold ${row.change === "—"
+                          ? "text-muted-foreground"
+                          : row.isUp
                             ? "text-emerald-600 dark:text-emerald-400"
                             : "text-rose-500"
-                        }`}
+                          }`}
                       >
                         {row.change}
                       </span>
@@ -371,9 +370,8 @@ export default function ReportsPage() {
                       >
                         {spend > 0 && (
                           <span
-                            className={`text-[9px] font-mono font-bold ${
-                              bg === "#0E0E10" ? "text-white" : "text-black"
-                            }`}
+                            className={`text-[9px] font-mono font-bold ${bg === "#0E0E10" ? "text-white" : "text-black"
+                              }`}
                           >
                             {spend >= 1000 ? `₹${Math.round(spend / 1000)}k` : `₹${Math.round(spend)}`}
                           </span>

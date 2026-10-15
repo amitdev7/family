@@ -557,11 +557,10 @@ export default function BudgetsPage() {
             <button
               type="button"
               onClick={() => setSelectedCategoryFilter("all")}
-              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                selectedCategoryFilter === "all"
-                  ? "bg-[#D4F835] text-black shadow-xs scale-102"
-                  : "bg-secondary/70 text-muted-foreground hover:text-foreground"
-              }`}
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${selectedCategoryFilter === "all"
+                ? "bg-[#D4F835] text-black shadow-xs scale-102"
+                : "bg-secondary/70 text-muted-foreground hover:text-foreground"
+                }`}
             >
               All Categories ({summary?.byCategory?.length || 0})
             </button>
@@ -571,11 +570,10 @@ export default function BudgetsPage() {
                 key={cat.categoryId}
                 type="button"
                 onClick={() => setSelectedCategoryFilter(cat.categoryId)}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
-                  selectedCategoryFilter === cat.categoryId
-                    ? "bg-[#D4F835] text-black shadow-xs scale-102"
-                    : "bg-secondary/70 text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${selectedCategoryFilter === cat.categoryId
+                  ? "bg-[#D4F835] text-black shadow-xs scale-102"
+                  : "bg-secondary/70 text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 <span
                   className="h-2 w-2 rounded-full"
@@ -633,13 +631,12 @@ export default function BudgetsPage() {
 
                     {/* Status Badge */}
                     <span
-                      className={`px-3 py-1 rounded-full text-[11px] font-black ${
-                        isOver
-                          ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20"
-                          : left > 0
+                      className={`px-3 py-1 rounded-full text-[11px] font-black ${isOver
+                        ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+                        : left > 0
                           ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                           : "bg-secondary text-muted-foreground"
-                      }`}
+                        }`}
                     >
                       {isOver ? "Over Budget ⚠️" : left > 0 ? `${formatINR(left)} Left 🟢` : "Zero Balance"}
                     </span>
@@ -670,9 +667,8 @@ export default function BudgetsPage() {
                         Money Left
                       </p>
                       <p
-                        className={`text-xs sm:text-sm font-black font-mono mt-0.5 ${
-                          left >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"
-                        }`}
+                        className={`text-xs sm:text-sm font-black font-mono mt-0.5 ${left >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"
+                          }`}
                       >
                         {formatINR(left)}
                       </p>
@@ -683,9 +679,8 @@ export default function BudgetsPage() {
                   <div className="space-y-1">
                     <div className="h-2.5 w-full rounded-full bg-secondary overflow-hidden flex">
                       <div
-                        className={`h-full transition-all duration-500 ${
-                          isOver ? "bg-rose-500" : percentUsed > 80 ? "bg-amber-400" : "bg-[#D4F835]"
-                        }`}
+                        className={`h-full transition-all duration-500 ${isOver ? "bg-rose-500" : percentUsed > 80 ? "bg-amber-400" : "bg-[#D4F835]"
+                          }`}
                         style={{ width: `${percentUsed}%` }}
                       />
                     </div>
@@ -743,11 +738,10 @@ export default function BudgetsPage() {
                   key={filterVal}
                   type="button"
                   onClick={() => setHistoryFilter(filterVal)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                    historyFilter === filterVal
-                      ? "bg-[#D4F835] text-black shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${historyFilter === filterVal
+                    ? "bg-[#D4F835] text-black shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   {filterVal === "all" ? "All" : filterVal === "Cash" ? "💵 Cash" : filterVal === "UPI" ? "⚡ UPI" : "🏦 Bank"}
                 </button>
@@ -790,11 +784,10 @@ export default function BudgetsPage() {
                           <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary font-semibold text-muted-foreground">
                             {entry.relationship || "Family Member"}
                           </span>
-                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-                            isCash
-                              ? "bg-[#D4F835]/20 text-black dark:text-[#D4F835]"
-                              : "bg-blue-500/15 text-blue-500"
-                          }`}>
+                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${isCash
+                            ? "bg-[#D4F835]/20 text-black dark:text-[#D4F835]"
+                            : "bg-blue-500/15 text-blue-500"
+                            }`}>
                             {isCash ? "💵 Cash" : "⚡ " + entry.payment_method}
                           </span>
                         </div>
@@ -991,11 +984,10 @@ export default function BudgetsPage() {
                       key={method}
                       type="button"
                       onClick={() => setPaymentMethod(method)}
-                      className={`py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center gap-1 border ${
-                        isSelected
-                          ? "bg-[#D4F835] text-black border-[#D4F835] shadow-xs"
-                          : "bg-secondary text-muted-foreground border-border hover:text-foreground"
-                      }`}
+                      className={`py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center gap-1 border ${isSelected
+                        ? "bg-[#D4F835] text-black border-[#D4F835] shadow-xs"
+                        : "bg-secondary text-muted-foreground border-border hover:text-foreground"
+                        }`}
                     >
                       {method === "Cash" && <Banknote className="h-4 w-4" />}
                       {method === "UPI" && <Send className="h-4 w-4" />}
