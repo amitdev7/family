@@ -21,6 +21,9 @@ import {
   Calendar,
   ArrowUpRight,
   CheckCircle2,
+  Shield,
+  Star,
+  User,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { ExpenseDialog } from "@/components/expenses/expense-dialog";
@@ -32,98 +35,72 @@ import { formatINR, formatDate } from "@/lib/formatters";
 import Image from "next/image";
 import { CATEGORY_IMAGES, EMPTY_STATE_IMAGES, MEMBER_AVATARS } from "@/lib/assets";
 
-// Role emoji map for avatar and badges
-const ROLE_EMOJI_MAP: Record<string, string> = {
-  Father: "👑",
-  Mother: "🌸",
-  Son: "🎓",
-  Daughter: "🎨",
-  Parent: "🏡",
-  Child: "🧸",
-  Admin: "⚡",
-  Grandpa: "👴",
-  Grandma: "👵",
-};
-
-// Rich Category Visual & Emoji Mapping
+// Rich Category Visual Mapping
 const CATEGORY_META_MAP: Record<
   string,
-  { emoji: string; bg: string; text: string; border: string }
+  { bg: string; text: string; border: string }
 > = {
   groceries: {
-    emoji: "🛒",
     bg: "bg-emerald-500/10 dark:bg-emerald-500/20",
     text: "text-emerald-700 dark:text-emerald-400",
     border: "border-emerald-500/30",
   },
   food: {
-    emoji: "🍔",
     bg: "bg-amber-500/10 dark:bg-amber-500/20",
     text: "text-amber-700 dark:text-amber-400",
     border: "border-amber-500/30",
   },
   dining: {
-    emoji: "🍕",
     bg: "bg-orange-500/10 dark:bg-orange-500/20",
     text: "text-orange-700 dark:text-orange-400",
     border: "border-orange-500/30",
   },
   transport: {
-    emoji: "🚗",
     bg: "bg-blue-500/10 dark:bg-blue-500/20",
     text: "text-blue-700 dark:text-blue-400",
     border: "border-blue-500/30",
   },
   utilities: {
-    emoji: "⚡",
     bg: "bg-yellow-500/10 dark:bg-yellow-500/20",
     text: "text-yellow-700 dark:text-yellow-400",
     border: "border-yellow-500/30",
   },
   bills: {
-    emoji: "💡",
     bg: "bg-yellow-500/10 dark:bg-yellow-500/20",
     text: "text-yellow-700 dark:text-yellow-400",
     border: "border-yellow-500/30",
   },
   shopping: {
-    emoji: "🛍️",
     bg: "bg-pink-500/10 dark:bg-pink-500/20",
     text: "text-pink-700 dark:text-pink-400",
     border: "border-pink-500/30",
   },
   healthcare: {
-    emoji: "🩺",
     bg: "bg-teal-500/10 dark:bg-teal-500/20",
     text: "text-teal-700 dark:text-teal-400",
     border: "border-teal-500/30",
   },
   health: {
-    emoji: "💊",
     bg: "bg-teal-500/10 dark:bg-teal-500/20",
     text: "text-teal-700 dark:text-teal-400",
     border: "border-teal-500/30",
   },
   entertainment: {
-    emoji: "🎬",
     bg: "bg-purple-500/10 dark:bg-purple-500/20",
     text: "text-purple-700 dark:text-purple-400",
     border: "border-purple-500/30",
   },
   education: {
-    emoji: "📚",
     bg: "bg-indigo-500/10 dark:bg-indigo-500/20",
     text: "text-indigo-700 dark:text-indigo-400",
     border: "border-indigo-500/30",
   },
   travel: {
-    emoji: "✈️",
     bg: "bg-sky-500/10 dark:bg-sky-500/20",
     text: "text-sky-700 dark:text-sky-400",
     border: "border-sky-500/30",
   },
   personal: {
-    emoji: "💈",
     bg: "bg-violet-500/10 dark:bg-violet-500/20",
     text: "text-violet-700 dark:text-violet-400",
     border: "border-violet-500/30",
@@ -136,7 +113,6 @@ function getCategoryMeta(catName?: string) {
     if (name.includes(key)) return meta;
   }
   return {
-    emoji: "📦",
     bg: "bg-lime-500/10 dark:bg-lime-500/20",
     text: "text-lime-700 dark:text-lime-400",
     border: "border-lime-500/30",
@@ -148,7 +124,6 @@ function getPaymentBadge(method: string) {
   if (m.includes("cash")) {
     return {
       label: "Cash",
-      emoji: "💵",
       icon: Banknote,
       className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
     };
@@ -156,7 +131,6 @@ function getPaymentBadge(method: string) {
   if (m.includes("upi")) {
     return {
       label: "UPI",
-      emoji: "⚡",
       icon: Zap,
       className: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30",
     };
@@ -164,7 +138,6 @@ function getPaymentBadge(method: string) {
   if (m.includes("credit")) {
     return {
       label: "Credit Card",
-      emoji: "💳",
       icon: CreditCard,
       className: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30",
     };
@@ -172,7 +145,6 @@ function getPaymentBadge(method: string) {
   if (m.includes("debit")) {
     return {
       label: "Debit Card",
-      emoji: "💳",
       icon: CreditCard,
       className: "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30",
     };
@@ -180,26 +152,24 @@ function getPaymentBadge(method: string) {
   if (m.includes("bank") || m.includes("net")) {
     return {
       label: "Net Banking",
-      emoji: "🏦",
       icon: Building,
       className: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
     };
   }
   return {
     label: method,
-    emoji: "🏷️",
     icon: CreditCard,
     className: "bg-secondary text-foreground border-border",
   };
 }
 
 const PAYMENT_METHOD_FILTER_TABS = [
-  { id: "all", label: "All Methods", emoji: "🌐" },
-  { id: "Cash", label: "Cash (Default)", emoji: "💵" },
-  { id: "UPI", label: "UPI", emoji: "⚡" },
-  { id: "Credit Card", label: "Credit Card", emoji: "💳" },
-  { id: "Debit Card", label: "Debit Card", emoji: "💳" },
-  { id: "Net Banking", label: "Net Banking", emoji: "🏦" },
+  { id: "all", label: "All Methods", icon: CreditCard },
+  { id: "Cash", label: "Cash (Default)", icon: Banknote },
+  { id: "UPI", label: "UPI", icon: Zap },
+  { id: "Credit Card", label: "Credit Card", icon: CreditCard },
+  { id: "Debit Card", label: "Debit Card", icon: CreditCard },
+  { id: "Net Banking", label: "Net Banking", icon: Building },
 ];
 
 export default function ExpensesPage() {
@@ -333,7 +303,7 @@ export default function ExpensesPage() {
     a.download = `expenses_ledger_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast("📥 Exported transactions to CSV successfully!");
+    showToast("Exported transactions to CSV successfully!");
   };
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -404,8 +374,14 @@ export default function ExpensesPage() {
           <div className="flex flex-wrap items-center gap-3 z-10">
             {currentUser && (
               <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300">
-                <span className="text-sm">
-                  {ROLE_EMOJI_MAP[currentUser.relationship || ""] || "👤"}
+                <span className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center">
+                  {currentUser.role === "admin" || currentUser.display_name === "Amit" ? (
+                    <Shield className="h-2.5 w-2.5 text-[#D4F835]" />
+                  ) : currentUser.display_name === "Ajay" ? (
+                    <Star className="h-2.5 w-2.5 text-emerald-400" />
+                  ) : (
+                    <Sparkles className="h-2.5 w-2.5 text-amber-400" />
+                  )}
                 </span>
                 <span>{currentUser.display_name}</span>
               </div>
@@ -463,7 +439,7 @@ export default function ExpensesPage() {
           <div className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:border-border transition-all">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
-                💵 Cash Spent (Default)
+                Cash Spent (Default)
               </span>
               <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                 <Banknote className="h-4 w-4" />
@@ -559,7 +535,7 @@ export default function ExpensesPage() {
                   : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                   }`}
               >
-                <span>{tab.emoji}</span>
+                {tab.icon && <tab.icon className="h-3.5 w-3.5 shrink-0" />}
                 <span>{tab.label}</span>
               </button>
             );
@@ -607,15 +583,12 @@ export default function ExpensesPage() {
                 }}
                 className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
               >
-                <option value="all">📦 All Categories</option>
-                {categories.map((c) => {
-                  const meta = getCategoryMeta(c.name);
-                  return (
-                    <option key={c.id} value={c.id}>
-                      {meta.emoji} {c.name}
-                    </option>
-                  );
-                })}
+                <option value="all">All Categories</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
             </div>
@@ -630,15 +603,12 @@ export default function ExpensesPage() {
                 }}
                 className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
               >
-                <option value="all">👥 All Family Members</option>
-                {members.map((m) => {
-                  const emoji = ROLE_EMOJI_MAP[m.relationship || ""] || "👤";
-                  return (
-                    <option key={m.id} value={m.user_id}>
-                      {emoji} {m.display_name} ({m.relationship || "Member"})
-                    </option>
-                  );
-                })}
+                <option value="all">All Family Members</option>
+                {members.map((m) => (
+                  <option key={m.id} value={m.user_id}>
+                    {m.display_name} ({m.relationship || (m.role === "admin" ? "Admin" : "Member")})
+                  </option>
+                ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
             </div>
@@ -653,10 +623,10 @@ export default function ExpensesPage() {
                 }}
                 className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
               >
-                <option value="date_desc">📅 Newest First</option>
-                <option value="date_asc">📅 Oldest First</option>
-                <option value="amount_desc">💰 Highest Amount</option>
-                <option value="amount_asc">💰 Lowest Amount</option>
+                <option value="date_desc">Newest First</option>
+                <option value="date_asc">Oldest First</option>
+                <option value="amount_desc">Highest Amount</option>
+                <option value="amount_asc">Lowest Amount</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
             </div>
@@ -734,8 +704,6 @@ export default function ExpensesPage() {
                     const categoryMeta = getCategoryMeta(expense.category?.name);
                     const paymentBadge = getPaymentBadge(expense.payment_method);
                     const relativeBadge = getRelativeDateBadge(expense.expense_date);
-                    const memberRoleEmoji =
-                      ROLE_EMOJI_MAP[expense.paid_by?.relationship || ""] || "👤";
 
                     return (
                       <tr
@@ -771,7 +739,7 @@ export default function ExpensesPage() {
                                   className="object-contain"
                                 />
                               ) : (
-                                <span>{categoryMeta.emoji}</span>
+                                <Receipt className="h-4 w-4 text-muted-foreground" />
                               )}
                             </div>
 
@@ -798,7 +766,6 @@ export default function ExpensesPage() {
                           <span
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${categoryMeta.bg} ${categoryMeta.text} ${categoryMeta.border}`}
                           >
-                            <span>{categoryMeta.emoji}</span>
                             <span>{expense.category?.name || "General"}</span>
                           </span>
                         </td>
@@ -816,7 +783,7 @@ export default function ExpensesPage() {
                                   className="object-cover"
                                 />
                               ) : (
-                                <span>{memberRoleEmoji}</span>
+                                <span>{expense.paid_by?.display_name?.slice(0, 1).toUpperCase() || "M"}</span>
                               )}
                             </div>
                             <div className="flex flex-col">
@@ -832,12 +799,17 @@ export default function ExpensesPage() {
 
                         {/* Payment Method */}
                         <td className="py-4 px-6 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${paymentBadge.className}`}
-                          >
-                            <span>{paymentBadge.emoji}</span>
-                            <span>{paymentBadge.label}</span>
-                          </span>
+                          {(() => {
+                            const Icon = paymentBadge.icon;
+                            return (
+                              <span
+                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${paymentBadge.className}`}
+                              >
+                                <Icon className="h-3.5 w-3.5" />
+                                <span>{paymentBadge.label}</span>
+                              </span>
+                            );
+                          })()}
                         </td>
 
                         {/* Amount */}
@@ -957,8 +929,6 @@ export default function ExpensesPage() {
             expenses.map((expense) => {
               const categoryMeta = getCategoryMeta(expense.category?.name);
               const paymentBadge = getPaymentBadge(expense.payment_method);
-              const memberRoleEmoji =
-                ROLE_EMOJI_MAP[expense.paid_by?.relationship || ""] || "👤";
               const catImg = CATEGORY_IMAGES[expense.category_id];
 
               return (
@@ -981,7 +951,7 @@ export default function ExpensesPage() {
                             className="object-contain"
                           />
                         ) : (
-                          categoryMeta.emoji
+                          <Receipt className="h-5 w-5 text-muted-foreground" />
                         )}
                       </div>
                       <div>
@@ -1006,16 +976,20 @@ export default function ExpensesPage() {
                     <span
                       className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] border ${categoryMeta.bg} ${categoryMeta.text} ${categoryMeta.border}`}
                     >
-                      <span>{categoryMeta.emoji}</span>
                       <span>{expense.category?.name || "General"}</span>
                     </span>
 
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] border ${paymentBadge.className}`}
-                    >
-                      <span>{paymentBadge.emoji}</span>
-                      <span>{paymentBadge.label}</span>
-                    </span>
+                    {(() => {
+                      const Icon = paymentBadge.icon;
+                      return (
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] border ${paymentBadge.className}`}
+                        >
+                          <Icon className="h-3 w-3" />
+                          <span>{paymentBadge.label}</span>
+                        </span>
+                      );
+                    })()}
 
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary text-foreground font-semibold text-[11px]">
                       <div className="h-4 w-4 rounded-full overflow-hidden shrink-0 flex items-center justify-center">
@@ -1028,7 +1002,7 @@ export default function ExpensesPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <span>{memberRoleEmoji}</span>
+                          <User className="h-3 w-3 text-muted-foreground" />
                         )}
                       </div>
                       <span>{expense.paid_by?.display_name || "Member"}</span>

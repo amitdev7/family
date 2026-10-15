@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, CheckCircle2 } from "lucide-react";
+import { Check, CheckCircle2, Shield, Star, Sparkles } from "lucide-react";
 import { HouseholdMember } from "@/lib/types";
 import { MEMBER_AVATARS, FEATURE_IMAGES } from "@/lib/assets";
 
@@ -13,9 +13,9 @@ interface QuickTransferWidgetProps {
 }
 
 const DEMO_AVATARS = [
-  { id: "usr-amit", name: "Amit", role: "Admin", emoji: "👑" },
-  { id: "usr-ajay", name: "Ajay", role: "Member", emoji: "🌸" },
-  { id: "usr-chhotu", name: "Chhotu", role: "Member", emoji: "🧸" },
+  { id: "usr-amit", name: "Amit", role: "Admin" },
+  { id: "usr-ajay", name: "Ajay", role: "Member" },
+  { id: "usr-chhotu", name: "Chhotu", role: "Member" },
 ];
 
 const PRESET_AMOUNTS = ["500", "1000", "2000", "5000"];
@@ -38,13 +38,11 @@ export function QuickTransferWidget({
   const displayList =
     members && members.length > 0
       ? members.map((m) => {
-        const match = DEMO_AVATARS.find((a) => a.id === m.user_id);
         const avatarInfo = MEMBER_AVATARS[m.user_id];
         return {
           id: m.user_id,
           name: m.display_name,
           role: m.relationship || (m.role === "admin" ? "Admin" : "Member"),
-          emoji: match?.emoji || avatarInfo?.emoji || "👤",
           image: avatarInfo?.image,
           initial: m.display_name.slice(0, 1).toUpperCase(),
         };
@@ -115,8 +113,14 @@ export function QuickTransferWidget({
                     )}
                   </div>
 
-                  <span className="absolute -bottom-1 -right-1 text-xs bg-card rounded-full p-0.5 border border-border shadow-2xs">
-                    {person.emoji}
+                  <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-card rounded-full p-0.5 border border-border shadow-2xs flex items-center justify-center">
+                    {person.role?.toLowerCase().includes("admin") || person.name === "Amit" ? (
+                      <Shield className="h-2.5 w-2.5 text-[#D4F835]" />
+                    ) : person.name === "Ajay" ? (
+                      <Star className="h-2.5 w-2.5 text-emerald-500" />
+                    ) : (
+                      <Sparkles className="h-2.5 w-2.5 text-amber-500" />
+                    )}
                   </span>
 
                   {isSelected && (

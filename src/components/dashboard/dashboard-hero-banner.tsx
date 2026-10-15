@@ -12,6 +12,12 @@ import {
   Calendar,
   Clock,
   CheckCircle2,
+  Sun,
+  CloudSun,
+  Sunset,
+  Moon,
+  Shield,
+  Star,
 } from "lucide-react";
 import Image from "next/image";
 import { formatINR } from "@/lib/formatters";
@@ -39,7 +45,7 @@ export function DashboardHeroBanner({
 }: DashboardHeroBannerProps) {
 
   const [greeting, setGreeting] = useState("Good day");
-  const [greetingEmoji, setGreetingEmoji] = useState("✨");
+  const [greetingTimeType, setGreetingTimeType] = useState<"morning" | "afternoon" | "evening" | "night">("morning");
   const [currentTime, setCurrentTime] = useState("");
   const [currentDate, setCurrentDate] = useState("");
 
@@ -50,16 +56,16 @@ export function DashboardHeroBanner({
 
       if (hour >= 4 && hour < 12) {
         setGreeting("Good morning");
-        setGreetingEmoji("☀️");
+        setGreetingTimeType("morning");
       } else if (hour >= 12 && hour < 17) {
         setGreeting("Good afternoon");
-        setGreetingEmoji("🌤️");
+        setGreetingTimeType("afternoon");
       } else if (hour >= 17 && hour < 22) {
         setGreeting("Good evening");
-        setGreetingEmoji("🌇");
+        setGreetingTimeType("evening");
       } else {
         setGreeting("Good night");
-        setGreetingEmoji("🌙");
+        setGreetingTimeType("night");
       }
 
       setCurrentTime(
@@ -86,20 +92,31 @@ export function DashboardHeroBanner({
 
   const safeToSpendDaily = Math.max(0, Math.round(moneyLeft / 16));
 
-  const roleEmojiMap: Record<string, string> = {
-    Father: "👑",
-    Mother: "🌸",
-    Son: "🎓",
-    Daughter: "🎨",
-    Parent: "🏡",
-    Child: "🧸",
-    Admin: "⚡",
+  const renderRoleBadge = () => {
+    const role = (currentUser?.relationship || currentUser?.role || "").toLowerCase();
+    if (role.includes("admin") || role.includes("father") || currentUser?.display_name === "Amit") {
+      return <Shield className="h-3 w-3 text-[#D4F835]" />;
+    }
+    if (role.includes("mother") || role.includes("member") || currentUser?.display_name === "Ajay") {
+      return <Star className="h-3 w-3 text-emerald-400" />;
+    }
+    return <Sparkles className="h-3 w-3 text-amber-400" />;
   };
 
-  const memberRoleEmoji =
-    roleEmojiMap[currentUser?.relationship || ""] ||
-    roleEmojiMap[currentUser?.role || ""] ||
-    "👤";
+  const renderGreetingIcon = () => {
+    switch (greetingTimeType) {
+      case "morning":
+        return <Sun className="h-4 w-4 text-amber-400 animate-spin-slow shrink-0" />;
+      case "afternoon":
+        return <CloudSun className="h-4 w-4 text-amber-300 shrink-0" />;
+      case "evening":
+        return <Sunset className="h-4 w-4 text-orange-400 shrink-0" />;
+      case "night":
+        return <Moon className="h-4 w-4 text-indigo-300 shrink-0" />;
+      default:
+        return <Sun className="h-4 w-4 text-amber-400 shrink-0" />;
+    }
+  };
 
   return (
     <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#0E0E10] via-[#141418] to-[#1a1a22] border border-border/80 text-white p-5 sm:p-7 shadow-2xl card-hover-lift select-none">
@@ -126,17 +143,18 @@ export function DashboardHeroBanner({
               )}
             </div>
             <span
-              className="absolute -bottom-1 -right-1 text-sm bg-black/80 rounded-full p-0.5 border border-white/20 shadow-xs"
+              className="absolute -bottom-1 -right-1 h-5 w-5 bg-black/90 rounded-full p-1 border border-white/20 shadow-xs flex items-center justify-center"
               title={currentUser?.relationship || "Active User"}
             >
-              {memberRoleEmoji}
+              {renderRoleBadge()}
             </span>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-semibold text-zinc-400">
-                {greeting}, {currentUser?.display_name?.split(" ")[0] || "Amit"} {greetingEmoji}
+              <span className="text-xs sm:text-sm font-semibold text-zinc-400 flex items-center gap-1.5">
+                {greeting}, {currentUser?.display_name?.split(" ")[0] || "Amit"}
+                {renderGreetingIcon()}
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#D4F835]/20 text-[#D4F835] border border-[#D4F835]/40">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#D4F835] animate-ping" />

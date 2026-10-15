@@ -7,6 +7,9 @@ import {
   Wallet,
   Banknote,
   CheckCircle2,
+  Zap,
+  Building2,
+  User,
 } from "lucide-react";
 import { DataService } from "@/lib/data-service";
 import { formatINR } from "@/lib/formatters";
@@ -226,7 +229,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
                           className="object-cover"
                         />
                       ) : (
-                        <span className="text-xs">{avatar?.emoji || "👤"}</span>
+                        <User className="h-3.5 w-3.5 text-zinc-400" />
                       )}
                     </div>
                     <div className="min-w-0">
@@ -338,12 +341,15 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
                     key={method}
                     type="button"
                     onClick={() => setPaymentMethod(method)}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${paymentMethod === method
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${paymentMethod === method
                       ? "bg-[#D4F835] text-black border-transparent shadow-xs"
                       : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
                       }`}
                   >
-                    {method === "Cash" ? "💵 Cash" : method === "UPI" ? "⚡ UPI" : "🏦 Bank"}
+                    {method === "Cash" && <Banknote className="h-3.5 w-3.5" />}
+                    {method === "UPI" && <Zap className="h-3.5 w-3.5" />}
+                    {method === "Bank" && <Building2 className="h-3.5 w-3.5" />}
+                    <span>{method}</span>
                   </button>
                 ))}
               </div>

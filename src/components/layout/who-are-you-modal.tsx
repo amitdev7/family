@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Check, Sparkles, Globe } from "lucide-react";
+import { Check, Sparkles, Globe, Shield, Star } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
 import { HouseholdMember } from "@/lib/types";
@@ -35,10 +35,10 @@ const MEMBER_STYLES: Record<
   },
 };
 
-const LANGUAGE_OPTIONS: Array<{ id: Language; label: string; fallbackFlag: string }> = [
-  { id: "en", label: "English", fallbackFlag: "🇬🇧" },
-  { id: "hi", label: "हिन्दी", fallbackFlag: "🇮🇳" },
-  { id: "hinglish", label: "Hinglish", fallbackFlag: "💬" },
+const LANGUAGE_OPTIONS: Array<{ id: Language; label: string }> = [
+  { id: "en", label: "English" },
+  { id: "hi", label: "हिन्दी" },
+  { id: "hinglish", label: "Hinglish" },
 ];
 
 interface WhoAreYouModalProps {
@@ -167,7 +167,7 @@ export function WhoAreYouModal({
                       />
                     </div>
                   ) : (
-                    <span>{lang.fallbackFlag}</span>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">{lang.id}</span>
                   )}
                   <span>{lang.label}</span>
                 </button>
@@ -219,8 +219,14 @@ export function WhoAreYouModal({
                       {member.display_name.slice(0, 1)}
                     </div>
                   )}
-                  <span className="absolute -bottom-1 -right-1 text-xs bg-card rounded-full p-0.5 border border-border shadow-xs">
-                    {avatarData?.emoji || "👤"}
+                  <span className="absolute -bottom-1 -right-1 h-5 w-5 bg-card rounded-full p-1 border border-border shadow-xs flex items-center justify-center">
+                    {member.role === "admin" || member.display_name === "Amit" ? (
+                      <Shield className="h-3 w-3 text-[#D4F835]" />
+                    ) : member.display_name === "Ajay" ? (
+                      <Star className="h-3 w-3 text-emerald-500" />
+                    ) : (
+                      <Sparkles className="h-3 w-3 text-amber-500" />
+                    )}
                   </span>
                 </div>
 

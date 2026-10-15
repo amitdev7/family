@@ -13,12 +13,12 @@ interface SpendingRadarChartProps {
 }
 
 const DEFAULT_AXES = [
-  { label: "Food", current: 0, avg: 0, amount: 0, emoji: "🍕", color: "#D4F835" },
-  { label: "Bills", current: 0, avg: 0, amount: 0, emoji: "💡", color: "#38bdf8" },
-  { label: "Shopping", current: 0, avg: 0, amount: 0, emoji: "🛍️", color: "#f43f5e" },
-  { label: "Transport", current: 0, avg: 0, amount: 0, emoji: "🚗", color: "#a855f7" },
-  { label: "Health", current: 0, avg: 0, amount: 0, emoji: "🩺", color: "#fb923c" },
-  { label: "Other", current: 0, avg: 0, amount: 0, emoji: "📦", color: "#10b981" },
+  { label: "Food", current: 0, avg: 0, amount: 0, color: "#D4F835" },
+  { label: "Bills", current: 0, avg: 0, amount: 0, color: "#38bdf8" },
+  { label: "Shopping", current: 0, avg: 0, amount: 0, color: "#f43f5e" },
+  { label: "Transport", current: 0, avg: 0, amount: 0, color: "#a855f7" },
+  { label: "Health", current: 0, avg: 0, amount: 0, color: "#fb923c" },
+  { label: "Other", current: 0, avg: 0, amount: 0, color: "#10b981" },
 ];
 
 export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps) {
@@ -231,7 +231,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
               );
             })}
 
-            {/* Axis Labels with Emojis */}
+            {/* Axis Labels */}
             {axes.map((axis, i) => {
               const { x, y } = getLabelCoordinates(i);
               const isTop = i === 0;
@@ -249,7 +249,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
-                  {axis.emoji} {axis.label}
+                  {axis.label}
                 </text>
               );
             })}
@@ -258,7 +258,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
           {/* Hover Tooltip */}
           {hoveredIndex !== null && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3.5 py-1.5 rounded-full bg-[#0E0E10] text-white text-xs font-bold shadow-xl border border-white/10 z-20 animate-in fade-in zoom-in-95">
-              <span>{axes[hoveredIndex].emoji} {axes[hoveredIndex].label}: </span>
+              <span>{axes[hoveredIndex].label}: </span>
               <span className="text-[#D4F835] font-mono">{formatINR(axes[hoveredIndex].amount)}</span>
               <span className="text-zinc-400 text-[10px] ml-1">
                 ({Math.round((axes[hoveredIndex].amount / totalSpentAll) * 100)}%)
@@ -276,7 +276,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
                 <div key={idx} className="space-y-1">
                   <div className="flex items-center justify-between text-xs font-semibold">
                     <span className="flex items-center gap-1.5 text-foreground">
-                      <span>{cat.emoji}</span>
+                      <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
                       <span>{cat.label}</span>
                     </span>
                     <div className="flex items-center gap-2">

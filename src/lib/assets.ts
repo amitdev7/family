@@ -1,24 +1,21 @@
-export const MEMBER_AVATARS: Record<string, { image: string; fallbackInitial: string; name: string; role: string; emoji: string }> = {
+export const MEMBER_AVATARS: Record<string, { image: string; fallbackInitial: string; name: string; role: string }> = {
   "usr-amit": {
     image: "/images/avatars/avatar-amit.png",
     fallbackInitial: "A",
     name: "Amit",
     role: "Admin",
-    emoji: "👑",
   },
   "usr-ajay": {
     image: "/images/avatars/avatar-ajay.png",
     fallbackInitial: "A",
     name: "Ajay",
     role: "Member",
-    emoji: "🌸",
   },
   "usr-chhotu": {
     image: "/images/avatars/avatar-chhotu.png",
     fallbackInitial: "C",
     name: "Chhotu",
     role: "Member",
-    emoji: "🧸",
   },
 };
 

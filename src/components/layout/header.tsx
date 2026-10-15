@@ -7,6 +7,10 @@ import {
   ChevronDown,
   Bell,
   Check,
+  Globe,
+  Shield,
+  Star,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -116,7 +120,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                 />
               </div>
             ) : (
-              <span>🌐</span>
+              <Globe className="h-4 w-4 text-[#D4F835]" />
             )}
             <span className="hidden sm:inline">
               {currentLang === "hi"
@@ -221,7 +225,15 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
           <span className="text-xs font-bold text-zinc-200 truncate max-w-[120px]">
             {currentUser?.display_name || "Amit"}
           </span>
-          <span className="text-xs">{avatarInfo?.emoji || "👑"}</span>
+          <span className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center">
+            {currentUser?.role === "admin" || currentUser?.display_name === "Amit" ? (
+              <Shield className="h-2.5 w-2.5 text-[#D4F835]" />
+            ) : currentUser?.display_name === "Ajay" ? (
+              <Star className="h-2.5 w-2.5 text-emerald-400" />
+            ) : (
+              <Sparkles className="h-2.5 w-2.5 text-amber-400" />
+            )}
+          </span>
         </div>
 
         {/* Notification Bell */}
@@ -299,7 +311,13 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                     <p className="text-xs font-black truncate">
                       {currentUser?.display_name || "Amit"}
                     </p>
-                    <span className="text-xs">{avatarInfo?.emoji || "👑"}</span>
+                    {currentUser?.role === "admin" || currentUser?.display_name === "Amit" ? (
+                      <Shield className="h-3 w-3 text-[#D4F835]" />
+                    ) : currentUser?.display_name === "Ajay" ? (
+                      <Star className="h-3 w-3 text-emerald-500" />
+                    ) : (
+                      <Sparkles className="h-3 w-3 text-amber-500" />
+                    )}
                   </div>
                   <Badge
                     variant="secondary"

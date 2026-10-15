@@ -18,6 +18,8 @@ import {
   Send,
   Sparkles,
   CheckCircle2,
+  Shield,
+  Star,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Modal } from "@/components/ui/modal";
@@ -40,18 +42,6 @@ const getMemberAvatar = (id?: string, name?: string) => {
 };
 
 const PRESET_AMOUNTS = [1000, 2000, 5000, 10000, 25000, 50000];
-
-const ROLE_EMOJI_MAP: Record<string, string> = {
-  Father: "👑",
-  Mother: "🌸",
-  Son: "🎓",
-  Daughter: "🎨",
-  Parent: "🏡",
-  Child: "🧸",
-  Admin: "⚡",
-  Grandpa: "👴",
-  Grandma: "👵",
-};
 
 export default function BudgetsPage() {
   const [summary, setSummary] = useState<MoneySummary | null>(null);
@@ -223,10 +213,6 @@ export default function BudgetsPage() {
   // Safe daily spend estimate
   const safeDailySpend = Math.max(0, Math.round(moneyLeft / 16));
 
-  const activeUserRoleEmoji =
-    ROLE_EMOJI_MAP[currentUser?.relationship || ""] ||
-    ROLE_EMOJI_MAP[currentUser?.role || ""] ||
-    "👑";
 
   return (
     <AppLayout title="Budget &amp; Inflow Planner">
@@ -266,10 +252,16 @@ export default function BudgetsPage() {
                   )}
                 </div>
                 <span
-                  className="absolute -bottom-1 -right-1 text-sm bg-black/80 rounded-full p-0.5 border border-white/20 shadow-xs"
+                  className="absolute -bottom-1 -right-1 h-5 w-5 bg-black/90 rounded-full p-1 border border-white/20 shadow-xs flex items-center justify-center"
                   title={currentUser?.relationship || "Active User"}
                 >
-                  {activeUserRoleEmoji}
+                  {currentUser?.role === "admin" || currentUser?.display_name === "Amit" ? (
+                    <Shield className="h-3 w-3 text-[#D4F835]" />
+                  ) : currentUser?.display_name === "Ajay" ? (
+                    <Star className="h-3 w-3 text-emerald-400" />
+                  ) : (
+                    <Sparkles className="h-3 w-3 text-amber-400" />
+                  )}
                 </span>
               </div>
 
@@ -435,7 +427,6 @@ export default function BudgetsPage() {
                   "bg-emerald-500 text-white",
                 ];
                 const avatarBg = colorPalette[idx % colorPalette.length];
-                const emoji = ROLE_EMOJI_MAP[m.relationship] || "👤";
                 const memberAvatar = getMemberAvatar(m.memberId, m.memberName);
 
                 return (
@@ -457,8 +448,14 @@ export default function BudgetsPage() {
                           ) : (
                             <span>{m.memberName.charAt(0).toUpperCase()}</span>
                           )}
-                          <span className="absolute -bottom-1 -right-1 text-xs bg-card rounded-full p-0.5 border border-border shadow-2xs">
-                            {emoji}
+                          <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-card rounded-full p-0.5 border border-border shadow-2xs flex items-center justify-center">
+                            {m.memberName === "Amit" ? (
+                              <Shield className="h-2.5 w-2.5 text-[#D4F835]" />
+                            ) : m.memberName === "Ajay" ? (
+                              <Star className="h-2.5 w-2.5 text-emerald-500" />
+                            ) : (
+                              <Sparkles className="h-2.5 w-2.5 text-amber-500" />
+                            )}
                           </span>
                         </div>
                         <div>
@@ -616,7 +613,7 @@ export default function BudgetsPage() {
                             className="object-contain p-0.5"
                           />
                         ) : (
-                          c.icon || "🏷️"
+                          <Tag className="h-5 w-5 text-muted-foreground" />
                         )}
                       </div>
                       <div>
@@ -638,7 +635,7 @@ export default function BudgetsPage() {
                           : "bg-secondary text-muted-foreground"
                         }`}
                     >
-                      {isOver ? "Over Budget ⚠️" : left > 0 ? `${formatINR(left)} Left 🟢` : "Zero Balance"}
+                      {isOver ? "Over Budget" : left > 0 ? `${formatINR(left)} Left` : "Zero Balance"}
                     </span>
                   </div>
 
@@ -743,7 +740,7 @@ export default function BudgetsPage() {
                     : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
-                  {filterVal === "all" ? "All" : filterVal === "Cash" ? "💵 Cash" : filterVal === "UPI" ? "⚡ UPI" : "🏦 Bank"}
+                  {filterVal === "all" ? "All" : filterVal}
                 </button>
               ))}
             </div>
@@ -752,7 +749,6 @@ export default function BudgetsPage() {
           {filteredHistory.length > 0 ? (
             <div className="space-y-2.5">
               {filteredHistory.map((entry) => {
-                const emoji = ROLE_EMOJI_MAP[entry.relationship || ""] || "👤";
                 const isCash = !entry.payment_method || entry.payment_method === "Cash";
                 const senderAvatar = getMemberAvatar(entry.from_member_id, entry.from_member_name);
 
@@ -772,7 +768,7 @@ export default function BudgetsPage() {
                             className="object-cover w-full h-full"
                           />
                         ) : (
-                          <span>{emoji}</span>
+                          <User className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                         )}
                       </div>
 
@@ -784,11 +780,18 @@ export default function BudgetsPage() {
                           <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary font-semibold text-muted-foreground">
                             {entry.relationship || "Family Member"}
                           </span>
-                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${isCash
+                          <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1 ${isCash
                             ? "bg-[#D4F835]/20 text-black dark:text-[#D4F835]"
                             : "bg-blue-500/15 text-blue-500"
                             }`}>
-                            {isCash ? "💵 Cash" : "⚡ " + entry.payment_method}
+                            {isCash ? (
+                              <>
+                                <Banknote className="h-3 w-3" />
+                                <span>Cash</span>
+                              </>
+                            ) : (
+                              <span>{entry.payment_method || "UPI"}</span>
+                            )}
                           </span>
                         </div>
 
@@ -897,10 +900,10 @@ export default function BudgetsPage() {
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.user_id || m.id}>
-                    {ROLE_EMOJI_MAP[m.relationship || ""] || "👤"} {m.display_name} ({m.relationship || "Member"})
+                    {m.display_name} ({m.relationship || (m.role === "admin" ? "Admin" : "Member")})
                   </option>
                 ))}
-                <option value="other">➕ Someone else / Custom Name</option>
+                <option value="other">Someone else / Custom Name</option>
               </select>
             </div>
 

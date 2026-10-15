@@ -27,28 +27,28 @@ interface RecentTransactionsWidgetProps {
 
 const CATEGORY_TABS = [
   { id: "all", label: "All" },
-  { id: "food", label: "🍕 Food" },
-  { id: "bills", label: "💡 Bills" },
-  { id: "shopping", label: "🛍️ Shop" },
-  { id: "transport", label: "🚗 Travel" },
+  { id: "food", label: "Food" },
+  { id: "bills", label: "Bills" },
+  { id: "shopping", label: "Shopping" },
+  { id: "transport", label: "Travel" },
 ];
 
 const MERCHANT_META: Record<
   string,
-  { bg: string; text: string; icon: any; emoji: string; colorHex: string }
+  { bg: string; text: string; icon: any; colorHex: string }
 > = {
-  paypal: { bg: "bg-blue-500/15 text-blue-500", text: "Paypal", icon: CreditCard, emoji: "💳", colorHex: "#3b82f6" },
-  twitch: { bg: "bg-purple-500/15 text-purple-500", text: "Twitch", icon: Film, emoji: "🎮", colorHex: "#a855f7" },
-  airbnb: { bg: "bg-rose-500/15 text-rose-500", text: "Airbnb", icon: ShoppingBag, emoji: "🏡", colorHex: "#f43f5e" },
-  dribbble: { bg: "bg-pink-500/15 text-pink-500", text: "Dribbble", icon: ShoppingBag, emoji: "🎨", colorHex: "#ec4899" },
-  dmart: { bg: "bg-emerald-500/15 text-emerald-500", text: "DMart", icon: ShoppingBag, emoji: "🛒", colorHex: "#10b981" },
-  swiggy: { bg: "bg-orange-500/15 text-orange-500", text: "Swiggy", icon: Utensils, emoji: "🍕", colorHex: "#f97316" },
-  airtel: { bg: "bg-red-500/15 text-red-500", text: "Airtel", icon: Zap, emoji: "📶", colorHex: "#ef4444" },
-  uber: { bg: "bg-zinc-500/15 text-zinc-900 dark:text-zinc-100", text: "Uber", icon: Car, emoji: "🚕", colorHex: "#71717a" },
-  groceries: { bg: "bg-emerald-500/15 text-emerald-500", text: "Groceries", icon: ShoppingBag, emoji: "🥬", colorHex: "#10b981" },
-  vegetables: { bg: "bg-green-500/15 text-green-500", text: "Vegetables", icon: ShoppingBag, emoji: "🥦", colorHex: "#22c55e" },
-  fuel: { bg: "bg-amber-500/15 text-amber-500", text: "Fuel", icon: Car, emoji: "⛽", colorHex: "#f59e0b" },
-  medicine: { bg: "bg-cyan-500/15 text-cyan-500", text: "Pharmacy", icon: ShoppingBag, emoji: "💊", colorHex: "#06b6d4" },
+  paypal: { bg: "bg-blue-500/15 text-blue-500", text: "Paypal", icon: CreditCard, colorHex: "#3b82f6" },
+  twitch: { bg: "bg-purple-500/15 text-purple-500", text: "Twitch", icon: Film, colorHex: "#a855f7" },
+  airbnb: { bg: "bg-rose-500/15 text-rose-500", text: "Airbnb", icon: ShoppingBag, colorHex: "#f43f5e" },
+  dribbble: { bg: "bg-pink-500/15 text-pink-500", text: "Dribbble", icon: ShoppingBag, colorHex: "#ec4899" },
+  dmart: { bg: "bg-emerald-500/15 text-emerald-500", text: "DMart", icon: ShoppingBag, colorHex: "#10b981" },
+  swiggy: { bg: "bg-orange-500/15 text-orange-500", text: "Swiggy", icon: Utensils, colorHex: "#f97316" },
+  airtel: { bg: "bg-red-500/15 text-red-500", text: "Airtel", icon: Zap, colorHex: "#ef4444" },
+  uber: { bg: "bg-zinc-500/15 text-zinc-900 dark:text-zinc-100", text: "Uber", icon: Car, colorHex: "#71717a" },
+  groceries: { bg: "bg-emerald-500/15 text-emerald-500", text: "Groceries", icon: ShoppingBag, colorHex: "#10b981" },
+  vegetables: { bg: "bg-green-500/15 text-green-500", text: "Vegetables", icon: ShoppingBag, colorHex: "#22c55e" },
+  fuel: { bg: "bg-amber-500/15 text-amber-500", text: "Fuel", icon: Car, colorHex: "#f59e0b" },
+  medicine: { bg: "bg-cyan-500/15 text-cyan-500", text: "Pharmacy", icon: ShoppingBag, colorHex: "#06b6d4" },
 };
 
 function getMerchantMeta(description: string) {
@@ -62,7 +62,6 @@ function getMerchantMeta(description: string) {
     bg: "bg-[#D4F835]/20 text-[#0E0E10] dark:text-[#D4F835]",
     text: description.slice(0, 1).toUpperCase(),
     icon: Banknote,
-    emoji: "💵",
     colorHex: "#D4F835",
   };
 }
@@ -193,8 +192,18 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
                         <span className="font-medium text-foreground/80 truncate">
                           {expense.paid_by?.display_name?.split(" ")[0] || "Family"}
                         </span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-secondary font-mono">
-                          {isCash ? "💵 Cash" : "⚡ " + (expense.payment_method || "UPI")}
+                        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-secondary font-bold text-foreground/80 border border-border">
+                          {isCash ? (
+                            <>
+                              <Banknote className="h-3 w-3 text-emerald-500 shrink-0" />
+                              <span>Cash</span>
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="h-3 w-3 text-[#D4F835] shrink-0" />
+                              <span>{expense.payment_method || "UPI"}</span>
+                            </>
+                          )}
                         </span>
                       </div>
                     </div>
