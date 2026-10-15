@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,100..900;1,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -48,6 +49,10 @@
 }
 
 @theme {
+  --font-sans: 'Plus Jakarta Sans', var(--font-plus-jakarta), var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', var(--font-plus-jakarta), sans-serif;
+  --font-geist: 'Geist', var(--font-geist-sans), sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -81,6 +86,7 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
+    font-family: var(--font-sans);
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
   }
@@ -167,3 +173,98 @@
 .dark .card-hover-lift:hover {
   box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 248, 53, 0.15);
 }
+
+/* Primary UI & Pill Components */
+.pill-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  background-color: #D4F835;
+  color: #0E0E10;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  box-shadow: 0 4px 14px rgba(212, 248, 53, 0.28);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.pill-primary:hover {
+  background-color: #c6ea27;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 6px 18px rgba(212, 248, 53, 0.4);
+}
+
+.pill-primary:active {
+  transform: scale(0.97);
+}
+
+.pill-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  background-color: var(--secondary);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pill-secondary:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  border-color: rgba(212, 248, 53, 0.4);
+  transform: translateY(-0.5px);
+}
+
+.pill-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.pill-status-active {
+  background-color: rgba(212, 248, 53, 0.15);
+  color: #D4F835;
+  border: 1px solid rgba(212, 248, 53, 0.35);
+}
+
+.pill-status-success {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.pill-status-warning {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.pill-status-danger {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
