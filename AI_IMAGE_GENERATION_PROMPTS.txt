@@ -1,0 +1,297 @@
+================================================================================
+          FAMILYFLOW — MASTER AI IMAGE GENERATION PROMPTS & UI/UX ASSETS
+================================================================================
+Generated for: FamilyFlow (Family Finance & Shared Expense Web Application)
+Theme Palette : Neon Lime (#D4F835), Jet Dark (#0E0E10), Soft Zinc, Emerald, Indigo
+Art Direction : 3D Pixar Claymorphism, Smooth Matte & Gloss Finishes, Studio Lighting
+Optimized For : Midjourney v6, DALL-E 3, Flux.1 [dev/pro], Stable Diffusion XL
+================================================================================
+
+TABLE OF CONTENTS:
+1. UNIVERSAL STYLE GUIDE & NEGATIVE PROMPTS
+2. SECTION 1: THE 3 FAMILY MEMBERS (AVATARS & PROFILES)
+3. SECTION 2: WELCOME / ONBOARDING HERO ILLUSTRATION
+4. SECTION 3: 8 EXPENSE CATEGORY 3D BADGES
+5. SECTION 4: EMPTY STATE / CLEAN SLATE ILLUSTRATIONS
+6. SECTION 5: FEATURE CARDS & DASHBOARD HIGHLIGHTS
+7. SECTION 6: LANGUAGE SELECTOR 3D BADGES
+8. FILE DESTINATIONS & NEXT.JS INTEGRATION INSTRUCTIONS
+
+================================================================================
+0. UNIVERSAL STYLE GUIDE & NEGATIVE PROMPTS
+================================================================================
+
+[GLOBAL AESTHETIC FORMULA]
+"Cute 3D Pixar claymorphism style, smooth matte clay and subtle glossy enamel textures,
+soft ambient studio rim lighting, vibrant rich colors with neon lime (#D4F835) accents,
+isolated on pure transparent background, volumetric ray tracing, octane render, 8k resolution,
+minimalist high-end fintech UI illustration."
+
+[RECOMMENDED NEGATIVE PROMPTS]
+"photorealistic humans, deformed face, creepy eyes, extra fingers, poor anatomy,
+grungy textures, dark muddy colors, busy complex background, noisy artifacts,
+watermarks, text, blurry edges, pixelated, 2D flat clipart, low poly."
+
+[OUTPUT RESOLUTION RECOMMENDATIONS]
+- Avatars & Icons : 1024x1024 px (1:1 square, PNG with Alpha/Transparency)
+- Hero & Empty States: 1920x1080 px or 1536x1024 px (16:9 / 3:2 aspect ratio)
+
+================================================================================
+SECTION 1: THE 3 FAMILY MEMBERS (AVATARS & PROFILES)
+================================================================================
+These replace letter circles and emojis across the Welcome Gate, Quick Transfer,
+Header Avatar, and Profile cards.
+
+--------------------------------------------------------------------------------
+1.1 MEMBER 1: "AMIT" (Admin & Household Head)
+--------------------------------------------------------------------------------
+File Target   : public/images/avatars/avatar-amit.png
+Aspect Ratio  : 1:1 (Square, Transparent Background)
+Role / Vibe   : Confident, warm, elder brother/father figure, tech-savvy leader.
+
+[MIDJOURNEY / FLUX PROMPT]:
+Cute 3D Pixar claymorphism bust character avatar of an Indian man in his late 20s named Amit, confident and gentle friendly smile, stylish neat short black haircut with well-groomed light stubble, modern navy blue crewneck sweater, miniature glowing gold crown badge (#D4F835 lime glow) pinned neatly on the chest, warm rim light from the right, smooth vinyl matte skin, isolated on solid white transparent background, 3D character design, ray-traced octane render, 8k, masterpiece --ar 1:1 --stylize 250 --v 6.0
+
+[DALL-E 3 PROMPT]:
+A high quality 3D animated character bust in Pixar and claymorphism style depicting an Indian man in his late 20s named Amit. He has a warm, confident smile, clean-cut modern short black hair, and light well-kept facial stubble. He wears a stylish navy-blue casual sweater with a miniature gold crown badge on his chest. The lighting is soft studio lighting with gentle lime-yellow rim highlights. Fully isolated on a plain white transparent background with no shadows cut off.
+
+--------------------------------------------------------------------------------
+1.2 MEMBER 2: "AJAY" (Active Family Member / Brother)
+--------------------------------------------------------------------------------
+File Target   : public/images/avatars/avatar-ajay.png
+Aspect Ratio  : 1:1 (Square, Transparent Background)
+Role / Vibe   : Cheerful, dynamic, young adult, social and friendly.
+
+[MIDJOURNEY / FLUX PROMPT]:
+Cute 3D Pixar claymorphism bust character avatar of an Indian young man in his early 20s named Ajay, wide friendly energetic grin, modern messy trendy textured hairstyle, stylish coral-pink pastel hoodie with white drawstrings, tiny cute cherry blossom flower pin on the collar, smooth rounded clay features, bright expressive eyes, soft dual-tone studio lighting with pastel warm accents, isolated on solid white transparent background, 3D character asset, octane render, 8k --ar 1:1 --stylize 250 --v 6.0
+
+[DALL-E 3 PROMPT]:
+A cute 3D Pixar-style animated bust avatar of a young Indian man in his early 20s named Ajay. He has an energetic, friendly grin and trendy modern textured black hair. He is wearing a cozy pastel coral-pink hoodie with a tiny cherry blossom enamel pin on the chest. Smooth claymorphic texture, bright lively eyes, soft ambient lighting with clean rim light, centered and isolated on a solid transparent white background.
+
+--------------------------------------------------------------------------------
+1.3 MEMBER 3: "CHHOTU" (Younger Member / Student / Kid)
+--------------------------------------------------------------------------------
+File Target   : public/images/avatars/avatar-chhotu.png
+Aspect Ratio  : 1:1 (Square, Transparent Background)
+Role / Vibe   : Playful, smart, lovable youngest family member, curious and cute.
+
+[MIDJOURNEY / FLUX PROMPT]:
+Cute 3D Pixar claymorphism bust character avatar of an adorable younger Indian boy named Chhotu, cheerful big smile, wearing stylish round tortoiseshell glasses, big expressive curious eyes, neat playful parted black hair, wearing an emerald green and neon lime sporty t-shirt, cute miniature fluffy teddy bear patch on his sleeve, charming youthful facial features, soft gentle studio lighting, isolated on solid white transparent background, 3D mascot render, octane render, 8k --ar 1:1 --stylize 250 --v 6.0
+
+[DALL-E 3 PROMPT]:
+A charming 3D animated Pixar-style bust avatar of a smart and cheerful younger Indian boy named Chhotu. He wears cute round modern eyeglasses, has big curious eyes, neat black hair, and a happy playful smile. He is dressed in an emerald green t-shirt with neon lime trims. Clean rounded clay finish, warm studio lighting, centered portrait isolated on a solid transparent background.
+
+================================================================================
+SECTION 2: WELCOME / ONBOARDING HERO ILLUSTRATION
+================================================================================
+Replaces the plain icon at the top of the Welcome Gate on the root page (/).
+
+File Target   : public/images/hero/hero-family-house.png
+Aspect Ratio  : 4:3 or 16:9 (Transparent or Dark Background)
+Purpose       : Shows a miniature high-tech family home floating with money flow.
+
+[MIDJOURNEY / FLUX PROMPT]:
+Stunning 3D isometric miniature modern family home floating on a smooth rounded pedestal island, glowing neon lime green (#D4F835) window accents, translucent glass roof skylight, cute gold Indian Rupee coins (₹) floating gracefully in an orbit around the house, miniature cute green piggy bank in the garden, tiny glowing bar charts and digital shields rising like holographic projections, tiny stylized pastel trees, twilight dark atmosphere with vibrant neon lime and emerald volumetric glow, claymorphic 3D blender render, ray tracing, ultra-clean UI hero art, 8k --ar 16:9 --stylize 300 --v 6.0
+
+[DALL-E 3 PROMPT]:
+A beautiful 3D isometric illustration of a modern miniature family house floating on a clean rounded base. The home features warm glowing windows with neon lime highlights and a stylish glass sunroom. Floating around the house are stylized 3D gold Rupee coins, a miniature ceramic piggy bank, and tiny holographic financial growth bar charts. The scene has a sleek dark aesthetic with soft volumetric neon lime and turquoise lighting, smooth claymorphism finish, isolated on a solid background suitable for a hero banner.
+
+================================================================================
+SECTION 3: 8 EXPENSE CATEGORY 3D BADGES
+================================================================================
+Replaces generic outline icons on Category pills, transaction rows, and filters.
+Format: 1:1 Square (1024x1024 px), Transparent PNG.
+
+--------------------------------------------------------------------------------
+3.1 GROCERIES & SUPERMARKET
+--------------------------------------------------------------------------------
+File Target   : public/images/categories/cat-groceries.png
+[PROMPT]:
+Cute 3D isometric grocery shopping basket made of matte emerald green silicone, overflowing with fresh artisan bread baguette, milk bottle, vibrant red tomato, broccoli, and a shiny crisp green apple with water droplets, soft studio lighting, smooth claymorphic aesthetic, isolated on transparent background, high-end 3D app icon, octane render, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+3.2 HOUSING & SOCIETY MAINTENANCE
+--------------------------------------------------------------------------------
+File Target   : public/images/categories/cat-housing.png
+[PROMPT]:
+Cute 3D isometric miniature modern residential apartment and house with a sky-blue angled roof, neat front door with tiny brass handle, glowing warm yellow lights from the windows, tiny potted plant on the doorstep, smooth pastel clay finish, isolated on transparent background, 3D real-estate finance icon, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+3.3 ELECTRICITY & UTILITIES
+--------------------------------------------------------------------------------
+File Target   : public/images/categories/cat-utilities.png
+[PROMPT]:
+Futuristic cute 3D electric thunderbolt combined with a glowing smart lightbulb, electric neon lime (#D4F835) and amber sparks radiating outward, glossy transparent glass bulb with glowing filament, matte metallic golden base, isolated on transparent background, high-tech 3D utility icon, ray-traced reflections, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+3.4 DINING & FOOD DELIVERY
+--------------------------------------------------------------------------------
+File Target   : public/images/categories/cat-dining.png
+[PROMPT]:
+Delicious cute 3D isometric food delivery feast, featuring a juicy gourmet burger with sesame bun, crispy golden french fries in a red paper carton, and a drink cup with a striped straw, warm appetizing colors, smooth rounded claymorphism style, isolated on transparent background, 3D food asset, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+3.5 TRANSPORT & FUEL
+--------------------------------------------------------------------------------
+File Target   : public/images/categories/cat-transport.png
+[PROMPT]:
+Cute 3D miniature modern electric crossover hatchback car in metallic electric-violet and silver, with a sleek glowing neon fuel-nozzle and charging cable plugged into its side, glossy toy-like car chassis, black rubber tires, isolated on transparent background, 3D mobility vehicle icon, octane render, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+3.6 SUBSCRIPTIONS & OTT ENTERTAINMENT
+--------------------------------------------------------------------------------
+File Target   : public/images/categories/cat-entertainment.png
+[PROMPT]:
+Cute 3D retro-futuristic television set in matte deep purple with rounded corners, a bright holographic cyan and lime 3D 'Play' button floating out of the screen, floating musical notes and film reel icons, soft studio glow, isolated on transparent background, 3D digital entertainment icon, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+3.7 HEALTHCARE & MEDICINES
+--------------------------------------------------------------------------------
+File Target   : public/images/categories/cat-healthcare.png
+[PROMPT]:
+Cute 3D medical first-aid kit in pure white and pastel red cross, paired with an oversized shiny pharmaceutical capsule pill with a tiny glowing crimson heart inside, glass and matte clay textures, soft clean reflections, isolated on transparent background, 3D health and pharmacy icon, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+3.8 EDUCATION & TUITION
+--------------------------------------------------------------------------------
+File Target   : public/images/categories/cat-education.png
+[PROMPT]:
+Cute 3D midnight-blue academic graduation cap (mortarboard) with a golden silk tassel, resting elegantly atop a neat stack of colorful pastel textbooks, a cute sharpened wooden pencil lying beside it, soft studio lighting, isolated on transparent background, 3D educational icon, 8k --ar 1:1
+
+================================================================================
+SECTION 4: EMPTY STATE / CLEAN SLATE ILLUSTRATIONS
+================================================================================
+These elevate zero-data states when expenses, budgets, or money logs are empty.
+Format: 16:9 or 4:3 Widescreen (1920x1080 px), Transparent / Vignette PNG.
+
+--------------------------------------------------------------------------------
+4.1 EMPTY EXPENSE LEDGER ("No Expenses Recorded Yet")
+--------------------------------------------------------------------------------
+File Target   : public/images/empty/empty-expenses.png
+[PROMPT]:
+Clean 3D isometric empty state illustration for a finance app, featuring an elegant blank paper receipt roll uncurling on a sleek graphite tablet, a cute oversized magnifying glass with glass refraction hovering above, floating miniature coin outlines, subtle neon lime accents, soft ambient shadows, isolated on transparent background, minimal 3D UI art, 8k --ar 16:9
+
+--------------------------------------------------------------------------------
+4.2 EMPTY BUDGET PLANNER ("No Budgets Set Yet")
+--------------------------------------------------------------------------------
+File Target   : public/images/empty/empty-budgets.png
+[PROMPT]:
+Charming 3D clay illustration of a cute ceramic mint-green piggy bank with cheerful eyes, standing next to a striped goal-post target flag, a few scattered shiny gold coins on the floor waiting to be deposited, soft neon lime ambient rim light, isolated on transparent background, friendly financial budgeting empty state graphic, 8k --ar 16:9
+
+--------------------------------------------------------------------------------
+4.3 EMPTY INFLOW LOG ("No Money Received Yet")
+--------------------------------------------------------------------------------
+File Target   : public/images/empty/empty-inflow.png
+[PROMPT]:
+3D isometric illustration of a heavy circular futuristic bank vault door swinging wide open with sparkling warm golden light pouring out from within, a cute 3D origami paper airplane made of emerald currency notes flying forward, sleek metallic titanium textures, neon lime accents, isolated on transparent background, 8k --ar 16:9
+
+================================================================================
+SECTION 5: FEATURE CARDS & DASHBOARD HIGHLIGHTS
+================================================================================
+Special visual assets for the interactive widgets on the Dashboard.
+
+--------------------------------------------------------------------------------
+5.1 QUICK TRANSFER CASH BEAM
+--------------------------------------------------------------------------------
+File Target   : public/images/features/transfer-beam.png
+Aspect Ratio  : 1:1 Square
+[PROMPT]:
+Dynamic 3D illustration of a sleek black metallic smartphone sending a glowing digital beam of golden Indian Rupee coins (₹) and neon lime (#D4F835) lightning trails into a receiving digital card, futuristic instant payment visual, holographic particles, octane render, isolated on dark transparent background, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+5.2 CLOUD SECURITY & BACKUP SHIELD
+--------------------------------------------------------------------------------
+File Target   : public/images/features/security-shield.png
+Aspect Ratio  : 1:1 Square
+[PROMPT]:
+Futuristic 3D security shield with a thick frosted-glass body and a glowing neon lime (#D4F835) titanium checkmark in the center, surrounded by a subtle rotating orbital ring with a tiny golden padlock, ray tracing, studio lighting, isolated on transparent background, high-end fintech trust badge, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+5.3 SAFE DAILY SPEND FUEL GAUGE
+--------------------------------------------------------------------------------
+File Target   : public/images/features/fuel-gauge.png
+Aspect Ratio  : 1:1 Square
+[PROMPT]:
+Cute 3D speedometer fuel gauge made of matte dark titanium, with an electric neon lime needle pointing towards the safe green zone, glowing digital Rupee symbol (₹) at the center hub, floating tiny stars and sparkles, 3D dashboard financial indicator, isolated on transparent background, 8k --ar 1:1
+
+================================================================================
+SECTION 6: LANGUAGE SELECTOR 3D BADGES
+================================================================================
+Replaces flat emoji flags (🇬🇧, 🇮🇳, 💬) in the Welcome screen & Top Header.
+Format: 1:1 Square (512x512 px), Transparent PNG.
+
+--------------------------------------------------------------------------------
+6.1 ENGLISH BADGE (🇬🇧)
+--------------------------------------------------------------------------------
+File Target   : public/images/flags/lang-en.png
+[PROMPT]:
+Cute 3D spherical glossy bubble badge featuring the United Kingdom Union Jack flag, thick high-gloss crystal epoxy dome surface, subtle 3D rim reflection, smooth rounded aesthetic, isolated on transparent background, 3D internationalization icon, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+6.2 HINDI BADGE (🇮🇳)
+--------------------------------------------------------------------------------
+File Target   : public/images/flags/lang-hi.png
+[PROMPT]:
+Cute 3D spherical glossy bubble badge featuring the Indian national tricolor flag (saffron, white, emerald green) with the navy blue Ashoka Chakra wheel clearly detailed in the center, shiny crystal epoxy dome finish, isolated on transparent background, 3D language icon, 8k --ar 1:1
+
+--------------------------------------------------------------------------------
+6.3 HINGLISH BADGE (💬)
+--------------------------------------------------------------------------------
+File Target   : public/images/flags/lang-hinglish.png
+[PROMPT]:
+Cute 3D pair of overlapping chat speech bubbles, one bubble in bright electric neon lime with a white Hindi character 'अ' and the second bubble in deep graphite with an English letter 'A', glowing glossy candy finish, soft drop shadow, isolated on transparent background, 3D translation asset, 8k --ar 1:1
+
+================================================================================
+SECTION 7: FOLDER STRUCTURE & INTEGRATION INSTRUCTIONS
+================================================================================
+
+When your image generation tool creates the images, organize them inside the 
+`public/images/` directory of this Next.js project as follows:
+
+public/
+  └── images/
+        ├── avatars/
+        │     ├── avatar-amit.png      <-- Amit 👑 (Admin)
+        │     ├── avatar-ajay.png      <-- Ajay 🌸 (Member)
+        │     └── avatar-chhotu.png    <-- Chhotu 🧸 (Member)
+        ├── hero/
+        │     └── hero-family-house.png<-- Welcome Gate Header
+        ├── categories/
+        │     ├── cat-groceries.png
+        │     ├── cat-housing.png
+        │     ├── cat-utilities.png
+        │     ├── cat-dining.png
+        │     ├── cat-transport.png
+        │     ├── cat-entertainment.png
+        │     ├── cat-healthcare.png
+        │     └── cat-education.png
+        ├── empty/
+        │     ├── empty-expenses.png
+        │     ├── empty-budgets.png
+        │     └── empty-inflow.png
+        ├── features/
+        │     ├── transfer-beam.png
+        │     ├── security-shield.png
+        │     └── fuel-gauge.png
+        └── flags/
+              ├── lang-en.png
+              ├── lang-hi.png
+              └── lang-hinglish.png
+
+NEXT.JS COMPONENT CODE EXAMPLE:
+To display any generated image, use Next.js <Image />:
+```tsx
+import Image from "next/image";
+
+<Image
+  src="/images/avatars/avatar-amit.png"
+  alt="Amit"
+  width={64}
+  height={64}
+  className="rounded-2xl shadow-md object-contain"
+/>
+```
+
+================================================================================
+END OF PROMPTS FILE — READY FOR GENERATION!
+================================================================================
