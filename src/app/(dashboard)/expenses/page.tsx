@@ -15,12 +15,8 @@ import {
   Zap,
   Building,
   Receipt,
-  Plus,
   X,
-  Sparkles,
   CheckCircle2,
-  Shield,
-  Star,
   User,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
@@ -181,7 +177,6 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [currentUser, setCurrentUser] = useState<HouseholdMember | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Global Ledger Statistics
@@ -274,7 +269,6 @@ export default function ExpensesPage() {
   useEffect(() => {
     DataService.getCategories().then(setCategories);
     DataService.getMembers().then(setMembers);
-    setCurrentUser(DataService.getCurrentUser());
     refreshStats();
   }, [refreshStats]);
 
@@ -338,86 +332,34 @@ export default function ExpensesPage() {
   return (
     <AppLayout
       title="Expenses Ledger"
+      subtitle="Real-time household outflows, merchant records & payment splits"
       onAddExpenseClick={() => setIsAddOpen(true)}
+      headerActions={
+        <button
+          type="button"
+          onClick={handleExportCSV}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white dark:bg-[#16171B] hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 border border-slate-200/80 dark:border-white/10 font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
+        >
+          <Download className="h-3.5 w-3.5" />
+          <span>Export CSV</span>
+        </button>
+      }
     >
       <div className="space-y-6 select-none max-w-7xl mx-auto pb-12">
         {/* Floating Notification Toast */}
         {toastMessage && (
-          <div className="fixed top-20 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#0E0E10] text-[#E2F937] border border-[#E2F937]/40 shadow-2xl text-xs font-black tracking-wide animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="fixed top-20 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#16171B] text-[#E2F937] border border-[#E2F937]/40 shadow-2xl text-xs font-black tracking-wide animate-in fade-in slide-in-from-top-4 duration-300">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-[#E2F937]" />
             <span>{toastMessage}</span>
           </div>
         )}
 
-        {/* 1. Top Hero Banner in Obsidian Noir (#0E0E10) with Electric Lime (#E2F937) Accent */}
-        <div className="rounded-[32px] bg-[#0E0E10] text-white p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-2xl border border-white/5 relative overflow-hidden">
-          {/* Subtle glow background */}
-          <div className="absolute -right-16 -top-16 w-64 h-64 bg-[#E2F937]/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="flex items-start sm:items-center gap-4 z-10">
-            <div className="h-14 w-14 rounded-2xl bg-[#E2F937] text-black flex items-center justify-center font-black shadow-lg shrink-0">
-              <Receipt className="h-7 w-7 stroke-[2.2]" />
-            </div>
-
-            <div>
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Family Expenses Ledger
-                </h1>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E2F937]/20 text-[#E2F937] text-[11px] font-extrabold uppercase tracking-wider border border-[#E2F937]/30">
-                  <span className="h-2 w-2 rounded-full bg-[#E2F937] animate-pulse" />
-                  Supabase Live Cloud
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-                Real-time household outflows, merchant records, Cash &amp; digital payment tracking
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons & Member Badge */}
-          <div className="flex flex-wrap items-center gap-3 z-10">
-            {currentUser && (
-              <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300">
-                <span className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center">
-                  {currentUser.role === "admin" || currentUser.display_name === "Amit" ? (
-                    <Shield className="h-2.5 w-2.5 text-[#E2F937]" />
-                  ) : currentUser.display_name === "Ajay" ? (
-                    <Star className="h-2.5 w-2.5 text-emerald-400" />
-                  ) : (
-                    <Sparkles className="h-2.5 w-2.5 text-amber-400" />
-                  )}
-                </span>
-                <span>{currentUser.display_name}</span>
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              className="flex items-center gap-1.5 px-4 py-3 rounded-full bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700/60 font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-sm active:scale-95"
-            >
-              <Download className="h-4 w-4" />
-              <span>Export CSV</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsAddOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#E2F937]/20 transition-all cursor-pointer active:scale-95"
-            >
-              <Plus className="h-4 w-4 stroke-[3]" />
-              <span>+ Log Expense</span>
-            </button>
-          </div>
-        </div>
-
         {/* 2. 4 Metric Cards: Total Spent, Cash Spent, This Month, Average Per Expense */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Spent */}
-          <div className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:border-border transition-all">
+          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 Total Expenses
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -432,24 +374,24 @@ export default function ExpensesPage() {
             </div>
 
             <div className="mt-3">
-              <div className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white tracking-tight">
                 {formatINR(stats.totalSpent)}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
                 {stats.totalTransactions} recorded transaction{stats.totalTransactions === 1 ? "" : "s"}
               </p>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center justify-between text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-semibold text-rose-600 dark:text-rose-400">
               <span>Lifetime Outflow</span>
               <span>All Members</span>
             </div>
           </div>
 
           {/* Card 2: Cash Expenses (Default Focus) */}
-          <div className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:border-border transition-all">
+          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border-2 border-[#E2F937]/50 dark:border-[#E2F937]/30 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-[#E2F937]">
                 Cash Spent (Default)
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -464,26 +406,26 @@ export default function ExpensesPage() {
             </div>
 
             <div className="mt-3">
-              <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-[#E2F937] tracking-tight">
                 {formatINR(stats.cashSpent)}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
                 {stats.totalSpent > 0
                   ? `${Math.round((stats.cashSpent / stats.totalSpent) * 100)}% of household outflows`
                   : "0% of outflows"}
               </p>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center justify-between text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
               <span>Physical Cash</span>
               <span>Verified Ledger</span>
             </div>
           </div>
 
           {/* Card 3: This Month Outflow */}
-          <div className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:border-border transition-all">
+          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 This Month
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -498,15 +440,15 @@ export default function ExpensesPage() {
             </div>
 
             <div className="mt-3">
-              <div className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white tracking-tight">
                 {formatINR(stats.thisMonthSpent)}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
                 Current billing cycle
               </p>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center justify-between text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-semibold text-amber-600 dark:text-amber-400">
               <span>Active Month</span>
               <span>
                 {new Date().toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
@@ -515,9 +457,9 @@ export default function ExpensesPage() {
           </div>
 
           {/* Card 4: Average Per Transaction */}
-          <div className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:border-border transition-all">
+          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 Avg. Ticket Size
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -532,15 +474,15 @@ export default function ExpensesPage() {
             </div>
 
             <div className="mt-3">
-              <div className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white tracking-tight">
                 {formatINR(stats.avgSpent)}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
                 Per expense transaction
               </p>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
               <span>Normal Distribution</span>
               <span>Smart Safe Zone</span>
             </div>
@@ -560,8 +502,8 @@ export default function ExpensesPage() {
                   setPage(1);
                 }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${isSelected
-                  ? "bg-[#E2F937] text-black shadow-md shadow-[#E2F937]/20 ring-2 ring-black/10 scale-102"
-                  : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  ? "bg-[#E2F937] text-black shadow-md shadow-[#E2F937]/20 border-transparent font-extrabold scale-102"
+                  : "bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800"
                   }`}
               >
                 {tab.image && (
@@ -583,7 +525,7 @@ export default function ExpensesPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Search Bar */}
           <div className="relative flex-1 max-w-lg">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-500" />
             <input
               type="text"
               value={search}
@@ -592,7 +534,7 @@ export default function ExpensesPage() {
                 setPage(1);
               }}
               placeholder="Search merchant, notes, or amount..."
-              className="w-full pl-11 pr-10 py-2.5 rounded-full bg-card border border-border/80 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-2xs"
+              className="w-full pl-11 pr-10 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-xs"
             />
             {search && (
               <button
@@ -601,7 +543,7 @@ export default function ExpensesPage() {
                   setSearch("");
                   setPage(1);
                 }}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -618,7 +560,7 @@ export default function ExpensesPage() {
                   setSelectedCategory(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-xs font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-xs"
               >
                 <option value="all">All Categories</option>
                 {categories.map((c) => (
@@ -627,7 +569,7 @@ export default function ExpensesPage() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
             </div>
 
             {/* Member Dropdown Pill */}
@@ -638,7 +580,7 @@ export default function ExpensesPage() {
                   setSelectedMember(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-xs font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-xs"
               >
                 <option value="all">All Family Members</option>
                 {members.map((m) => (
@@ -647,7 +589,7 @@ export default function ExpensesPage() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
             </div>
 
             {/* Sort Dropdown */}
@@ -658,14 +600,14 @@ export default function ExpensesPage() {
                   setSortBy(e.target.value as any);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-xs font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-xs"
               >
                 <option value="date_desc">Newest First</option>
                 <option value="date_asc">Oldest First</option>
                 <option value="amount_desc">Highest Amount</option>
                 <option value="amount_asc">Lowest Amount</option>
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
             </div>
 
             {/* Reset Filters Pill */}
@@ -673,7 +615,7 @@ export default function ExpensesPage() {
               <button
                 type="button"
                 onClick={resetAllFilters}
-                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-secondary text-muted-foreground hover:text-foreground text-xs font-bold transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors cursor-pointer shadow-xs"
               >
                 <X className="h-3.5 w-3.5" />
                 <span>Reset</span>
@@ -683,11 +625,11 @@ export default function ExpensesPage() {
         </div>
 
         {/* 5. Desktop Ledger Table (md:block) */}
-        <div className="hidden md:block rounded-[32px] bg-card border border-border/80 shadow-sm overflow-hidden">
+        <div className="hidden md:block rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-border/70 text-[11px] font-black uppercase tracking-wider text-muted-foreground bg-secondary/30">
+                <tr className="border-b border-slate-200/80 dark:border-white/10 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-zinc-400 bg-slate-50 dark:bg-zinc-900/60">
                   <th className="py-4 px-6">DATE</th>
                   <th className="py-4 px-6">MERCHANT &amp; DETAILS</th>
                   <th className="py-4 px-6">CATEGORY</th>
@@ -894,7 +836,7 @@ export default function ExpensesPage() {
           </div>
 
           {/* Pagination Footer */}
-          <div className="py-4 px-6 border-t border-border/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-muted-foreground bg-secondary/10">
+          <div className="py-4 px-6 border-t border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500 dark:text-zinc-400 bg-slate-50/50 dark:bg-zinc-900/30">
             <div>
               Showing {expenses.length > 0 ? (page - 1) * pageSize + 1 : 0}-
               {Math.min(page * pageSize, totalCount)} of {totalCount} transactions
@@ -905,7 +847,7 @@ export default function ExpensesPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="p-2 rounded-full hover:bg-secondary disabled:opacity-30 cursor-pointer transition-colors"
+                className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 cursor-pointer transition-colors"
                 title="Previous Page"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -921,7 +863,7 @@ export default function ExpensesPage() {
                     onClick={() => setPage(pageNum)}
                     className={`h-8 w-8 rounded-full flex items-center justify-center font-black text-xs transition-all cursor-pointer ${isActive
                       ? "bg-[#E2F937] text-black shadow-md shadow-[#E2F937]/20 scale-105"
-                      : "hover:bg-secondary text-foreground"
+                      : "hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-800 dark:text-zinc-200"
                       }`}
                   >
                     {pageNum}
@@ -933,7 +875,7 @@ export default function ExpensesPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="p-2 rounded-full hover:bg-secondary disabled:opacity-30 cursor-pointer transition-colors"
+                className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 cursor-pointer transition-colors"
                 title="Next Page"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -945,12 +887,12 @@ export default function ExpensesPage() {
         {/* 6. Mobile Cards View (md:hidden) */}
         <div className="md:hidden space-y-3">
           {isLoading ? (
-            <div className="py-12 text-center text-sm text-muted-foreground">
+            <div className="py-12 text-center text-sm text-slate-500 dark:text-zinc-400">
               <div className="h-6 w-6 rounded-full border-2 border-[#E2F937] border-t-transparent animate-spin mx-auto mb-2" />
               Loading expenses...
             </div>
           ) : expenses.length === 0 ? (
-            <div className="rounded-[28px] bg-card border border-border p-8 text-center text-sm text-muted-foreground flex flex-col items-center justify-center">
+            <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-8 text-center text-sm text-slate-500 dark:text-zinc-400 flex flex-col items-center justify-center">
               <div className="w-24 h-18 relative mb-2 flex items-center justify-center">
                 <Image
                   src={EMPTY_STATE_IMAGES.expenses}
@@ -960,7 +902,7 @@ export default function ExpensesPage() {
                   className="object-contain drop-shadow-md"
                 />
               </div>
-              <p className="font-bold text-foreground text-xs">No matching expenses found</p>
+              <p className="font-bold text-slate-900 dark:text-white text-xs">No matching expenses found</p>
             </div>
           ) : (
             expenses.map((expense) => {
@@ -971,7 +913,7 @@ export default function ExpensesPage() {
               return (
                 <div
                   key={expense.id}
-                  className="rounded-[24px] bg-card border border-border/80 p-4.5 shadow-xs space-y-3.5"
+                  className="rounded-[24px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-4.5 shadow-xs space-y-3.5"
                 >
                   {/* Top row: Category icon, merchant & amount */}
                   <div className="flex items-start justify-between gap-3">

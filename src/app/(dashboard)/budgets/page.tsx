@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  PieChart,
   Plus,
   SlidersHorizontal,
   ArrowDownLeft,
@@ -51,7 +50,6 @@ export default function BudgetsPage() {
   const [summary, setSummary] = useState<MoneySummary | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
-  const [currentUser, setCurrentUser] = useState<HouseholdMember | null>(null);
   const [allReceived, setAllReceived] = useState<ReceivedMoney[]>([]);
   const [historyFilter, setHistoryFilter] = useState<"all" | "Cash" | "UPI" | "Bank Transfer">("all");
 
@@ -92,7 +90,6 @@ export default function BudgetsPage() {
       setCategories(cats);
       setMembers(mems);
       setAllReceived(received);
-      setCurrentUser(DataService.getCurrentUser());
 
       if (mems.length > 0 && !fromMemberId) {
         setFromMemberId(mems[0].user_id || mems[0].id);
@@ -219,214 +216,156 @@ export default function BudgetsPage() {
 
 
   return (
-    <AppLayout title="Budget &amp; Inflow Planner">
+    <AppLayout
+      title="Budget & Inflow Planner"
+      subtitle="Manage funds received from family members, category-level spending limits & balance"
+      headerActions={
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsBudgetModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white dark:bg-[#16171B] hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 border border-slate-200/80 dark:border-white/10 font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5 text-[#E2F937]" />
+            <span>Set Category Limit</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsReceiveModalOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#E2F937] hover:bg-[#d6ed2f] text-slate-950 font-black text-xs transition-all cursor-pointer shadow-xs active:scale-95 border border-black/10"
+          >
+            <Plus className="h-3.5 w-3.5 stroke-[3]" />
+            <span>+ Receive Money</span>
+          </button>
+        </div>
+      }
+    >
       <div className="max-w-6xl mx-auto space-y-6 pb-16 select-none">
         {/* Floating Success Toast */}
         {toastMsg && (
-          <div className="fixed top-20 right-6 z-50 p-3.5 px-5 rounded-2xl bg-[#0E0E10] text-[#E2F937] border border-[#E2F937]/40 shadow-2xl flex items-center gap-2.5 text-xs font-bold animate-in fade-in slide-in-from-top-4">
+          <div className="fixed top-20 right-6 z-50 p-3.5 px-5 rounded-2xl bg-[#16171B] text-[#E2F937] border border-[#E2F937]/40 shadow-2xl flex items-center gap-2.5 text-xs font-bold animate-in fade-in slide-in-from-top-4">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-[#E2F937]" />
             <span>{toastMsg}</span>
           </div>
         )}
 
-        {/* Top Hero Banner in Obsidian Noir with Electric Lime & Live Pulse */}
-        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#0E0E10] via-[#141418] to-[#1a1a22] border border-border/80 text-white p-6 sm:p-8 shadow-2xl card-hover-lift">
-          {/* Ambient background glows */}
-          <div className="absolute -top-24 -left-24 w-60 h-60 bg-[#E2F937]/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Top Bar: Title, Active Member & Status Pill */}
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 pb-6 border-b border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="h-14 w-14 rounded-2xl bg-[#E2F937] text-black font-black text-xl flex items-center justify-center shadow-lg shadow-[#E2F937]/20 shrink-0 transform transition-transform hover:scale-105 overflow-hidden">
-                  {currentUser && (MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.image || getMemberAvatar(undefined, currentUser.display_name)?.image) ? (
-                    <Image
-                      src={
-                        MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.image ||
-                        getMemberAvatar(undefined, currentUser.display_name)!.image
-                      }
-                      alt={currentUser.display_name || "Active Member"}
-                      width={56}
-                      height={56}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <PieChart className="h-7 w-7 stroke-[2.2]" />
-                  )}
-                </div>
-                {currentUser && (MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.roleBadge || getMemberAvatar(undefined, currentUser.display_name)?.roleBadge) && (
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0E0E10] rounded-full p-0.5 border border-white/20 shadow-xs flex items-center justify-center">
-                    <Image
-                      src={
-                        MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.roleBadge ||
-                        getMemberAvatar(undefined, currentUser.display_name)!.roleBadge
-                      }
-                      alt="Role Badge"
-                      width={16}
-                      height={16}
-                      className="object-contain"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-                    Family Budget &amp; Inflow Planner
-                  </h2>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#E2F937]/20 text-[#E2F937] border border-[#E2F937]/40">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#E2F937] animate-ping" />
-                    Live Supabase Tracker
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-xl">
-                  Manage funds received from family members, category-level spending limits, and remaining balance.
-                </p>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="flex items-center flex-wrap gap-2.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsReceiveModalOpen(true)}
-                className="flex items-center gap-2 px-5 py-3 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#E2F937]/20 transition-all cursor-pointer active:scale-95"
-              >
-                <Plus className="h-4 w-4 stroke-[3]" />
-                <span>+ Receive Money</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsBudgetModalOpen(true)}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer border border-white/10 shadow-xs active:scale-95"
-              >
-                <SlidersHorizontal className="h-4 w-4 text-[#E2F937]" />
-                <span>Set Category Limit</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 4 Hero Metric Cards: Received, Spent, Left, Safe Spend */}
-          <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-6">
-            {/* 1. Total Received */}
-            <div className="rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 p-4 transition-all duration-200">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                  Money Received
-                </span>
-                <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
-                  <Image
-                    src={METRIC_3D_ICONS.received}
-                    alt="Money Received"
-                    width={32}
-                    height={32}
-                    className="object-contain drop-shadow"
-                  />
-                </div>
-              </div>
-              <div className="mt-2 text-xl sm:text-2xl font-black text-emerald-400 font-mono tracking-tight">
-                +{formatINR(totalReceived)}
-              </div>
-              <p className="text-[11px] text-zinc-400 mt-1">
-                From {summary?.byMember?.length || 0} family member{summary?.byMember?.length === 1 ? "" : "s"}
-              </p>
-            </div>
-
-            {/* 2. Total Spent */}
-            <div className="rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 p-4 transition-all duration-200">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                  Total Spent
-                </span>
-                <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
-                  <Image
-                    src={METRIC_3D_ICONS.spent}
-                    alt="Total Spent"
-                    width={32}
-                    height={32}
-                    className="object-contain drop-shadow"
-                  />
-                </div>
-              </div>
-              <div className="mt-2 text-xl sm:text-2xl font-black text-rose-300 font-mono tracking-tight">
-                -{formatINR(totalSpent)}
-              </div>
-              <p className="text-[11px] text-zinc-400 mt-1">
-                {spendPercent}% of received funds utilized
-              </p>
-            </div>
-
-            {/* 3. Money Left / Balance */}
-            <div className="rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 p-4 transition-all duration-200">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                  Remaining Pool
-                </span>
-                <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
-                  <Image
-                    src={METRIC_3D_ICONS.wallet}
-                    alt="Remaining Pool"
-                    width={32}
-                    height={32}
-                    className="object-contain drop-shadow"
-                  />
-                </div>
-              </div>
-              <div className={`mt-2 text-xl sm:text-2xl font-black font-mono tracking-tight ${moneyLeft >= 0 ? "text-[#E2F937]" : "text-rose-400"}`}>
-                {formatINR(moneyLeft)}
-              </div>
-              <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden mt-2">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${moneyLeft >= 0 ? "bg-[#E2F937]" : "bg-rose-500"}`}
-                  style={{ width: `${Math.min(remainingPercent, 100)}%` }}
+        {/* 4 Hero Bento Metric Cards: Received, Spent, Left, Safe Spend */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 1. Total Received */}
+          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+                Money Received
+              </span>
+              <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src={METRIC_3D_ICONS.received}
+                  alt="Money Received"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow"
                 />
               </div>
             </div>
-
-            {/* 4. Safe Daily Spend */}
-            <div className="rounded-2xl bg-[#E2F937]/10 hover:bg-[#E2F937]/15 border border-[#E2F937]/30 p-4 transition-all duration-200">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-[#E2F937] uppercase tracking-wider flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" />
-                  <span>Safe Daily Spend</span>
-                </span>
-                <div className="h-8 w-8 relative flex items-center justify-center shrink-0">
-                  <Image
-                    src={METRIC_3D_ICONS.fuelGauge}
-                    alt="Safe Daily Spend"
-                    width={32}
-                    height={32}
-                    className="object-contain drop-shadow"
-                  />
-                </div>
-              </div>
-              <div className="mt-2 text-xl sm:text-2xl font-black text-[#E2F937] font-mono tracking-tight">
-                {formatINR(safeDailySpend)}/day
-              </div>
-              <p className="text-[11px] text-zinc-300 mt-1 font-semibold">
-                {remainingPercent}% available surplus
-              </p>
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">
+              +{formatINR(totalReceived)}
             </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+              From {summary?.byMember?.length || 0} family member{summary?.byMember?.length === 1 ? "" : "s"}
+            </p>
+          </div>
+
+          {/* 2. Total Spent */}
+          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+                Total Spent
+              </span>
+              <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src={METRIC_3D_ICONS.spent}
+                  alt="Total Spent"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow"
+                />
+              </div>
+            </div>
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400 font-mono tracking-tight">
+              -{formatINR(totalSpent)}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+              {spendPercent}% of received funds utilized
+            </p>
+          </div>
+
+          {/* 3. Money Left / Balance */}
+          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border-2 border-[#E2F937]/50 dark:border-[#E2F937]/30 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold text-emerald-600 dark:text-[#E2F937] uppercase tracking-wider">
+                Remaining Pool
+              </span>
+              <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src={METRIC_3D_ICONS.wallet}
+                  alt="Remaining Pool"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow"
+                />
+              </div>
+            </div>
+            <div className={`mt-3 text-2xl sm:text-3xl font-black font-mono tracking-tight ${moneyLeft >= 0 ? "text-[#E2F937] text-slate-950 dark:text-[#E2F937]" : "text-rose-400"}`}>
+              {formatINR(moneyLeft)}
+            </div>
+            <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden mt-2">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${moneyLeft >= 0 ? "bg-[#E2F937]" : "bg-rose-500"}`}
+                style={{ width: `${Math.min(remainingPercent, 100)}%` }}
+              />
+            </div>
+          </div>
+
+          {/* 4. Safe Daily Spend */}
+          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold text-slate-900 dark:text-[#E2F937] uppercase tracking-wider flex items-center gap-1">
+                <Sparkles className="h-3 w-3 text-[#E2F937]" />
+                <span>Safe Daily Spend</span>
+              </span>
+              <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src={METRIC_3D_ICONS.fuelGauge}
+                  alt="Safe Daily Spend"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow"
+                />
+              </div>
+            </div>
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white font-mono tracking-tight">
+              {formatINR(safeDailySpend)}/day
+            </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-semibold">
+              {remainingPercent}% available surplus
+            </p>
           </div>
         </div>
 
         {/* Section 1: Family Contributors Breakdown ("Who gave money & how much") */}
-        <div className="rounded-[28px] bg-card border border-border/80 p-6 sm:p-8 shadow-xs space-y-5 card-hover-lift">
+        <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-6 sm:p-8 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
+                <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                   <User className="h-5 w-5 text-[#E2F937]" />
                   <span>Family Money Contributions</span>
                 </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
                   {summary?.byMember?.length || 0} Members
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                 Breakdown of allowances and pocket money received from Father, Mother, and siblings
               </p>
             </div>
@@ -434,7 +373,7 @@ export default function BudgetsPage() {
             <button
               type="button"
               onClick={() => setIsReceiveModalOpen(true)}
-              className="px-4 py-2 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto shadow-xs"
+              className="px-4 py-2 rounded-full bg-[#16171B] dark:bg-zinc-800 text-[#E2F937] hover:bg-zinc-800 text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto shadow-xs border border-white/10"
             >
               + Record Inflow
             </button>
@@ -456,7 +395,7 @@ export default function BudgetsPage() {
                 return (
                   <div
                     key={m.memberId || idx}
-                    className="p-4.5 rounded-2xl bg-secondary/40 border border-border/80 hover:border-[#E2F937]/60 transition-all space-y-3 relative group"
+                    className="p-4.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 hover:border-[#E2F937]/60 transition-all space-y-3 relative group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -472,7 +411,7 @@ export default function BudgetsPage() {
                           ) : (
                             <span>{m.memberName.charAt(0).toUpperCase()}</span>
                           )}
-                          <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-card rounded-full p-0.5 border border-border shadow-2xs flex items-center justify-center">
+                          <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-white dark:bg-[#16171B] rounded-full p-0.5 border border-slate-200 dark:border-white/10 shadow-2xs flex items-center justify-center">
                             {m.memberName === "Amit" ? (
                               <Shield className="h-2.5 w-2.5 text-[#E2F937]" />
                             ) : m.memberName === "Ajay" ? (
@@ -483,29 +422,29 @@ export default function BudgetsPage() {
                           </span>
                         </div>
                         <div>
-                          <p className="font-extrabold text-sm text-foreground">
+                          <p className="font-extrabold text-sm text-slate-900 dark:text-white">
                             {m.memberName}
                           </p>
-                          <span className="text-[11px] font-semibold text-muted-foreground">
+                          <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
                             {m.relationship || "Family Member"}
                           </span>
                         </div>
                       </div>
 
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#E2F937]/20 text-[#0E0E10] dark:text-[#E2F937] text-xs font-black">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#E2F937]/25 text-slate-900 dark:text-[#E2F937] text-xs font-black">
                         {Math.round(m.percentage)}%
                       </span>
                     </div>
 
                     <div className="pt-1 flex items-baseline justify-between">
-                      <span className="text-xs font-semibold text-muted-foreground">Given This Month</span>
-                      <span className="text-base sm:text-lg font-black text-foreground font-mono">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Given This Month</span>
+                      <span className="text-base sm:text-lg font-black text-slate-900 dark:text-white font-mono">
                         +{formatINR(m.amount)}
                       </span>
                     </div>
 
                     {/* Progress track */}
-                    <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                    <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
                       <div
                         className="h-full bg-[#E2F937] rounded-full transition-all duration-700"
                         style={{ width: `${Math.min(m.percentage, 100)}%` }}
@@ -516,7 +455,7 @@ export default function BudgetsPage() {
               })}
             </div>
           ) : (
-            <div className="p-8 rounded-2xl bg-secondary/20 border border-dashed border-border text-center space-y-3 flex flex-col items-center">
+            <div className="p-8 rounded-2xl bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 text-center space-y-3 flex flex-col items-center">
               <div className="w-24 h-20 relative flex items-center justify-center mb-1">
                 <Image
                   src={EMPTY_STATE_IMAGES.inflow}
@@ -527,10 +466,10 @@ export default function BudgetsPage() {
                 />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-foreground">
+                <p className="font-extrabold text-sm text-slate-900 dark:text-white">
                   No Family Money Inflow Recorded Yet
                 </p>
-                <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
                   Click the button below to record funds or an allowance from Amit, Ajay, or Chhotu. Cash is set as default!
                 </p>
               </div>
@@ -546,19 +485,19 @@ export default function BudgetsPage() {
         </div>
 
         {/* Section 2: Category Money Allocation & Remaining Report */}
-        <div className="rounded-[28px] bg-card border border-border/80 p-6 sm:p-8 shadow-xs space-y-6 card-hover-lift">
+        <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-6 sm:p-8 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
+                <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                   <Tag className="h-5 w-5 text-[#E2F937]" />
                   <span>Category Allocation &amp; Remaining Balance</span>
                 </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
                   {summary?.byCategory?.length || 0} Categories
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                 Select a category to view allocated funds vs. actual expenses and money left
               </p>
             </div>
@@ -566,7 +505,7 @@ export default function BudgetsPage() {
             <button
               type="button"
               onClick={() => setIsBudgetModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary hover:bg-secondary/80 text-foreground text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto border border-border"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto border border-slate-200 dark:border-zinc-700"
             >
               <SlidersHorizontal className="h-3.5 w-3.5 text-[#E2F937]" />
               <span>Adjust Category Budget</span>
@@ -579,8 +518,8 @@ export default function BudgetsPage() {
               type="button"
               onClick={() => setSelectedCategoryFilter("all")}
               className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${selectedCategoryFilter === "all"
-                ? "bg-[#E2F937] text-black shadow-xs scale-102"
-                : "bg-secondary/70 text-muted-foreground hover:text-foreground"
+                ? "bg-[#E2F937] text-black shadow-xs font-black"
+                : "bg-slate-100 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700"
                 }`}
             >
               All Categories ({summary?.byCategory?.length || 0})
@@ -592,8 +531,8 @@ export default function BudgetsPage() {
                 type="button"
                 onClick={() => setSelectedCategoryFilter(cat.categoryId)}
                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${selectedCategoryFilter === cat.categoryId
-                  ? "bg-[#E2F937] text-black shadow-xs scale-102"
-                  : "bg-secondary/70 text-muted-foreground hover:text-foreground"
+                  ? "bg-[#E2F937] text-black shadow-xs font-black"
+                  : "bg-slate-100 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700"
                   }`}
               >
                 <span
@@ -617,12 +556,12 @@ export default function BudgetsPage() {
               return (
                 <div
                   key={c.categoryId}
-                  className="p-5.5 rounded-2xl bg-secondary/30 border border-border/70 hover:border-[#E2F937]/70 transition-all space-y-4"
+                  className="p-5.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 hover:border-[#E2F937]/70 transition-all space-y-4"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className="h-11 w-11 rounded-2xl flex items-center justify-center font-bold text-lg shadow-2xs overflow-hidden border border-border/80 bg-secondary/80 shrink-0 relative"
+                        className="h-11 w-11 rounded-2xl flex items-center justify-center font-bold text-lg shadow-2xs overflow-hidden border border-slate-200/80 dark:border-white/10 bg-white dark:bg-zinc-800 shrink-0 relative"
                         style={{
                           backgroundColor: `${c.color || "#3b82f6"}25`,
                           color: c.color || "#3b82f6",
@@ -637,14 +576,14 @@ export default function BudgetsPage() {
                             className="object-contain p-0.5"
                           />
                         ) : (
-                          <Tag className="h-5 w-5 text-muted-foreground" />
+                          <Tag className="h-5 w-5 text-slate-400" />
                         )}
                       </div>
                       <div>
-                        <h4 className="font-extrabold text-sm text-foreground">
+                        <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">
                           {c.categoryName}
                         </h4>
-                        <span className="text-[11px] text-muted-foreground font-medium">
+                        <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
                           {allocated > 0 ? `${percentUsed}% utilized` : "No specific limit"}
                         </span>
                       </div>
@@ -656,7 +595,7 @@ export default function BudgetsPage() {
                         ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20"
                         : left > 0
                           ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                          : "bg-secondary text-muted-foreground"
+                          : "bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400"
                         }`}
                     >
                       {isOver ? "Over Budget" : left > 0 ? `${formatINR(left)} Left` : "Zero Balance"}
@@ -664,18 +603,18 @@ export default function BudgetsPage() {
                   </div>
 
                   {/* Numbers Grid: Allocated | Spent | Left */}
-                  <div className="grid grid-cols-3 gap-2 p-3.5 rounded-2xl bg-card border border-border/60 text-center shadow-2xs">
+                  <div className="grid grid-cols-3 gap-2 p-3.5 rounded-2xl bg-white dark:bg-[#16171B] border border-slate-200/70 dark:border-white/10 text-center shadow-2xs">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                         Allocated
                       </p>
-                      <p className="text-xs sm:text-sm font-black text-foreground font-mono mt-0.5">
+                      <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-mono mt-0.5">
                         {formatINR(allocated)}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                         Spent
                       </p>
                       <p className="text-xs sm:text-sm font-black text-rose-500 font-mono mt-0.5">
@@ -684,7 +623,7 @@ export default function BudgetsPage() {
                     </div>
 
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                         Money Left
                       </p>
                       <p
@@ -698,14 +637,14 @@ export default function BudgetsPage() {
 
                   {/* Dual Segmented Progress Bar */}
                   <div className="space-y-1">
-                    <div className="h-2.5 w-full rounded-full bg-secondary overflow-hidden flex">
+                    <div className="h-2.5 w-full rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden flex">
                       <div
                         className={`h-full transition-all duration-500 ${isOver ? "bg-rose-500" : percentUsed > 80 ? "bg-amber-400" : "bg-[#E2F937]"
                           }`}
                         style={{ width: `${percentUsed}%` }}
                       />
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-muted-foreground font-semibold">
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-zinc-400 font-semibold">
                       <span>Spent: {formatINR(spent)}</span>
                       <span>Target: {formatINR(allocated)}</span>
                     </div>
@@ -735,33 +674,33 @@ export default function BudgetsPage() {
         </div>
 
         {/* Section 3: Recent Money Received History Ledger with Filter Tabs */}
-        <div className="rounded-[28px] bg-card border border-border/80 p-6 sm:p-8 shadow-xs space-y-5 card-hover-lift">
+        <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-6 sm:p-8 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
+                <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                   <Banknote className="h-5 w-5 text-emerald-500" />
                   <span>Recent Inflow History • Received Ledger</span>
                 </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
                   {allReceived.length} Records
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                 Every allowance or fund received from family members with payment method and notes
               </p>
             </div>
 
             {/* Filter Tabs for History */}
-            <div className="flex items-center gap-1.5 self-start sm:self-auto bg-secondary/80 rounded-full p-1 border border-border">
+            <div className="flex items-center gap-1.5 self-start sm:self-auto bg-slate-100 dark:bg-zinc-800/80 rounded-full p-1 border border-slate-200/70 dark:border-white/10">
               {(["all", "Cash", "UPI", "Bank Transfer"] as const).map((filterVal) => (
                 <button
                   key={filterVal}
                   type="button"
                   onClick={() => setHistoryFilter(filterVal)}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${historyFilter === filterVal
-                    ? "bg-[#E2F937] text-black shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-[#E2F937] text-black shadow-xs font-black"
+                    : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                 >
                   {filterVal === "all" ? "All" : filterVal}
@@ -779,7 +718,7 @@ export default function BudgetsPage() {
                 return (
                   <div
                     key={entry.id}
-                    className="p-4 rounded-2xl bg-secondary/30 border border-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-secondary/50 transition-all group"
+                    className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-100/70 dark:hover:bg-white/10 transition-all group"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div className="h-11 w-11 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg shrink-0 shadow-2xs overflow-hidden relative">

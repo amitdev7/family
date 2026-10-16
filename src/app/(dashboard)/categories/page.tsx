@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Tags,
   Search,
   ShoppingCart,
   Utensils,
@@ -19,7 +18,7 @@ import { DataService } from "@/lib/data-service";
 import { Category, Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 import Image from "next/image";
-import { CATEGORY_IMAGES, NAV_3D_ICONS } from "@/lib/assets";
+import { CATEGORY_IMAGES } from "@/lib/assets";
 
 const COLOR_SWATCHES = [
   { name: "Lime", hex: "#E2F937", bg: "bg-[#E2F937]" },
@@ -107,41 +106,15 @@ export default function CategoriesPage() {
   return (
     <AppLayout title="Category Center">
       <div className="max-w-xl mx-auto space-y-6 select-none">
-        {/* Top Header Bar matching Figma image_20261014_111556.jpg */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 relative flex items-center justify-center shrink-0">
-              <Image
-                src={NAV_3D_ICONS.categories}
-                alt="Category Center"
-                width={36}
-                height={36}
-                className="object-contain"
-              />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-              Category Center
-            </h2>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => document.getElementById("new-cat-input")?.focus()}
-            className="px-3.5 py-1.5 rounded-full border border-border text-xs font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer"
-          >
-            + New Category
-          </button>
-        </div>
-
-        {/* Search Input matching Figma */}
+        {/* Search Input */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search categories..."
-            className="w-full pl-11 pr-4 py-2.5 rounded-full bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+            className="w-full pl-11 pr-4 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200 dark:border-white/10 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-2xs"
           />
         </div>
 
@@ -153,7 +126,7 @@ export default function CategoriesPage() {
             return (
               <div
                 key={i}
-                className="rounded-[28px] bg-card border border-border/80 p-5 shadow-xs flex flex-col items-center text-center space-y-3"
+                className="rounded-[24px] bg-white dark:bg-[#16171B] border border-slate-200 dark:border-white/10 p-5 shadow-sm flex flex-col items-center text-center space-y-3 hover:border-[#E2F937]/50 transition-all"
               >
                 {/* 3D Category Badge */}
                 <div
@@ -209,9 +182,9 @@ export default function CategoriesPage() {
           })}
         </div>
 
-        {/* Color & Icon Picker Card matching Figma */}
-        <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs space-y-5">
-          <h3 className="font-extrabold text-base text-foreground">
+        {/* Color & Icon Picker Card */}
+        <div className="rounded-[24px] bg-white dark:bg-[#16171B] border border-slate-200 dark:border-white/10 p-6 shadow-sm space-y-5">
+          <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
             Color &amp; Icon Picker
           </h3>
 

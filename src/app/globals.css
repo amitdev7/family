@@ -107,25 +107,19 @@
 
 /* Micro-animations and high-fidelity UI styles */
 @keyframes floatSlow {
-
-  0%,
-  100% {
+  0%, 100% {
     transform: translateY(0px);
   }
-
   50% {
     transform: translateY(-6px);
   }
 }
 
 @keyframes pulseGlow {
-
-  0%,
-  100% {
+  0%, 100% {
     opacity: 0.6;
     transform: scale(1);
   }
-
   50% {
     opacity: 0.9;
     transform: scale(1.04);
@@ -136,7 +130,6 @@
   0% {
     background-position: -200% 0;
   }
-
   100% {
     background-position: 200% 0;
   }
@@ -151,10 +144,12 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(212, 248, 53, 0.15) 50%,
-      rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(212, 248, 53, 0.15) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
   background-size: 200% 100%;
   animation: shimmer 2.5s infinite;
 }
@@ -171,52 +166,4 @@
 
 .dark .card-hover-lift:hover {
   box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 248, 53, 0.15);
-}
-
-/* Masterpiece UI/UX Design System Tokens & Utilities */
-.striped-hazard-track {
-  background: repeating-linear-gradient(-45deg,
-      #D2F226,
-      #D2F226 4px,
-      #BCE010 4px,
-      #BCE010 8px);
-}
-
-.hatched-card-pattern {
-  background: repeating-linear-gradient(-45deg,
-      rgba(255, 255, 255, 0.08),
-      rgba(255, 255, 255, 0.08) 4px,
-      rgba(255, 255, 255, 0.16) 4px,
-      rgba(255, 255, 255, 0.16) 8px);
-}
-
-.lime-glow {
-  box-shadow: 0 0 16px rgba(226, 249, 55, 0.45);
-}
-
-.lime-card-glow {
-  box-shadow: 0 8px 24px -4px rgba(226, 249, 55, 0.35);
-}
-
-/* Double-Bezel Hardware Outer Shell */
-.double-bezel-outer {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.4) 100%);
-  box-shadow:
-    0 40px 100px -20px rgba(15, 23, 42, 0.18),
-    0 20px 40px -15px rgba(15, 23, 42, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.9);
-}
-
-/* Fluid hardware-accelerated motion */
-.transition-fluid {
-  transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-.active-press {
-  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-.active-press:active {
-  transform: scale(0.97);
-}
 }

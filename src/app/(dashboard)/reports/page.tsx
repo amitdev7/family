@@ -243,7 +243,7 @@ export default function ReportsPage() {
                 return (
                   <div
                     key={spender.userId || i}
-                    className="rounded-[24px] bg-card border border-border/80 p-4 shadow-xs flex flex-col items-center text-center space-y-2 hover:border-border transition-colors"
+                    className="rounded-[24px] bg-white dark:bg-[#16171B] border border-slate-200 dark:border-white/10 p-4 shadow-xs flex flex-col items-center text-center space-y-2 hover:border-[#E2F937]/50 transition-colors"
                   >
                     {/* Circular Avatar */}
                     <div className="relative">
@@ -295,7 +295,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Section 2: Monthly Comparison Table */}
-        <div className="rounded-[28px] bg-card border border-border/80 p-6 shadow-xs space-y-4">
+        <div className="rounded-[24px] bg-white dark:bg-[#16171B] border border-slate-200 dark:border-white/10 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-base text-foreground">
               Monthly Comparison

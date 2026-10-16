@@ -15,6 +15,8 @@ interface AppLayoutProps {
   onAddExpenseClick?: () => void;
   className?: string;
   hideHeader?: boolean;
+  headerActions?: React.ReactNode;
+  hideAddExpense?: boolean;
 }
 
 export function AppLayout({
@@ -24,6 +26,8 @@ export function AppLayout({
   onAddExpenseClick,
   className = "",
   hideHeader = false,
+  headerActions,
+  hideAddExpense = false,
 }: AppLayoutProps) {
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const pathname = usePathname();
@@ -47,10 +51,10 @@ export function AppLayout({
 
   return (
     <div className="min-h-screen bg-[#E5EDF4] dark:bg-[#090A0C] p-2 sm:p-3 md:p-5 flex flex-col font-sans text-slate-900 dark:text-zinc-100 antialiased selection:bg-[#E2F937] selection:text-black">
-      {/* Outer Double-Bezel Frame */}
+      {/* Outer Double-Bezel Concentric Frame */}
       <div className="flex-1 bg-[#EEF3F8] dark:bg-[#111317] rounded-[24px] sm:rounded-[36px] p-3 sm:p-5 md:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-slate-200/80 dark:border-white/5 flex flex-col min-h-[calc(100vh-1.5rem)]">
 
-        {/* Top Masterpiece Island Navbar */}
+        {/* Top Masterpiece Island Floating Navbar */}
         <MasterpieceNav onAddExpenseClick={handleAddExpense} />
 
         {/* Dynamic Page Header */}
@@ -88,14 +92,17 @@ export function AppLayout({
 
             {/* Top Right Quick Actions */}
             <div className="flex items-center gap-2.5 self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={handleAddExpense}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#E2F937] text-slate-950 font-black text-xs shadow-[0_4px_16px_rgba(226,249,55,0.45)] hover:bg-[#d6ed2f] hover:shadow-[0_6px_22px_rgba(226,249,55,0.6)] active:scale-95 transition-all cursor-pointer border border-black/10"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                <span>+ Add Expense</span>
-              </button>
+              {headerActions}
+              {!hideAddExpense && (
+                <button
+                  type="button"
+                  onClick={handleAddExpense}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#E2F937] text-slate-950 font-black text-xs shadow-[0_4px_16px_rgba(226,249,55,0.45)] hover:bg-[#d6ed2f] hover:shadow-[0_6px_22px_rgba(226,249,55,0.6)] active:scale-95 transition-all cursor-pointer border border-black/10"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>+ Add Expense</span>
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -120,4 +127,3 @@ export function AppLayout({
     </div>
   );
 }
-

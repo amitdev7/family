@@ -30,93 +30,20 @@ export function MasterpieceDarkBento({
   onExpenseClick,
 }: MasterpieceDarkBentoProps) {
   const [activeTab, setActiveTab] = useState<"all" | "groceries" | "recent">("recent");
-
-  const fallbackExpenses: Expense[] = [
-    {
-      id: "exp-001",
-      household_id: "hh-default",
-      category_id: "cat-groceries",
-      amount: 4200,
-      description: "Nature's Basket Groceries",
-      expense_date: new Date(Date.now() - 2 * 3600000).toISOString(),
-      paid_by_user_id: "usr-amit",
-      created_by_user_id: "usr-amit",
-      payment_method: "UPI",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      notes: "Weekly organic veggies and fruits",
-    },
-    {
-      id: "exp-002",
-      household_id: "hh-default",
-      category_id: "cat-dining",
-      amount: 1850,
-      description: "Zomato Gourmet Dinner",
-      expense_date: new Date(Date.now() - 14 * 3600000).toISOString(),
-      paid_by_user_id: "usr-ajay",
-      created_by_user_id: "usr-ajay",
-      payment_method: "Credit Card",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      notes: "Family weekend dinner",
-    },
-    {
-      id: "exp-003",
-      household_id: "hh-default",
-      category_id: "cat-transport",
-      amount: 2500,
-      description: "Indian Oil Petrol & Fuel",
-      expense_date: new Date(Date.now() - 28 * 3600000).toISOString(),
-      paid_by_user_id: "usr-amit",
-      created_by_user_id: "usr-amit",
-      payment_method: "Cash",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      notes: "Full tank for family car",
-    },
-    {
-      id: "exp-004",
-      household_id: "hh-default",
-      category_id: "cat-utilities",
-      amount: 1299,
-      description: "Airtel Fiber Broadband",
-      expense_date: new Date(Date.now() - 48 * 3600000).toISOString(),
-      paid_by_user_id: "usr-chhotu",
-      created_by_user_id: "usr-chhotu",
-      payment_method: "UPI",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      notes: "Monthly Gigabit fiber bill",
-    },
-    {
-      id: "exp-005",
-      household_id: "hh-default",
-      category_id: "cat-healthcare",
-      amount: 850,
-      description: "Apollo Pharmacy First Aid",
-      expense_date: new Date(Date.now() - 72 * 3600000).toISOString(),
-      paid_by_user_id: "usr-ajay",
-      created_by_user_id: "usr-ajay",
-      payment_method: "Net Banking",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      notes: "Multivitamins & medicines",
-    },
-  ];
-
-  const sourceExpenses = expenses.length > 0 ? expenses : fallbackExpenses;
-  const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(null);
+  const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(
+    expenses[0]?.id || "exp-default"
+  );
   const [isSettled, setIsSettled] = useState(false);
   const [settledFeedback, setSettledFeedback] = useState(false);
 
   // Filter expenses according to tab
-  const filteredExpenses = sourceExpenses.filter((e) => {
-    const title = e.description || "";
+  const filteredExpenses = expenses.filter((e) => {
     if (activeTab === "groceries") {
+      const desc = (e.description || (e as any).title || "").toLowerCase();
       return (
         e.category_id?.toLowerCase().includes("grocer") ||
-        title.toLowerCase().includes("grocer") ||
-        title.toLowerCase().includes("food")
+        desc.includes("grocer") ||
+        desc.includes("food")
       );
     }
     if (activeTab === "recent") {
@@ -125,35 +52,87 @@ export function MasterpieceDarkBento({
     return true;
   });
 
-  const displayList = filteredExpenses.slice(0, 6);
+  const defaultDemoStream: Expense[] = [
+    {
+      id: "exp-001",
+      household_id: "hh-demo",
+      category_id: "cat-groceries",
+      amount: 4200,
+      description: "Nature's Basket Groceries",
+      expense_date: new Date().toISOString(),
+      paid_by_user_id: "usr-amit",
+      payment_method: "UPI",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_by_user_id: "usr-amit",
+    },
+    {
+      id: "exp-002",
+      household_id: "hh-demo",
+      category_id: "cat-dining",
+      amount: 1850,
+      description: "Zomato Gourmet Dinner",
+      expense_date: new Date(Date.now() - 86400000).toISOString(),
+      paid_by_user_id: "usr-ajay",
+      payment_method: "Card",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_by_user_id: "usr-ajay",
+    },
+    {
+      id: "exp-003",
+      household_id: "hh-demo",
+      category_id: "cat-transport",
+      amount: 2500,
+      description: "Indian Oil Petrol & Fuel",
+      expense_date: new Date(Date.now() - 86400000).toISOString(),
+      paid_by_user_id: "usr-amit",
+      payment_method: "Cash",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_by_user_id: "usr-amit",
+    },
+    {
+      id: "exp-004",
+      household_id: "hh-demo",
+      category_id: "cat-utilities",
+      amount: 1299,
+      description: "Airtel Fiber Broadband",
+      expense_date: new Date(Date.now() - 172800000).toISOString(),
+      paid_by_user_id: "usr-chhotu",
+      payment_method: "UPI",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_by_user_id: "usr-chhotu",
+    },
+    {
+      id: "exp-005",
+      household_id: "hh-demo",
+      category_id: "cat-health",
+      amount: 850,
+      description: "Apollo Pharmacy First Aid",
+      expense_date: new Date(Date.now() - 259200000).toISOString(),
+      paid_by_user_id: "usr-amit",
+      payment_method: "Bank",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_by_user_id: "usr-amit",
+    },
+  ];
+
+  const displayList =
+    filteredExpenses.length > 0 ? filteredExpenses.slice(0, 6) : defaultDemoStream;
 
   // Fallback demo expense if list is empty
-  const defaultDemoExpense: Expense = {
-    id: "exp-default",
-    household_id: "hh-default",
-    category_id: "cat-groceries",
-    amount: 4200,
-    description: "Nature's Basket Groceries",
-    expense_date: new Date().toISOString(),
-    paid_by_user_id: "usr-amit",
-    created_by_user_id: "usr-amit",
-    payment_method: "UPI",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    notes: "Organic vegetables, sourdough, almond milk & fresh fruits for the week.",
-  };
+  const defaultDemoExpense: Expense = displayList[0];
 
   const selectedExpense =
-    (selectedExpenseId ? sourceExpenses.find((e) => e.id === selectedExpenseId) : null) ||
+    expenses.find((e) => e.id === selectedExpenseId) ||
+    displayList.find((e) => e.id === selectedExpenseId) ||
     displayList[0] ||
     defaultDemoExpense;
 
-  const paidById =
-    selectedExpense.paid_by_user_id ||
-    (typeof selectedExpense.paid_by === "object"
-      ? selectedExpense.paid_by?.user_id || selectedExpense.paid_by?.id
-      : selectedExpense.paid_by);
-
+  const paidById = selectedExpense.paid_by_user_id || (typeof selectedExpense.paid_by === "object" ? selectedExpense.paid_by?.user_id || selectedExpense.paid_by?.id : (selectedExpense as any).paid_by);
   const paidByMember = members.find(
     (m) => (m.user_id || m.id) === paidById
   );
@@ -209,23 +188,21 @@ export function MasterpieceDarkBento({
           <button
             type="button"
             onClick={() => setActiveTab("all")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer ${
-              activeTab === "all"
-                ? "bg-white text-slate-950 shadow-md"
-                : "text-slate-400 hover:text-white"
-            }`}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer ${activeTab === "all"
+              ? "bg-white text-slate-950 shadow-md"
+              : "text-slate-400 hover:text-white"
+              }`}
           >
-            All Expenses ({sourceExpenses.length})
+            All Expenses ({expenses.length > 0 ? expenses.length : 34})
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("groceries")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer ${
-              activeTab === "groceries"
-                ? "bg-white text-slate-950 shadow-md"
-                : "text-slate-400 hover:text-white"
-            }`}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer ${activeTab === "groceries"
+              ? "bg-white text-slate-950 shadow-md"
+              : "text-slate-400 hover:text-white"
+              }`}
           >
             Groceries (3)
           </button>
@@ -233,11 +210,10 @@ export function MasterpieceDarkBento({
           <button
             type="button"
             onClick={() => setActiveTab("recent")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 ${
-              activeTab === "recent"
-                ? "bg-[#E2F937] text-slate-950 shadow-[0_0_15px_rgba(226,249,55,0.4)]"
-                : "text-slate-400 hover:text-white"
-            }`}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 ${activeTab === "recent"
+              ? "bg-[#E2F937] text-slate-950 shadow-[0_0_15px_rgba(226,249,55,0.4)]"
+              : "text-slate-400 hover:text-white"
+              }`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-pulse" />
             <span>Recent Outflow ({displayList.length})</span>
@@ -266,16 +242,16 @@ export function MasterpieceDarkBento({
               const itemPaidById =
                 item.paid_by_user_id ||
                 (typeof item.paid_by === "object"
-                  ? item.paid_by?.user_id || item.paid_by?.id
-                  : item.paid_by);
-
+                  ? (item.paid_by as any)?.user_id || (item.paid_by as any)?.id
+                  : item.paid_by) ||
+                "usr-amit";
               const itemMember = members.find(
                 (m) => (m.user_id || m.id) === itemPaidById
               );
-              const itemAvatar = MEMBER_AVATARS[itemPaidById || "usr-amit"];
+              const itemAvatar =
+                MEMBER_AVATARS[itemPaidById] || MEMBER_AVATARS["usr-amit"];
               const payBadge = getPaymentBadge(item.payment_method);
               const PayIcon = payBadge.icon;
-              const itemTitle = item.description || "Expense";
 
               return (
                 <div
@@ -284,11 +260,10 @@ export function MasterpieceDarkBento({
                     setSelectedExpenseId(item.id);
                     onExpenseClick?.(item);
                   }}
-                  className={`w-full text-left p-3.5 rounded-2xl transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 border ${
-                    isSelected
-                      ? "bg-[#5E778A] text-white border-white/30 shadow-lg scale-[1.01]"
-                      : "bg-white/5 hover:bg-white/10 text-slate-200 border-white/5"
-                  }`}
+                  className={`w-full text-left p-3.5 rounded-2xl transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 border ${isSelected
+                    ? "bg-[#5E778A] text-white border-white/30 shadow-lg scale-[1.01]"
+                    : "bg-white/5 hover:bg-white/10 text-slate-200 border-white/5"
+                    }`}
                 >
                   {/* Left: Avatar & Info */}
                   <div className="flex items-center gap-3 min-w-0">
@@ -323,7 +298,7 @@ export function MasterpieceDarkBento({
 
                     <div className="min-w-0">
                       <div className="font-extrabold text-sm truncate leading-tight">
-                        {itemTitle}
+                        {item.description || (item as any).title || "Household Outflow"}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[11px] opacity-75">
@@ -373,7 +348,7 @@ export function MasterpieceDarkBento({
               {/* Title & Total */}
               <div className="py-4">
                 <h4 className="text-xl font-black tracking-tight leading-tight">
-                  {selectedExpense.description || "Expense"}
+                  {selectedExpense.description || (selectedExpense as any).title || "Household Outflow"}
                 </h4>
                 <div className="flex items-center justify-between mt-2">
                   <div className="text-2xl sm:text-3xl font-black tracking-tight">
@@ -447,9 +422,8 @@ export function MasterpieceDarkBento({
                       {formatINR(splitAmount)}
                     </div>
                     <span
-                      className={`text-[9px] font-bold ${
-                        isSettled ? "text-emerald-300" : "text-[#E2F937]"
-                      }`}
+                      className={`text-[9px] font-bold ${isSettled ? "text-emerald-300" : "text-[#E2F937]"
+                        }`}
                     >
                       {isSettled ? "Settled" : "Pending"}
                     </span>

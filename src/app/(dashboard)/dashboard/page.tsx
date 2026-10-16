@@ -63,17 +63,23 @@ export default function DashboardPage() {
 
   // Filtered expenses list
   const filteredExpenses = allExpenses.filter((e) => {
-    if (selectedMemberId && (e.paid_by !== selectedMemberId)) return false;
+    const paidBy =
+      e.paid_by_user_id ||
+      (typeof e.paid_by === "object"
+        ? (e.paid_by as any)?.user_id || (e.paid_by as any)?.id
+        : (e as any).paid_by);
+    if (selectedMemberId && paidBy !== selectedMemberId) return false;
+    const itemTitle = e.description || (e as any).title || "";
     if (
       selectedCategory &&
       !e.category_id?.toLowerCase().includes(selectedCategory.toLowerCase()) &&
-      !e.title.toLowerCase().includes(selectedCategory.toLowerCase())
+      !itemTitle.toLowerCase().includes(selectedCategory.toLowerCase())
     ) {
       return false;
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchTitle = e.title.toLowerCase().includes(q);
+      const matchTitle = itemTitle.toLowerCase().includes(q);
       const matchNotes = e.notes?.toLowerCase().includes(q);
       const matchAmount = e.amount.toString().includes(q);
       if (!matchTitle && !matchNotes && !matchAmount) return false;
