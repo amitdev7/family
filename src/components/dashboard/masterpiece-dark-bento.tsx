@@ -123,7 +123,6 @@ export function MasterpieceDarkBento({
   const displayList =
     filteredExpenses.length > 0 ? filteredExpenses.slice(0, 6) : defaultDemoStream;
 
-  // Fallback demo expense if list is empty
   const defaultDemoExpense: Expense = displayList[0];
 
   const selectedExpense =
@@ -132,7 +131,13 @@ export function MasterpieceDarkBento({
     displayList[0] ||
     defaultDemoExpense;
 
-  const paidById = selectedExpense.paid_by_user_id || (typeof selectedExpense.paid_by === "object" ? selectedExpense.paid_by?.user_id || selectedExpense.paid_by?.id : (selectedExpense as any).paid_by);
+  const paidById =
+    selectedExpense.paid_by_user_id ||
+    (typeof selectedExpense.paid_by === "object"
+      ? selectedExpense.paid_by?.user_id || selectedExpense.paid_by?.id
+      : (selectedExpense as any).paid_by) ||
+    "usr-amit";
+
   const paidByMember = members.find(
     (m) => (m.user_id || m.id) === paidById
   );

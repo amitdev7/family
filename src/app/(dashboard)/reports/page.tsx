@@ -7,7 +7,7 @@ import { DataService } from "@/lib/data-service";
 import { HouseholdMember, DashboardMetrics, Category, Expense } from "@/lib/types";
 import { formatINR } from "@/lib/formatters";
 import Image from "next/image";
-import { MEMBER_AVATARS, NAV_3D_ICONS } from "@/lib/assets";
+import { MEMBER_AVATARS } from "@/lib/assets";
 
 const getMemberAvatar = (id?: string, name?: string) => {
   if (id && MEMBER_AVATARS[id]) return MEMBER_AVATARS[id];
@@ -176,40 +176,21 @@ export default function ReportsPage() {
   }
 
   return (
-    <AppLayout title="Reports & Analytics">
-      <div className="max-w-2xl mx-auto space-y-6 select-none pb-12">
-        {/* Top Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 relative flex items-center justify-center shrink-0">
-              <Image
-                src={NAV_3D_ICONS.reports}
-                alt="Reports & Analytics"
-                width={36}
-                height={36}
-                className="object-contain"
-              />
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-                Reports &amp; Analytics
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Real-time household financial breakdown and historical trends
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0E0E10] text-white hover:bg-zinc-800 text-xs font-bold cursor-pointer transition-colors shadow-xs active:scale-95"
-          >
-            <Printer className="h-3.5 w-3.5" />
-            <span>Printable View</span>
-          </button>
-        </div>
-
+    <AppLayout
+      title="Reports & Analytics"
+      subtitle="Real-time household financial breakdown and historical trends"
+      headerActions={
+        <button
+          type="button"
+          onClick={handlePrint}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200/90 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-700 text-xs font-bold cursor-pointer transition-colors shadow-2xs active:scale-95"
+        >
+          <Printer className="h-3.5 w-3.5" />
+          <span>Printable View</span>
+        </button>
+      }
+    >
+      <div className="max-w-4xl mx-auto space-y-6 select-none pb-12">
         {/* Section 1: Top Spenders by Member */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">

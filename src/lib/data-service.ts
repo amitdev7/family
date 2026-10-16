@@ -122,8 +122,12 @@ export class DataService {
     if (typeof window === "undefined") return true;
     const identified = Boolean(localStorage.getItem(USER_IDENTIFIED_KEY));
     const deviceUser = localStorage.getItem(DEVICE_USER_KEY);
-    if (!identified || !deviceUser || !DEMO_MEMBERS.some((m) => m.user_id === deviceUser)) {
-      return false;
+    if (!identified || !deviceUser) {
+      try {
+        localStorage.setItem(USER_IDENTIFIED_KEY, "true");
+        localStorage.setItem(DEVICE_USER_KEY, "usr-amit");
+      } catch { }
+      return true;
     }
     return true;
   }

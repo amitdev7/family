@@ -5,10 +5,6 @@ import {
   X,
   Calendar,
   UploadCloud,
-  Zap,
-  Banknote,
-  CreditCard,
-  Building,
   ChevronDown,
 } from "lucide-react";
 import Image from "next/image";

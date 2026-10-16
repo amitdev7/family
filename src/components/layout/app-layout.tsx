@@ -51,10 +51,10 @@ export function AppLayout({
 
   return (
     <div className="min-h-screen bg-[#E5EDF4] dark:bg-[#090A0C] p-2 sm:p-3 md:p-5 flex flex-col font-sans text-slate-900 dark:text-zinc-100 antialiased selection:bg-[#E2F937] selection:text-black">
-      {/* Outer Double-Bezel Concentric Frame */}
+      {/* Outer Double-Bezel Frame */}
       <div className="flex-1 bg-[#EEF3F8] dark:bg-[#111317] rounded-[24px] sm:rounded-[36px] p-3 sm:p-5 md:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-slate-200/80 dark:border-white/5 flex flex-col min-h-[calc(100vh-1.5rem)]">
 
-        {/* Top Masterpiece Island Floating Navbar */}
+        {/* Top Masterpiece Island Navbar */}
         <MasterpieceNav onAddExpenseClick={handleAddExpense} />
 
         {/* Dynamic Page Header */}
@@ -127,3 +127,4 @@ export function AppLayout({
     </div>
   );
 }
+

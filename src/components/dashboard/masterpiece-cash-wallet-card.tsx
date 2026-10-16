@@ -103,11 +103,10 @@ export function MasterpieceCashWalletCard({
               <div
                 key={c.id}
                 onClick={() => setActiveCardIndex(idx)}
-                className={`${c.bgColor} ${c.borderColor} border rounded-2xl p-3 flex flex-col justify-between h-28 relative cursor-pointer transition-all duration-200 shadow-sm active:scale-95 ${
-                  isSelected
-                    ? "ring-2 ring-offset-2 ring-slate-900 dark:ring-[#E2F937] dark:ring-offset-[#16171B] scale-[1.02]"
-                    : "opacity-85 hover:opacity-100"
-                }`}
+                className={`${c.bgColor} ${c.borderColor} border rounded-2xl p-3 flex flex-col justify-between h-28 relative cursor-pointer transition-all duration-200 shadow-sm active:scale-95 ${isSelected
+                  ? "ring-2 ring-offset-2 ring-slate-900 dark:ring-[#E2F937] dark:ring-offset-[#16171B] scale-[1.02]"
+                  : "opacity-85 hover:opacity-100"
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.pillBg}`}>
@@ -178,3 +177,4 @@ export function MasterpieceCashWalletCard({
     </div>
   );
 }
+

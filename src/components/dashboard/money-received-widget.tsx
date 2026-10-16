@@ -4,11 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Plus,
-  Wallet,
   Banknote,
   CheckCircle2,
-  Zap,
-  Building2,
   User,
 } from "lucide-react";
 import { DataService } from "@/lib/data-service";
