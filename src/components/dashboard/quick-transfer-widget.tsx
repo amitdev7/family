@@ -85,7 +85,7 @@ export function QuickTransferWidget({
             <h3 className="font-bold text-lg text-foreground tracking-tight">
               Quick Transfer
             </h3>
-            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#D4F835] text-black">
+            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#E2F937] text-black">
               Zero Fee
             </span>
           </div>
@@ -105,7 +105,7 @@ export function QuickTransferWidget({
                   type="button"
                   onClick={() => setSelectedId(person.id)}
                   className={`relative flex h-14 w-14 rounded-2xl items-center justify-center p-0.5 transition-all cursor-pointer ${isSelected
-                    ? "ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-105 shadow-md bg-secondary/80"
+                    ? "ring-3 ring-[#E2F937] ring-offset-2 ring-offset-card scale-105 shadow-md bg-secondary/80"
                     : "hover:scale-105 opacity-85 hover:opacity-100 bg-secondary/30"
                     }`}
                   title={`${person.name} (${person.role})`}
@@ -137,7 +137,7 @@ export function QuickTransferWidget({
                   )}
 
                   {isSelected && (
-                    <div className="absolute -top-1.5 -left-1.5 h-4 w-4 rounded-full bg-[#D4F835] text-black flex items-center justify-center shadow-xs">
+                    <div className="absolute -top-1.5 -left-1.5 h-4 w-4 rounded-full bg-[#E2F937] text-black flex items-center justify-center shadow-xs">
                       <Check className="h-2.5 w-2.5 stroke-[3]" />
                     </div>
                   )}
@@ -160,7 +160,7 @@ export function QuickTransferWidget({
               type="button"
               onClick={() => setAmount(val)}
               className={`flex-1 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer border ${amount === val
-                ? "bg-[#D4F835] text-black border-transparent shadow-xs"
+                ? "bg-[#E2F937] text-black border-transparent shadow-xs"
                 : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary"
                 }`}
             >
@@ -169,7 +169,7 @@ export function QuickTransferWidget({
           ))}
         </div>
 
-        <div className="flex items-center rounded-2xl bg-secondary/60 border border-border px-4 py-2.5 focus-within:ring-2 focus-within:ring-[#D4F835] focus-within:bg-card transition-all">
+        <div className="flex items-center rounded-2xl bg-secondary/60 border border-border px-4 py-2.5 focus-within:ring-2 focus-within:ring-[#E2F937] focus-within:bg-card transition-all">
           <span className="text-lg font-bold text-muted-foreground mr-1.5 font-mono">₹</span>
           <input
             type="number"
@@ -195,7 +195,7 @@ export function QuickTransferWidget({
           type="button"
           onClick={handleSend}
           disabled={isSending || !amount || parseFloat(amount) <= 0}
-          className="w-full py-3 rounded-full bg-[#D4F835] text-black hover:bg-[#c5ea28] font-black text-xs transition-all shadow-md shadow-[#D4F835]/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-98"
+          className="w-full py-3 rounded-full bg-[#E2F937] text-black hover:bg-[#c5ea28] font-black text-xs transition-all shadow-md shadow-[#E2F937]/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-98"
         >
           {isSending ? (
             <span>Sending to {selectedPerson.name}...</span>

@@ -59,10 +59,10 @@ function getMerchantMeta(description: string) {
     }
   }
   return {
-    bg: "bg-[#D4F835]/20 text-[#0E0E10] dark:text-[#D4F835]",
+    bg: "bg-[#E2F937]/20 text-[#0E0E10] dark:text-[#E2F937]",
     text: description.slice(0, 1).toUpperCase(),
     icon: Banknote,
-    colorHex: "#D4F835",
+    colorHex: "#E2F937",
   };
 }
 
@@ -127,7 +127,7 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${isActive
-                    ? "bg-[#D4F835] text-black shadow-xs scale-102"
+                    ? "bg-[#E2F937] text-black shadow-xs scale-102"
                     : "bg-secondary/70 text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }`}
                 >
@@ -155,7 +155,7 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
               <button
                 type="button"
                 onClick={() => setActiveTab("all")}
-                className="text-xs font-bold text-[#D4F835] underline mt-1 cursor-pointer"
+                className="text-xs font-bold text-[#E2F937] underline mt-1 cursor-pointer"
               >
                 Reset filter
               </button>
@@ -192,7 +192,7 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
                     </div>
 
                     <div className="min-w-0">
-                      <p className="font-bold text-sm text-foreground truncate group-hover:text-[#D4F835] transition-colors leading-snug">
+                      <p className="font-bold text-sm text-foreground truncate group-hover:text-[#E2F937] transition-colors leading-snug">
                         {expense.description}
                       </p>
                       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
@@ -268,8 +268,8 @@ export function RecentTransactionsWidget({ expenses }: RecentTransactionsWidgetP
           <div className="p-4 sm:p-6 space-y-5">
             {/* Amount Banner */}
             <div className="rounded-3xl bg-gradient-to-br from-[#0E0E10] to-[#1a1a20] text-white p-6 text-center shadow-xl border border-white/10 relative overflow-hidden">
-              <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#D4F835]/20 rounded-full blur-2xl" />
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4F835]/20 text-[#D4F835] text-xs font-bold mb-2">
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#E2F937]/20 rounded-full blur-2xl" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E2F937]/20 text-[#E2F937] text-xs font-bold mb-2">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <span>Verified Transaction</span>
               </div>

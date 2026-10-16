@@ -129,7 +129,7 @@ export function WhoAreYouModal({
               priority
             />
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4F835]/20 text-[#0E0E10] dark:text-[#D4F835] text-xs font-black mb-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E2F937]/20 text-[#0E0E10] dark:text-[#E2F937] text-xs font-black mb-1">
             <Sparkles className="h-3.5 w-3.5" />
             <span>{t.welcome}</span>
           </div>
@@ -145,7 +145,7 @@ export function WhoAreYouModal({
         <div className="space-y-2 p-3.5 rounded-2xl bg-secondary/50 border border-border/80">
           <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
             <span className="flex items-center gap-1.5 text-foreground font-extrabold">
-              <Globe className="h-3.5 w-3.5 text-[#D4F835]" />
+              <Globe className="h-3.5 w-3.5 text-[#E2F937]" />
               <span>{t.selectLanguage}</span>
             </span>
             <span className="text-[11px] font-medium">Language</span>
@@ -162,7 +162,7 @@ export function WhoAreYouModal({
                   type="button"
                   onClick={() => handleSelectLanguage(lang.id)}
                   className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer border ${isSelected
-                    ? "bg-[#D4F835] text-black border-transparent shadow-xs scale-102"
+                    ? "bg-[#E2F937] text-black border-transparent shadow-xs scale-102"
                     : "bg-card hover:bg-secondary/80 text-foreground border-border/80"
                     }`}
                 >
@@ -203,13 +203,13 @@ export function WhoAreYouModal({
                 onClick={() => setSelectedUserId(member.user_id)}
                 className={`relative flex flex-col items-center justify-between p-4 rounded-2xl transition-all duration-200 text-center cursor-pointer border ${style.border
                   } ${isSelected
-                    ? "bg-secondary/90 border-[#D4F835] ring-3 ring-[#D4F835] ring-offset-2 ring-offset-card scale-103 shadow-xl"
+                    ? "bg-secondary/90 border-[#E2F937] ring-3 ring-[#E2F937] ring-offset-2 ring-offset-card scale-103 shadow-xl"
                     : "bg-secondary/30 hover:bg-secondary/60 opacity-90 hover:opacity-100"
                   }`}
               >
                 {/* Selected Check Badge */}
                 {isSelected && (
-                  <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#D4F835] text-black flex items-center justify-center shadow-xs">
+                  <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#E2F937] text-black flex items-center justify-center shadow-xs">
                     <Check className="h-3.5 w-3.5 stroke-[3]" />
                   </div>
                 )}
@@ -269,7 +269,7 @@ export function WhoAreYouModal({
             <span>
               {t.continueAs} {selectedMemberName}
             </span>
-            <span className="text-[#D4F835]">→</span>
+            <span className="text-[#E2F937]">→</span>
           </button>
         </div>
       </div>

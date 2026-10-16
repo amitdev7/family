@@ -100,7 +100,7 @@ export function Sidebar({ className = "" }: { className?: string }) {
       {/* Bottom Section - Active Member Indicator */}
       <div className="flex flex-col items-center gap-2">
         <div
-          className="h-10 w-10 rounded-full bg-[#D4F835] text-black font-extrabold text-xs flex items-center justify-center shadow-md select-none overflow-hidden border border-white/20"
+          className="h-10 w-10 rounded-full bg-[#E2F937] text-black font-extrabold text-xs flex items-center justify-center shadow-md select-none overflow-hidden border border-white/20"
           title={`Active Member: ${currentUser?.display_name || "User"}`}
         >
           {MEMBER_AVATARS[currentUser?.user_id || currentUser?.id || ""]?.image ? (

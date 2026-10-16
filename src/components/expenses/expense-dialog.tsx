@@ -5,10 +5,6 @@ import {
   X,
   Calendar,
   UploadCloud,
-  Zap,
-  Banknote,
-  CreditCard,
-  Building,
   ChevronDown,
 } from "lucide-react";
 import Image from "next/image";
@@ -183,7 +179,7 @@ export function ExpenseDialog({
           <label className="block text-xs font-bold text-foreground mb-1.5">
             Amount (INR)
           </label>
-          <div className="flex items-center px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border focus-within:ring-2 focus-within:ring-[#D4F835] focus-within:bg-card">
+          <div className="flex items-center px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border focus-within:ring-2 focus-within:ring-[#E2F937] focus-within:bg-card">
             <span className="text-base font-extrabold text-foreground mr-2">₹</span>
             <input
               type="number"
@@ -220,7 +216,7 @@ export function ExpenseDialog({
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full appearance-none px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
+              className="w-full appearance-none px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937] cursor-pointer"
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -243,7 +239,7 @@ export function ExpenseDialog({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g. Weekly groceries from supermarket"
             required
-            className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+            className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
           />
         </div>
 
@@ -256,7 +252,7 @@ export function ExpenseDialog({
             <select
               value={paidByUserId}
               onChange={(e) => setPaidByUserId(e.target.value)}
-              className="w-full appearance-none pl-12 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] cursor-pointer"
+              className="w-full appearance-none pl-12 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937] cursor-pointer"
             >
               {members.map((m) => (
                 <option key={m.id} value={m.user_id}>
@@ -264,7 +260,7 @@ export function ExpenseDialog({
                 </option>
               ))}
             </select>
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-[#D4F835] text-black font-bold text-[10px] flex items-center justify-center pointer-events-none">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-[#E2F937] text-black font-bold text-[10px] flex items-center justify-center pointer-events-none">
               {initials}
             </div>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -286,7 +282,7 @@ export function ExpenseDialog({
                   type="button"
                   onClick={() => setPaymentMethod(pill.name)}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isSelected
-                    ? "bg-[#D4F835] text-black shadow-xs ring-2 ring-black/10 scale-102"
+                    ? "bg-[#E2F937] text-black shadow-xs ring-2 ring-black/10 scale-102"
                     : "bg-secondary/70 text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }`}
                 >
@@ -316,7 +312,7 @@ export function ExpenseDialog({
               type="date"
               value={expenseDate}
               onChange={(e) => setExpenseDate(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
             />
             <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           </div>
@@ -329,10 +325,10 @@ export function ExpenseDialog({
           </label>
           <div
             onClick={() => setReceiptFile(receiptFile ? null : "attached_receipt.pdf")}
-            className="rounded-2xl border-2 border-dashed border-[#D4F835] bg-[#D4F835]/5 hover:bg-[#D4F835]/10 p-4 text-center cursor-pointer transition-colors"
+            className="rounded-2xl border-2 border-dashed border-[#E2F937] bg-[#E2F937]/5 hover:bg-[#E2F937]/10 p-4 text-center cursor-pointer transition-colors"
           >
             <div className="flex flex-col items-center justify-center">
-              <UploadCloud className="h-6 w-6 text-[#D4F835] mb-1" />
+              <UploadCloud className="h-6 w-6 text-[#E2F937] mb-1" />
               <p className="font-bold text-xs text-foreground">
                 {receiptFile ? `Receipt attached: ${receiptFile}` : "Upload receipt"}
               </p>
@@ -353,7 +349,7 @@ export function ExpenseDialog({
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder="Add optional notes..."
-            className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+            className="w-full px-4 py-2.5 rounded-2xl bg-secondary/50 border border-border text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
           />
         </div>
 

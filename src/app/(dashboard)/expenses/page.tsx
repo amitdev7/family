@@ -18,8 +18,6 @@ import {
   Plus,
   X,
   Sparkles,
-  Calendar,
-  ArrowUpRight,
   CheckCircle2,
   Shield,
   Star,
@@ -345,19 +343,19 @@ export default function ExpensesPage() {
       <div className="space-y-6 select-none max-w-7xl mx-auto pb-12">
         {/* Floating Notification Toast */}
         {toastMessage && (
-          <div className="fixed top-20 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#0E0E10] text-[#D4F835] border border-[#D4F835]/40 shadow-2xl text-xs font-black tracking-wide animate-in fade-in slide-in-from-top-4 duration-300">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#D4F835]" />
+          <div className="fixed top-20 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#0E0E10] text-[#E2F937] border border-[#E2F937]/40 shadow-2xl text-xs font-black tracking-wide animate-in fade-in slide-in-from-top-4 duration-300">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#E2F937]" />
             <span>{toastMessage}</span>
           </div>
         )}
 
-        {/* 1. Top Hero Banner in Obsidian Noir (#0E0E10) with Electric Lime (#D4F835) Accent */}
+        {/* 1. Top Hero Banner in Obsidian Noir (#0E0E10) with Electric Lime (#E2F937) Accent */}
         <div className="rounded-[32px] bg-[#0E0E10] text-white p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-2xl border border-white/5 relative overflow-hidden">
           {/* Subtle glow background */}
-          <div className="absolute -right-16 -top-16 w-64 h-64 bg-[#D4F835]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -right-16 -top-16 w-64 h-64 bg-[#E2F937]/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="flex items-start sm:items-center gap-4 z-10">
-            <div className="h-14 w-14 rounded-2xl bg-[#D4F835] text-black flex items-center justify-center font-black shadow-lg shrink-0">
+            <div className="h-14 w-14 rounded-2xl bg-[#E2F937] text-black flex items-center justify-center font-black shadow-lg shrink-0">
               <Receipt className="h-7 w-7 stroke-[2.2]" />
             </div>
 
@@ -366,8 +364,8 @@ export default function ExpensesPage() {
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
                   Family Expenses Ledger
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4F835]/20 text-[#D4F835] text-[11px] font-extrabold uppercase tracking-wider border border-[#D4F835]/30">
-                  <span className="h-2 w-2 rounded-full bg-[#D4F835] animate-pulse" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E2F937]/20 text-[#E2F937] text-[11px] font-extrabold uppercase tracking-wider border border-[#E2F937]/30">
+                  <span className="h-2 w-2 rounded-full bg-[#E2F937] animate-pulse" />
                   Supabase Live Cloud
                 </span>
               </div>
@@ -383,7 +381,7 @@ export default function ExpensesPage() {
               <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300">
                 <span className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center">
                   {currentUser.role === "admin" || currentUser.display_name === "Amit" ? (
-                    <Shield className="h-2.5 w-2.5 text-[#D4F835]" />
+                    <Shield className="h-2.5 w-2.5 text-[#E2F937]" />
                   ) : currentUser.display_name === "Ajay" ? (
                     <Star className="h-2.5 w-2.5 text-emerald-400" />
                   ) : (
@@ -406,7 +404,7 @@ export default function ExpensesPage() {
             <button
               type="button"
               onClick={() => setIsAddOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#D4F835] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#D4F835]/20 transition-all cursor-pointer active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#E2F937]/20 transition-all cursor-pointer active:scale-95"
             >
               <Plus className="h-4 w-4 stroke-[3]" />
               <span>+ Log Expense</span>
@@ -562,7 +560,7 @@ export default function ExpensesPage() {
                   setPage(1);
                 }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${isSelected
-                  ? "bg-[#D4F835] text-black shadow-md shadow-[#D4F835]/20 ring-2 ring-black/10 scale-102"
+                  ? "bg-[#E2F937] text-black shadow-md shadow-[#E2F937]/20 ring-2 ring-black/10 scale-102"
                   : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                   }`}
               >
@@ -594,7 +592,7 @@ export default function ExpensesPage() {
                 setPage(1);
               }}
               placeholder="Search merchant, notes, or amount..."
-              className="w-full pl-11 pr-10 py-2.5 rounded-full bg-card border border-border/80 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835] shadow-2xs"
+              className="w-full pl-11 pr-10 py-2.5 rounded-full bg-card border border-border/80 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-2xs"
             />
             {search && (
               <button
@@ -620,7 +618,7 @@ export default function ExpensesPage() {
                   setSelectedCategory(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               >
                 <option value="all">All Categories</option>
                 {categories.map((c) => (
@@ -640,7 +638,7 @@ export default function ExpensesPage() {
                   setSelectedMember(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               >
                 <option value="all">All Family Members</option>
                 {members.map((m) => (
@@ -660,7 +658,7 @@ export default function ExpensesPage() {
                   setSortBy(e.target.value as any);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-card border border-border/80 text-xs font-bold text-foreground hover:bg-secondary/60 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               >
                 <option value="date_desc">Newest First</option>
                 <option value="date_asc">Oldest First</option>
@@ -704,7 +702,7 @@ export default function ExpensesPage() {
                   <tr>
                     <td colSpan={7} className="py-16 text-center text-sm text-muted-foreground">
                       <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="h-6 w-6 rounded-full border-2 border-[#D4F835] border-t-transparent animate-spin" />
+                        <div className="h-6 w-6 rounded-full border-2 border-[#E2F937] border-t-transparent animate-spin" />
                         <span>Loading transactions from Supabase...</span>
                       </div>
                     </td>
@@ -730,7 +728,7 @@ export default function ExpensesPage() {
                           <button
                             type="button"
                             onClick={resetAllFilters}
-                            className="mt-2 px-4 py-1.5 rounded-full bg-[#D4F835] text-black text-xs font-bold"
+                            className="mt-2 px-4 py-1.5 rounded-full bg-[#E2F937] text-black text-xs font-bold"
                           >
                             Reset All Filters
                           </button>
@@ -756,7 +754,7 @@ export default function ExpensesPage() {
                               {formatDate(expense.expense_date)}
                             </span>
                             {relativeBadge && (
-                              <span className="text-[10px] font-extrabold text-[#D4F835] bg-black/60 dark:bg-black/90 px-2 py-0.5 rounded-full w-fit mt-1">
+                              <span className="text-[10px] font-extrabold text-[#E2F937] bg-black/60 dark:bg-black/90 px-2 py-0.5 rounded-full w-fit mt-1">
                                 {relativeBadge}
                               </span>
                             )}
@@ -812,7 +810,7 @@ export default function ExpensesPage() {
                         {/* Paid By */}
                         <td className="py-4 px-6 whitespace-nowrap">
                           <div className="flex items-center gap-2.5">
-                            <div className="h-7 w-7 rounded-full overflow-hidden bg-[#D4F835] text-black font-black text-xs flex items-center justify-center shrink-0 shadow-xs relative">
+                            <div className="h-7 w-7 rounded-full overflow-hidden bg-[#E2F937] text-black font-black text-xs flex items-center justify-center shrink-0 shadow-xs relative">
                               {MEMBER_AVATARS[expense.paid_by?.user_id || ""]?.image ? (
                                 <Image
                                   src={MEMBER_AVATARS[expense.paid_by?.user_id || ""].image}
@@ -922,7 +920,7 @@ export default function ExpensesPage() {
                     type="button"
                     onClick={() => setPage(pageNum)}
                     className={`h-8 w-8 rounded-full flex items-center justify-center font-black text-xs transition-all cursor-pointer ${isActive
-                      ? "bg-[#D4F835] text-black shadow-md shadow-[#D4F835]/20 scale-105"
+                      ? "bg-[#E2F937] text-black shadow-md shadow-[#E2F937]/20 scale-105"
                       : "hover:bg-secondary text-foreground"
                       }`}
                   >
@@ -948,7 +946,7 @@ export default function ExpensesPage() {
         <div className="md:hidden space-y-3">
           {isLoading ? (
             <div className="py-12 text-center text-sm text-muted-foreground">
-              <div className="h-6 w-6 rounded-full border-2 border-[#D4F835] border-t-transparent animate-spin mx-auto mb-2" />
+              <div className="h-6 w-6 rounded-full border-2 border-[#E2F937] border-t-transparent animate-spin mx-auto mb-2" />
               Loading expenses...
             </div>
           ) : expenses.length === 0 ? (

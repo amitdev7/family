@@ -15,7 +15,7 @@ interface SpendingRadarChartProps {
 }
 
 const DEFAULT_AXES = [
-  { label: "Food", current: 0, avg: 0, amount: 0, color: "#D4F835" },
+  { label: "Food", current: 0, avg: 0, amount: 0, color: "#E2F937" },
   { label: "Bills", current: 0, avg: 0, amount: 0, color: "#38bdf8" },
   { label: "Shopping", current: 0, avg: 0, amount: 0, color: "#f43f5e" },
   { label: "Transport", current: 0, avg: 0, amount: 0, color: "#a855f7" },
@@ -118,7 +118,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
           <h3 className="font-bold text-lg text-foreground tracking-tight">
             Spending Radar
           </h3>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#D4F835]/20 text-black dark:text-[#D4F835]">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E2F937]/20 text-black dark:text-[#E2F937]">
             Analytics
           </span>
         </div>
@@ -129,7 +129,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
             type="button"
             onClick={() => setViewMode("radar")}
             className={`p-1.5 rounded-full transition-all cursor-pointer ${viewMode === "radar"
-              ? "bg-[#D4F835] text-black shadow-xs"
+              ? "bg-[#E2F937] text-black shadow-xs"
               : "text-muted-foreground hover:text-foreground"
               }`}
             title="Radar View"
@@ -140,7 +140,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
             type="button"
             onClick={() => setViewMode("donut")}
             className={`p-1.5 rounded-full transition-all cursor-pointer ${viewMode === "donut"
-              ? "bg-[#D4F835] text-black shadow-xs"
+              ? "bg-[#E2F937] text-black shadow-xs"
               : "text-muted-foreground hover:text-foreground"
               }`}
             title="Donut Breakdown View"
@@ -154,7 +154,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
       <div className="flex items-center justify-between text-xs py-1">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#D4F835]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#E2F937]" />
             <span className="text-muted-foreground font-medium text-[11px]">This month</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -204,7 +204,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
             {/* Electric Lime Polygon Fill (This Month) */}
             <polygon
               points={currentPoints}
-              fill="#D4F835"
+              fill="#E2F937"
               fillOpacity="0.88"
               stroke="#C5EA28"
               strokeWidth="1.5"
@@ -230,7 +230,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
                   cx={x}
                   cy={y}
                   r={isHovered ? "6" : "4.5"}
-                  fill={isHovered ? "#D4F835" : "#0E0E10"}
+                  fill={isHovered ? "#E2F937" : "#0E0E10"}
                   stroke={isHovered ? "#0E0E10" : "none"}
                   strokeWidth={isHovered ? "2" : "0"}
                   className="cursor-pointer transition-all duration-150"
@@ -268,7 +268,7 @@ export function SpendingRadarChart({ categorySpending }: SpendingRadarChartProps
           {hoveredIndex !== null && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3.5 py-1.5 rounded-full bg-[#0E0E10] text-white text-xs font-bold shadow-xl border border-white/10 z-20 animate-in fade-in zoom-in-95">
               <span>{axes[hoveredIndex].label}: </span>
-              <span className="text-[#D4F835] font-mono">{formatINR(axes[hoveredIndex].amount)}</span>
+              <span className="text-[#E2F937] font-mono">{formatINR(axes[hoveredIndex].amount)}</span>
               <span className="text-zinc-400 text-[10px] ml-1">
                 ({Math.round((axes[hoveredIndex].amount / totalSpentAll) * 100)}%)
               </span>

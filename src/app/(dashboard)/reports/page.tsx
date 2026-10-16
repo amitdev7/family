@@ -301,7 +301,7 @@ export default function ReportsPage() {
               Monthly Comparison
             </h3>
             <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1">
-              <TrendingUp className="h-3.5 w-3.5 text-[#D4F835]" />
+              <TrendingUp className="h-3.5 w-3.5 text-[#E2F937]" />
               <span>Real Ledger Data</span>
             </span>
           </div>
@@ -338,7 +338,7 @@ export default function ReportsPage() {
                         <span className="w-7 text-[11px] font-mono">{row.share}%</span>
                         <div className="w-20 h-2 rounded-full bg-secondary overflow-hidden">
                           <div
-                            className="h-full bg-[#D4F835] rounded-full transition-all duration-300"
+                            className="h-full bg-[#E2F937] rounded-full transition-all duration-300"
                             style={{ width: `${row.share}%` }}
                           />
                         </div>

@@ -45,7 +45,7 @@ export async function signInWithGoogle(): Promise<StoredAuthUser | null> {
         email: authData.email || undefined,
         relationship: "Self",
         role: "admin",
-        color: "#D4F835",
+        color: "#E2F937",
       });
     }
 
@@ -78,7 +78,7 @@ export async function signInWithGoogle(): Promise<StoredAuthUser | null> {
           email: demoAuthUser.email!,
           relationship: "Self",
           role: "admin",
-          color: "#D4F835",
+          color: "#E2F937",
         });
       }
       DataService.selectActiveUser(existing.user_id);

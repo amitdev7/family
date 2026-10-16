@@ -153,7 +153,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                 type="button"
                 onClick={() => handleSwitchLanguage("en")}
                 className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${currentLang === "en"
-                  ? "bg-[#D4F835] text-black"
+                  ? "bg-[#E2F937] text-black"
                   : "hover:bg-secondary text-foreground"
                   }`}
               >
@@ -175,7 +175,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                 type="button"
                 onClick={() => handleSwitchLanguage("hi")}
                 className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${currentLang === "hi"
-                  ? "bg-[#D4F835] text-black"
+                  ? "bg-[#E2F937] text-black"
                   : "hover:bg-secondary text-foreground"
                   }`}
               >
@@ -197,7 +197,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                 type="button"
                 onClick={() => handleSwitchLanguage("hinglish")}
                 className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${currentLang === "hinglish"
-                  ? "bg-[#D4F835] text-black"
+                  ? "bg-[#E2F937] text-black"
                   : "hover:bg-secondary text-foreground"
                   }`}
               >
@@ -221,7 +221,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
 
         {/* Active Member Badge with 3D Character Avatar */}
         <div className="hidden md:flex items-center bg-[#0E0E10] text-white rounded-full py-1 px-3 gap-2 shadow-xs border border-zinc-800">
-          <div className="h-7 w-7 rounded-full overflow-hidden bg-[#D4F835] text-black font-bold text-[10px] flex items-center justify-center shrink-0 relative">
+          <div className="h-7 w-7 rounded-full overflow-hidden bg-[#E2F937] text-black font-bold text-[10px] flex items-center justify-center shrink-0 relative">
             {avatarInfo?.image ? (
               <Image
                 src={avatarInfo.image}
@@ -265,7 +265,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
             type="button"
             onClick={onAddExpenseClick}
             size="sm"
-            className="gap-1.5 font-bold text-xs sm:text-sm px-3 sm:px-4 h-9 rounded-full bg-[#D4F835] text-black hover:bg-[#c5ea28] shadow-xs cursor-pointer"
+            className="gap-1.5 font-bold text-xs sm:text-sm px-3 sm:px-4 h-9 rounded-full bg-[#E2F937] text-black hover:bg-[#c5ea28] shadow-xs cursor-pointer"
           >
             <Plus className="h-4 w-4 stroke-[2.5]" />
             <span className="hidden xs:inline">{t.addExpense}</span>
@@ -339,7 +339,7 @@ export function Header({ title, subtitle, onAddExpenseClick }: HeaderProps) {
                   </div>
                   <Badge
                     variant="secondary"
-                    className="text-[9px] py-0 px-1.5 mt-0.5 rounded-full bg-[#D4F835] text-black font-black"
+                    className="text-[9px] py-0 px-1.5 mt-0.5 rounded-full bg-[#E2F937] text-black font-black"
                   >
                     {currentUser?.role === "admin" ? "Admin" : "Member"}
                   </Badge>

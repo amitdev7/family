@@ -39,7 +39,7 @@ export function DeleteDialog({
       <div className="space-y-6 pt-2 select-none">
         {/* Warning Icon Badge */}
         <div className="flex flex-col items-center text-center space-y-3">
-          <div className="h-14 w-14 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-black text-2xl shadow-lg animate-pulse">
+          <div className="h-14 w-14 rounded-full bg-[#E2F937] text-black flex items-center justify-center font-black text-2xl shadow-lg animate-pulse">
             !
           </div>
           <h3 className="text-lg font-black text-foreground tracking-tight">

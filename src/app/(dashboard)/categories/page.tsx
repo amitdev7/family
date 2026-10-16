@@ -22,7 +22,7 @@ import Image from "next/image";
 import { CATEGORY_IMAGES, NAV_3D_ICONS } from "@/lib/assets";
 
 const COLOR_SWATCHES = [
-  { name: "Lime", hex: "#D4F835", bg: "bg-[#D4F835]" },
+  { name: "Lime", hex: "#E2F937", bg: "bg-[#E2F937]" },
   { name: "Black", hex: "#0E0E10", bg: "bg-[#0E0E10]" },
   { name: "Grey", hex: "#9CA3AF", bg: "bg-zinc-400" },
   { name: "Blue", hex: "#3B82F6", bg: "bg-blue-500" },
@@ -96,7 +96,7 @@ export default function CategoriesPage() {
       trend: count > 0 ? `${count} transaction${count === 1 ? "" : "s"}` : "No transactions yet",
       trendType: count > 0 ? "up" : "neutral",
       icon: IconComponent,
-      bg: idx % 2 === 0 ? "bg-[#D4F835] text-black" : "bg-secondary text-foreground",
+      bg: idx % 2 === 0 ? "bg-[#E2F937] text-black" : "bg-secondary text-foreground",
     };
   });
 
@@ -141,7 +141,7 @@ export default function CategoriesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search categories..."
-            className="w-full pl-11 pr-4 py-2.5 rounded-full bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+            className="w-full pl-11 pr-4 py-2.5 rounded-full bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
           />
         </div>
 
@@ -228,7 +228,7 @@ export default function CategoriesPage() {
                 onChange={(e) => setNewCatName(e.target.value)}
                 placeholder="e.g. Pet Care, Education, Fitness"
                 required
-                className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               />
             </div>
 
@@ -269,7 +269,7 @@ export default function CategoriesPage() {
                       type="button"
                       onClick={() => setSelectedIcon(item.name)}
                       className={`h-9 w-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${isSelected
-                        ? "bg-[#D4F835] text-black shadow-xs"
+                        ? "bg-[#E2F937] text-black shadow-xs"
                         : "bg-secondary text-muted-foreground hover:text-foreground"
                         }`}
                     >
@@ -310,7 +310,7 @@ export default function CategoriesPage() {
                     >
                       <span
                         className="h-2 w-2 rounded-full"
-                        style={{ backgroundColor: c.color || "#D4F835" }}
+                        style={{ backgroundColor: c.color || "#E2F937" }}
                       />
                       {c.name}
                     </span>

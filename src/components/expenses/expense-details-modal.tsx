@@ -37,7 +37,7 @@ export function ExpenseDetailsModal({
       <div className="space-y-6 pt-2 select-none">
         {/* Top Hero Amount Card */}
         <div className="rounded-[24px] bg-[#0E0E10] text-white p-6 flex flex-col items-center justify-center text-center shadow-md relative overflow-hidden">
-          <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#D4F835] text-black text-[10px] font-extrabold uppercase tracking-wider">
+          <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#E2F937] text-black text-[10px] font-extrabold uppercase tracking-wider">
             {expense.category?.name || "General"}
           </div>
 
@@ -68,7 +68,7 @@ export function ExpenseDetailsModal({
               <User className="h-4 w-4" /> Paid By
             </span>
             <div className="flex items-center gap-2 font-bold text-foreground">
-              <div className="h-6 w-6 rounded-full bg-[#D4F835] text-black flex items-center justify-center text-[10px] font-black">
+              <div className="h-6 w-6 rounded-full bg-[#E2F937] text-black flex items-center justify-center text-[10px] font-black">
                 {expense.paid_by?.display_name?.charAt(0) || "U"}
               </div>
               <span>{expense.paid_by?.display_name || "Family Member"}</span>
@@ -97,7 +97,7 @@ export function ExpenseDetailsModal({
         {/* Verified Receipt Card */}
         <div className="p-4 rounded-2xl border border-dashed border-border bg-card flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-[#D4F835]/20 text-[#D4F835] flex items-center justify-center font-bold">
+            <div className="h-9 w-9 rounded-xl bg-[#E2F937]/20 text-[#E2F937] flex items-center justify-center font-bold">
               <FileText className="h-4 w-4" />
             </div>
             <div>

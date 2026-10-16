@@ -117,7 +117,7 @@ export function DashboardHeroBanner({
   return (
     <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#0E0E10] via-[#141418] to-[#1a1a22] border border-border/80 text-white p-5 sm:p-7 shadow-2xl card-hover-lift select-none">
       {/* Ambient background glows */}
-      <div className="absolute -top-24 -left-24 w-60 h-60 bg-[#D4F835]/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+      <div className="absolute -top-24 -left-24 w-60 h-60 bg-[#E2F937]/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
       <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Bar: Dynamic Greeting & Real-time Status */}
@@ -125,7 +125,7 @@ export function DashboardHeroBanner({
         <div className="flex items-center gap-3.5">
           {/* Avatar with Status Ring */}
           <div className="relative">
-            <div className="h-14 w-14 rounded-2xl overflow-hidden bg-[#D4F835] text-black font-black text-lg flex items-center justify-center shadow-lg shadow-[#D4F835]/20 shrink-0 transform transition-transform hover:scale-105 relative">
+            <div className="h-14 w-14 rounded-2xl overflow-hidden bg-[#E2F937] text-black font-black text-lg flex items-center justify-center shadow-lg shadow-[#E2F937]/20 shrink-0 transform transition-transform hover:scale-105 relative">
               {currentUser && MEMBER_AVATARS[currentUser.user_id]?.image ? (
                 <Image
                   src={MEMBER_AVATARS[currentUser.user_id].image}
@@ -152,8 +152,8 @@ export function DashboardHeroBanner({
                 {greeting}, {currentUser?.display_name?.split(" ")[0] || "Amit"}
                 {renderGreetingIcon()}
               </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#D4F835]/20 text-[#D4F835] border border-[#D4F835]/40">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#D4F835] animate-ping" />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#E2F937]/20 text-[#E2F937] border border-[#E2F937]/40">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#E2F937] animate-ping" />
                 Live Household Hub
               </span>
             </div>
@@ -166,7 +166,7 @@ export function DashboardHeroBanner({
         {/* Date & Time */}
         <div className="flex items-center flex-wrap gap-2.5 sm:self-center">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-zinc-300">
-            <Calendar className="h-3.5 w-3.5 text-[#D4F835]" />
+            <Calendar className="h-3.5 w-3.5 text-[#E2F937]" />
             <span>{currentDate || "Today"}</span>
             <span className="text-white/20">•</span>
             <Clock className="h-3.5 w-3.5 text-zinc-400" />
@@ -251,9 +251,9 @@ export function DashboardHeroBanner({
         </div>
 
         {/* Metric 4: Safe-to-Spend Daily Limit */}
-        <div className="rounded-2xl bg-[#D4F835]/10 hover:bg-[#D4F835]/15 border border-[#D4F835]/30 p-4 transition-all duration-200">
+        <div className="rounded-2xl bg-[#E2F937]/10 hover:bg-[#E2F937]/15 border border-[#E2F937]/30 p-4 transition-all duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#D4F835] uppercase tracking-wider flex items-center gap-1">
+            <span className="text-[11px] font-bold text-[#E2F937] uppercase tracking-wider flex items-center gap-1">
               <Sparkles className="h-3 w-3" />
               <span>Safe Daily Spend</span>
             </span>
@@ -267,11 +267,11 @@ export function DashboardHeroBanner({
               />
             </div>
           </div>
-          <div className="mt-2 text-lg sm:text-2xl font-black text-[#D4F835] tracking-tight font-mono">
+          <div className="mt-2 text-lg sm:text-2xl font-black text-[#E2F937] tracking-tight font-mono">
             {formatINR(safeToSpendDaily)}/day
           </div>
           <div className="flex items-center gap-1 text-[11px] font-bold text-zinc-300 mt-1">
-            <CheckCircle2 className="h-3 w-3 text-[#D4F835]" />
+            <CheckCircle2 className="h-3 w-3 text-[#E2F937]" />
             <span>{formatINR(moneyLeft)} safe balance</span>
           </div>
         </div>
@@ -298,14 +298,14 @@ export function DashboardHeroBanner({
             onClick={onReceiveMoneyClick}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer border border-white/20 shadow-xs active:scale-95"
           >
-            <ArrowDownLeft className="h-3.5 w-3.5 text-[#D4F835]" />
+            <ArrowDownLeft className="h-3.5 w-3.5 text-[#E2F937]" />
             <span>Receive Money</span>
           </button>
 
           <button
             type="button"
             onClick={onAddExpenseClick}
-            className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#D4F835] hover:bg-[#c5ea28] text-black text-xs font-black transition-all cursor-pointer shadow-lg shadow-[#D4F835]/20 active:scale-95"
+            className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#E2F937] hover:bg-[#c5ea28] text-black text-xs font-black transition-all cursor-pointer shadow-lg shadow-[#E2F937]/20 active:scale-95"
           >
             <Plus className="h-4 w-4 stroke-[3]" />
             <span>+ Add Expense</span>

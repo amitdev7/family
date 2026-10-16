@@ -106,7 +106,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
     <>
       <div className="rounded-[28px] bg-gradient-to-b from-[#141418] via-[#0E0E10] to-[#0A0A0C] border border-zinc-800 p-6 shadow-2xl flex flex-col justify-between h-full select-none relative overflow-hidden group card-hover-lift">
         {/* Ambient Top Glow */}
-        <div className="absolute -top-16 -right-16 w-40 h-40 bg-[#D4F835]/15 rounded-full blur-3xl pointer-events-none group-hover:bg-[#D4F835]/25 transition-all" />
+        <div className="absolute -top-16 -right-16 w-40 h-40 bg-[#E2F937]/15 rounded-full blur-3xl pointer-events-none group-hover:bg-[#E2F937]/25 transition-all" />
 
         {/* Top Header */}
         <div>
@@ -129,7 +129,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#D4F835] text-black font-extrabold text-xs hover:bg-[#c5ea28] transition-all cursor-pointer shadow-xs active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E2F937] text-black font-extrabold text-xs hover:bg-[#c5ea28] transition-all cursor-pointer shadow-xs active:scale-95"
             >
               <Plus className="h-3.5 w-3.5 stroke-[3]" />
               <span>+ Receive</span>
@@ -150,7 +150,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
             </span>
             <span
               className={`text-xs font-black px-2 py-0.5 rounded-full ${percentLeft > 40
-                ? "bg-[#D4F835]/20 text-[#D4F835]"
+                ? "bg-[#E2F937]/20 text-[#E2F937]"
                 : percentLeft > 20
                   ? "bg-amber-400/20 text-amber-300"
                   : "bg-rose-500/20 text-rose-400"
@@ -170,7 +170,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
             <div className="h-2.5 rounded-full bg-zinc-800 overflow-hidden flex">
               <div
                 className={`h-full transition-all duration-700 ${percentLeft > 40
-                  ? "bg-[#D4F835]"
+                  ? "bg-[#E2F937]"
                   : percentLeft > 20
                     ? "bg-amber-400"
                     : "bg-rose-500"
@@ -191,7 +191,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
             <span>Recent Inflows</span>
             <Link
               href="/budgets"
-              className="text-[#D4F835] hover:underline normal-case text-xs"
+              className="text-[#E2F937] hover:underline normal-case text-xs"
             >
               View planner &gt;
             </Link>
@@ -259,10 +259,10 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
         {/* Footer Info */}
         <div className="relative z-10 pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-zinc-400 font-semibold">
           <span className="flex items-center gap-1">
-            <Banknote className="h-3 w-3 text-[#D4F835]" />
+            <Banknote className="h-3 w-3 text-[#E2F937]" />
             <span>Cash prioritized</span>
           </span>
-          <Link href="/budgets" className="text-white hover:text-[#D4F835] font-bold">
+          <Link href="/budgets" className="text-white hover:text-[#E2F937] font-bold">
             Budget Center &gt;
           </Link>
         </div>
@@ -291,7 +291,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
               <select
                 value={fromMemberId}
                 onChange={(e) => setFromMemberId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -309,7 +309,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
               <select
                 value={selectedCategoryId}
                 onChange={(e) => setSelectedCategoryId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               >
                 <option value="all">General / Pocket Money</option>
                 {categories.map((c) => (
@@ -332,7 +332,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="e.g. 5000"
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-base font-black text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-base font-black text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               />
             </div>
 
@@ -352,7 +352,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
                     type="button"
                     onClick={() => setPaymentMethod(item.id)}
                     className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center justify-center gap-2 ${paymentMethod === item.id
-                      ? "bg-[#D4F835] text-black border-transparent shadow-xs"
+                      ? "bg-[#E2F937] text-black border-transparent shadow-xs"
                       : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
                       }`}
                   >
@@ -379,7 +379,7 @@ export function MoneyReceivedWidget({ onRefresh }: MoneyReceivedWidgetProps) {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="e.g. Monthly allowance, grocery money, gift"
-                className="w-full px-4 py-2 rounded-2xl bg-secondary border border-border text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-4 py-2 rounded-2xl bg-secondary border border-border text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               />
             </div>
 

@@ -6,7 +6,6 @@ import {
   Plus,
   SlidersHorizontal,
   ArrowDownLeft,
-  ArrowUpRight,
   Wallet,
   Trash2,
   Calendar,
@@ -31,7 +30,6 @@ import {
   CATEGORY_IMAGES,
   EMPTY_STATE_IMAGES,
   MEMBER_AVATARS,
-  FEATURE_IMAGES,
   METRIC_3D_ICONS,
 } from "@/lib/assets";
 
@@ -225,8 +223,8 @@ export default function BudgetsPage() {
       <div className="max-w-6xl mx-auto space-y-6 pb-16 select-none">
         {/* Floating Success Toast */}
         {toastMsg && (
-          <div className="fixed top-20 right-6 z-50 p-3.5 px-5 rounded-2xl bg-[#0E0E10] text-[#D4F835] border border-[#D4F835]/40 shadow-2xl flex items-center gap-2.5 text-xs font-bold animate-in fade-in slide-in-from-top-4">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#D4F835]" />
+          <div className="fixed top-20 right-6 z-50 p-3.5 px-5 rounded-2xl bg-[#0E0E10] text-[#E2F937] border border-[#E2F937]/40 shadow-2xl flex items-center gap-2.5 text-xs font-bold animate-in fade-in slide-in-from-top-4">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#E2F937]" />
             <span>{toastMsg}</span>
           </div>
         )}
@@ -234,14 +232,14 @@ export default function BudgetsPage() {
         {/* Top Hero Banner in Obsidian Noir with Electric Lime & Live Pulse */}
         <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#0E0E10] via-[#141418] to-[#1a1a22] border border-border/80 text-white p-6 sm:p-8 shadow-2xl card-hover-lift">
           {/* Ambient background glows */}
-          <div className="absolute -top-24 -left-24 w-60 h-60 bg-[#D4F835]/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+          <div className="absolute -top-24 -left-24 w-60 h-60 bg-[#E2F937]/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
           <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* Top Bar: Title, Active Member & Status Pill */}
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 pb-6 border-b border-white/10">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="h-14 w-14 rounded-2xl bg-[#D4F835] text-black font-black text-xl flex items-center justify-center shadow-lg shadow-[#D4F835]/20 shrink-0 transform transition-transform hover:scale-105 overflow-hidden">
+                <div className="h-14 w-14 rounded-2xl bg-[#E2F937] text-black font-black text-xl flex items-center justify-center shadow-lg shadow-[#E2F937]/20 shrink-0 transform transition-transform hover:scale-105 overflow-hidden">
                   {currentUser && (MEMBER_AVATARS[currentUser.user_id || currentUser.id || ""]?.image || getMemberAvatar(undefined, currentUser.display_name)?.image) ? (
                     <Image
                       src={
@@ -278,8 +276,8 @@ export default function BudgetsPage() {
                   <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
                     Family Budget &amp; Inflow Planner
                   </h2>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#D4F835]/20 text-[#D4F835] border border-[#D4F835]/40">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#D4F835] animate-ping" />
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#E2F937]/20 text-[#E2F937] border border-[#E2F937]/40">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#E2F937] animate-ping" />
                     Live Supabase Tracker
                   </span>
                 </div>
@@ -294,7 +292,7 @@ export default function BudgetsPage() {
               <button
                 type="button"
                 onClick={() => setIsReceiveModalOpen(true)}
-                className="flex items-center gap-2 px-5 py-3 rounded-full bg-[#D4F835] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#D4F835]/20 transition-all cursor-pointer active:scale-95"
+                className="flex items-center gap-2 px-5 py-3 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#E2F937]/20 transition-all cursor-pointer active:scale-95"
               >
                 <Plus className="h-4 w-4 stroke-[3]" />
                 <span>+ Receive Money</span>
@@ -305,7 +303,7 @@ export default function BudgetsPage() {
                 onClick={() => setIsBudgetModalOpen(true)}
                 className="flex items-center gap-1.5 px-4 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer border border-white/10 shadow-xs active:scale-95"
               >
-                <SlidersHorizontal className="h-4 w-4 text-[#D4F835]" />
+                <SlidersHorizontal className="h-4 w-4 text-[#E2F937]" />
                 <span>Set Category Limit</span>
               </button>
             </div>
@@ -377,21 +375,21 @@ export default function BudgetsPage() {
                   />
                 </div>
               </div>
-              <div className={`mt-2 text-xl sm:text-2xl font-black font-mono tracking-tight ${moneyLeft >= 0 ? "text-[#D4F835]" : "text-rose-400"}`}>
+              <div className={`mt-2 text-xl sm:text-2xl font-black font-mono tracking-tight ${moneyLeft >= 0 ? "text-[#E2F937]" : "text-rose-400"}`}>
                 {formatINR(moneyLeft)}
               </div>
               <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden mt-2">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${moneyLeft >= 0 ? "bg-[#D4F835]" : "bg-rose-500"}`}
+                  className={`h-full rounded-full transition-all duration-500 ${moneyLeft >= 0 ? "bg-[#E2F937]" : "bg-rose-500"}`}
                   style={{ width: `${Math.min(remainingPercent, 100)}%` }}
                 />
               </div>
             </div>
 
             {/* 4. Safe Daily Spend */}
-            <div className="rounded-2xl bg-[#D4F835]/10 hover:bg-[#D4F835]/15 border border-[#D4F835]/30 p-4 transition-all duration-200">
+            <div className="rounded-2xl bg-[#E2F937]/10 hover:bg-[#E2F937]/15 border border-[#E2F937]/30 p-4 transition-all duration-200">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-[#D4F835] uppercase tracking-wider flex items-center gap-1">
+                <span className="text-[11px] font-bold text-[#E2F937] uppercase tracking-wider flex items-center gap-1">
                   <Sparkles className="h-3 w-3" />
                   <span>Safe Daily Spend</span>
                 </span>
@@ -405,7 +403,7 @@ export default function BudgetsPage() {
                   />
                 </div>
               </div>
-              <div className="mt-2 text-xl sm:text-2xl font-black text-[#D4F835] font-mono tracking-tight">
+              <div className="mt-2 text-xl sm:text-2xl font-black text-[#E2F937] font-mono tracking-tight">
                 {formatINR(safeDailySpend)}/day
               </div>
               <p className="text-[11px] text-zinc-300 mt-1 font-semibold">
@@ -421,7 +419,7 @@ export default function BudgetsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-                  <User className="h-5 w-5 text-[#D4F835]" />
+                  <User className="h-5 w-5 text-[#E2F937]" />
                   <span>Family Money Contributions</span>
                 </h3>
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
@@ -447,7 +445,7 @@ export default function BudgetsPage() {
               {summary.byMember.map((m, idx) => {
                 const colorPalette = [
                   "bg-amber-400 text-black",
-                  "bg-[#D4F835] text-black",
+                  "bg-[#E2F937] text-black",
                   "bg-blue-500 text-white",
                   "bg-purple-500 text-white",
                   "bg-emerald-500 text-white",
@@ -458,7 +456,7 @@ export default function BudgetsPage() {
                 return (
                   <div
                     key={m.memberId || idx}
-                    className="p-4.5 rounded-2xl bg-secondary/40 border border-border/80 hover:border-[#D4F835]/60 transition-all space-y-3 relative group"
+                    className="p-4.5 rounded-2xl bg-secondary/40 border border-border/80 hover:border-[#E2F937]/60 transition-all space-y-3 relative group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -476,7 +474,7 @@ export default function BudgetsPage() {
                           )}
                           <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-card rounded-full p-0.5 border border-border shadow-2xs flex items-center justify-center">
                             {m.memberName === "Amit" ? (
-                              <Shield className="h-2.5 w-2.5 text-[#D4F835]" />
+                              <Shield className="h-2.5 w-2.5 text-[#E2F937]" />
                             ) : m.memberName === "Ajay" ? (
                               <Star className="h-2.5 w-2.5 text-emerald-500" />
                             ) : (
@@ -494,7 +492,7 @@ export default function BudgetsPage() {
                         </div>
                       </div>
 
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#D4F835]/20 text-[#0E0E10] dark:text-[#D4F835] text-xs font-black">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#E2F937]/20 text-[#0E0E10] dark:text-[#E2F937] text-xs font-black">
                         {Math.round(m.percentage)}%
                       </span>
                     </div>
@@ -509,7 +507,7 @@ export default function BudgetsPage() {
                     {/* Progress track */}
                     <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
                       <div
-                        className="h-full bg-[#D4F835] rounded-full transition-all duration-700"
+                        className="h-full bg-[#E2F937] rounded-full transition-all duration-700"
                         style={{ width: `${Math.min(m.percentage, 100)}%` }}
                       />
                     </div>
@@ -539,7 +537,7 @@ export default function BudgetsPage() {
               <button
                 type="button"
                 onClick={() => setIsReceiveModalOpen(true)}
-                className="px-5 py-2.5 rounded-full bg-[#D4F835] hover:bg-[#c6ea27] text-black font-extrabold text-xs transition-colors cursor-pointer shadow-xs active:scale-95"
+                className="px-5 py-2.5 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black font-extrabold text-xs transition-colors cursor-pointer shadow-xs active:scale-95"
               >
                 + Record Received Money
               </button>
@@ -553,7 +551,7 @@ export default function BudgetsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-[#D4F835]" />
+                  <Tag className="h-5 w-5 text-[#E2F937]" />
                   <span>Category Allocation &amp; Remaining Balance</span>
                 </h3>
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
@@ -570,7 +568,7 @@ export default function BudgetsPage() {
               onClick={() => setIsBudgetModalOpen(true)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary hover:bg-secondary/80 text-foreground text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto border border-border"
             >
-              <SlidersHorizontal className="h-3.5 w-3.5 text-[#D4F835]" />
+              <SlidersHorizontal className="h-3.5 w-3.5 text-[#E2F937]" />
               <span>Adjust Category Budget</span>
             </button>
           </div>
@@ -581,7 +579,7 @@ export default function BudgetsPage() {
               type="button"
               onClick={() => setSelectedCategoryFilter("all")}
               className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${selectedCategoryFilter === "all"
-                ? "bg-[#D4F835] text-black shadow-xs scale-102"
+                ? "bg-[#E2F937] text-black shadow-xs scale-102"
                 : "bg-secondary/70 text-muted-foreground hover:text-foreground"
                 }`}
             >
@@ -594,7 +592,7 @@ export default function BudgetsPage() {
                 type="button"
                 onClick={() => setSelectedCategoryFilter(cat.categoryId)}
                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${selectedCategoryFilter === cat.categoryId
-                  ? "bg-[#D4F835] text-black shadow-xs scale-102"
+                  ? "bg-[#E2F937] text-black shadow-xs scale-102"
                   : "bg-secondary/70 text-muted-foreground hover:text-foreground"
                   }`}
               >
@@ -619,7 +617,7 @@ export default function BudgetsPage() {
               return (
                 <div
                   key={c.categoryId}
-                  className="p-5.5 rounded-2xl bg-secondary/30 border border-border/70 hover:border-[#D4F835]/70 transition-all space-y-4"
+                  className="p-5.5 rounded-2xl bg-secondary/30 border border-border/70 hover:border-[#E2F937]/70 transition-all space-y-4"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
@@ -702,7 +700,7 @@ export default function BudgetsPage() {
                   <div className="space-y-1">
                     <div className="h-2.5 w-full rounded-full bg-secondary overflow-hidden flex">
                       <div
-                        className={`h-full transition-all duration-500 ${isOver ? "bg-rose-500" : percentUsed > 80 ? "bg-amber-400" : "bg-[#D4F835]"
+                        className={`h-full transition-all duration-500 ${isOver ? "bg-rose-500" : percentUsed > 80 ? "bg-amber-400" : "bg-[#E2F937]"
                           }`}
                         style={{ width: `${percentUsed}%` }}
                       />
@@ -762,7 +760,7 @@ export default function BudgetsPage() {
                   type="button"
                   onClick={() => setHistoryFilter(filterVal)}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${historyFilter === filterVal
-                    ? "bg-[#D4F835] text-black shadow-xs"
+                    ? "bg-[#E2F937] text-black shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
@@ -807,7 +805,7 @@ export default function BudgetsPage() {
                             {entry.relationship || "Family Member"}
                           </span>
                           <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1 ${isCash
-                            ? "bg-[#D4F835]/20 text-black dark:text-[#D4F835]"
+                            ? "bg-[#E2F937]/20 text-black dark:text-[#E2F937]"
                             : "bg-blue-500/15 text-blue-500"
                             }`}>
                             {isCash ? (
@@ -891,7 +889,7 @@ export default function BudgetsPage() {
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-border/60 mb-5">
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-2xl bg-[#D4F835] text-black flex items-center justify-center font-bold shadow-xs">
+              <div className="h-11 w-11 rounded-2xl bg-[#E2F937] text-black flex items-center justify-center font-bold shadow-xs">
                 <ArrowDownLeft className="h-6 w-6 stroke-[2.5]" />
               </div>
               <div>
@@ -922,7 +920,7 @@ export default function BudgetsPage() {
               <select
                 value={fromMemberId}
                 onChange={(e) => setFromMemberId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.user_id || m.id}>
@@ -981,7 +979,7 @@ export default function BudgetsPage() {
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-secondary border border-border text-lg font-black text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                  className="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-secondary border border-border text-lg font-black text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
                 />
               </div>
 
@@ -1014,7 +1012,7 @@ export default function BudgetsPage() {
                       type="button"
                       onClick={() => setPaymentMethod(method)}
                       className={`py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center gap-1 border ${isSelected
-                        ? "bg-[#D4F835] text-black border-[#D4F835] shadow-xs"
+                        ? "bg-[#E2F937] text-black border-[#E2F937] shadow-xs"
                         : "bg-secondary text-muted-foreground border-border hover:text-foreground"
                         }`}
                     >
@@ -1037,7 +1035,7 @@ export default function BudgetsPage() {
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               >
                 <option value="general">General Family Pool (No specific category)</option>
                 {categories.map((c) => (
@@ -1089,7 +1087,7 @@ export default function BudgetsPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 py-3 rounded-full bg-[#D4F835] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer disabled:opacity-50"
+                className="flex-1 py-3 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting ? "Saving..." : "Record Received Money"}
               </button>
@@ -1128,7 +1126,7 @@ export default function BudgetsPage() {
               <select
                 value={targetCategory}
                 onChange={(e) => setTargetCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               >
                 <option value="all">Overall Household Target</option>
                 {categories.map((c) => (
@@ -1149,7 +1147,7 @@ export default function BudgetsPage() {
                 onChange={(e) => setTargetBudgetAmount(e.target.value)}
                 placeholder="e.g. 25000"
                 required
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#D4F835]"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
               />
             </div>
 
@@ -1164,7 +1162,7 @@ export default function BudgetsPage() {
               <button
                 type="submit"
                 disabled={isSavingBudget}
-                className="flex-1 py-2.5 rounded-full bg-[#D4F835] hover:bg-[#c6ea27] text-black text-xs font-bold shadow-xs cursor-pointer"
+                className="flex-1 py-2.5 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black text-xs font-bold shadow-xs cursor-pointer"
               >
                 {isSavingBudget ? "Saving..." : "Save Target"}
               </button>

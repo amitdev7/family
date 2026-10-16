@@ -23,7 +23,7 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
         className={cn(
           "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-all",
           pathname === "/dashboard"
-            ? "text-[#D4F835] scale-105"
+            ? "text-[#E2F937] scale-105"
             : "text-zinc-400 hover:text-white opacity-80"
         )}
       >
@@ -45,7 +45,7 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
         className={cn(
           "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-all",
           pathname.startsWith("/expenses")
-            ? "text-[#D4F835] scale-105"
+            ? "text-[#E2F937] scale-105"
             : "text-zinc-400 hover:text-white opacity-80"
         )}
       >
@@ -67,11 +67,11 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
           type="button"
           onClick={onAddExpenseClick}
           aria-label="Quick Add Expense"
-          className="flex h-13 w-13 items-center justify-center rounded-full bg-[#D4F835] text-black shadow-lg hover:bg-[#c5ea28] active:scale-95 transition-all cursor-pointer ring-4 ring-[#0E0E10]"
+          className="flex h-13 w-13 items-center justify-center rounded-full bg-[#E2F937] text-black shadow-lg hover:bg-[#c5ea28] active:scale-95 transition-all cursor-pointer ring-4 ring-[#0E0E10]"
         >
           <Plus className="h-6 w-6 stroke-[3]" />
         </button>
-        <span className="text-[9px] font-bold text-[#D4F835] mt-0.5">Quick Add</span>
+        <span className="text-[9px] font-bold text-[#E2F937] mt-0.5">Quick Add</span>
       </div>
 
       {/* 4. Budgets */}
@@ -80,7 +80,7 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
         className={cn(
           "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-all",
           pathname.startsWith("/budgets")
-            ? "text-[#D4F835] scale-105"
+            ? "text-[#E2F937] scale-105"
             : "text-zinc-400 hover:text-white opacity-80"
         )}
       >
@@ -102,7 +102,7 @@ export function MobileNav({ onAddExpenseClick }: MobileNavProps) {
         className={cn(
           "flex flex-col items-center justify-center w-14 py-1 text-[10px] font-semibold transition-all",
           pathname.startsWith("/reports")
-            ? "text-[#D4F835] scale-105"
+            ? "text-[#E2F937] scale-105"
             : "text-zinc-400 hover:text-white opacity-80"
         )}
       >

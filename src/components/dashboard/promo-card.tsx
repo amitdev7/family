@@ -28,7 +28,7 @@ export function PromoCard() {
 
   return (
     <>
-      <div className="rounded-[28px] bg-[#D4F835] text-black p-6 shadow-xs relative overflow-hidden flex flex-col justify-between h-full select-none">
+      <div className="rounded-[28px] bg-[#E2F937] text-black p-6 shadow-xs relative overflow-hidden flex flex-col justify-between h-full select-none">
         {/* Headline matching Figma image_20261014_111154.jpg */}
         <div className="relative z-10">
           <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
@@ -70,7 +70,7 @@ export function PromoCard() {
             <ellipse cx="36" cy="74" rx="28" ry="10" fill="#c5ea28" stroke="#000" strokeWidth="2.5" />
             <ellipse cx="36" cy="62" rx="28" ry="10" fill="#c5ea28" stroke="#000" strokeWidth="2.5" />
             <ellipse cx="36" cy="50" rx="28" ry="10" fill="#c5ea28" stroke="#000" strokeWidth="2.5" />
-            <ellipse cx="36" cy="38" rx="28" ry="10" fill="#D4F835" stroke="#000" strokeWidth="2.5" />
+            <ellipse cx="36" cy="38" rx="28" ry="10" fill="#E2F937" stroke="#000" strokeWidth="2.5" />
 
             {/* Piggy bank body */}
             <ellipse
@@ -78,7 +78,7 @@ export function PromoCard() {
               cy="52"
               rx="38"
               ry="30"
-              fill="#D4F835"
+              fill="#E2F937"
               stroke="#000"
               strokeWidth="3"
             />
@@ -88,7 +88,7 @@ export function PromoCard() {
               cy="55"
               rx="10"
               ry="14"
-              fill="#D4F835"
+              fill="#E2F937"
               stroke="#000"
               strokeWidth="3"
             />
@@ -101,7 +101,7 @@ export function PromoCard() {
             {/* Piggy ear */}
             <path
               d="M 112 24 C 114 16, 126 18, 124 28 Z"
-              fill="#D4F835"
+              fill="#E2F937"
               stroke="#000"
               strokeWidth="2.5"
             />
@@ -137,7 +137,7 @@ export function PromoCard() {
         >
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-[#D4F835] text-black flex items-center justify-center font-bold">
+              <div className="h-10 w-10 rounded-full bg-[#E2F937] text-black flex items-center justify-center font-bold">
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
