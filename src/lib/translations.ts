@@ -30,7 +30,7 @@ export interface Translations {
 
 export const TRANSLATIONS: Record<Language, Translations> = {
   en: {
-    welcome: "Welcome to FamilyFlow",
+    welcome: "Welcome to Family",
     whoAreYou: "Who are you?",
     selectProfile: "Choose your profile to begin managing family expenses",
     selectLanguage: "Choose Language",
@@ -55,7 +55,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     greetingNight: "Good night",
   },
   hi: {
-    welcome: "फैमिली फ्लो में आपका स्वागत है",
+    welcome: "Family में आपका स्वागत है",
     whoAreYou: "आप कौन हैं?",
     selectProfile: "घर के खर्चों का प्रबंधन शुरू करने के लिए अपनी प्रोफ़ाइल चुनें",
     selectLanguage: "भाषा चुनें",
@@ -80,7 +80,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     greetingNight: "शुभ रात्रि",
   },
   hinglish: {
-    welcome: "FamilyFlow mein Swagat Hai",
+    welcome: "Family mein Swagat Hai",
     whoAreYou: "Aap kaun hain?",
     selectProfile: "Ghar ka hisab shuru karne ke liye apna profile select karein",
     selectLanguage: "Language chunein",

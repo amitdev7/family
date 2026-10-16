@@ -115,3 +115,4 @@ export const EMPTY_STATE_IMAGES = {
 export const HERO_IMAGES = {
   familyHouse: "/images/hero/hero-family-house.png",
 };
+
