@@ -224,17 +224,17 @@ export default function BudgetsPage() {
           <button
             type="button"
             onClick={() => setIsBudgetModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white dark:bg-[#16171B] hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 border border-slate-200/80 dark:border-white/10 font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white hover:bg-[#F4F4F2] text-[#2D2D2D] border border-[#ECECE8] font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
           >
-            <SlidersHorizontal className="h-3.5 w-3.5 text-[#E2F937]" />
+            <SlidersHorizontal className="h-3.5 w-3.5 text-[#C5A3FF]" />
             <span>Set Category Limit</span>
           </button>
           <button
             type="button"
             onClick={() => setIsReceiveModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#E2F937] hover:bg-[#d6ed2f] text-slate-950 font-black text-xs transition-all cursor-pointer shadow-xs active:scale-95 border border-black/10"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#2D2D2D] hover:bg-[#1a1a1a] text-white font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
           >
-            <Plus className="h-3.5 w-3.5 stroke-[3]" />
+            <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
             <span>+ Receive Money</span>
           </button>
         </div>
@@ -243,8 +243,8 @@ export default function BudgetsPage() {
       <div className="max-w-6xl mx-auto space-y-6 pb-16 select-none">
         {/* Floating Success Toast */}
         {toastMsg && (
-          <div className="fixed top-20 right-6 z-50 p-3.5 px-5 rounded-2xl bg-[#16171B] text-[#E2F937] border border-[#E2F937]/40 shadow-2xl flex items-center gap-2.5 text-xs font-bold animate-in fade-in slide-in-from-top-4">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#E2F937]" />
+          <div className="fixed top-20 right-6 z-50 p-3.5 px-5 rounded-2xl bg-[#2D2D2D] text-white border border-[#C5A3FF]/40 shadow-2xl flex items-center gap-2.5 text-xs font-bold animate-in fade-in slide-in-from-top-4">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#C5A3FF]" />
             <span>{toastMsg}</span>
           </div>
         )}
@@ -252,9 +252,9 @@ export default function BudgetsPage() {
         {/* 4 Hero Bento Metric Cards: Received, Spent, Left, Safe Spend */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* 1. Total Received */}
-          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="rounded-[26px] bg-white border border-[#ECECE8] p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+              <span className="text-[11px] font-extrabold text-[#71717A] uppercase tracking-wider">
                 Money Received
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -267,18 +267,18 @@ export default function BudgetsPage() {
                 />
               </div>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-emerald-600 font-mono tracking-tight">
               +{formatINR(totalReceived)}
             </div>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+            <p className="text-xs text-[#71717A] mt-0.5 font-medium">
               From {summary?.byMember?.length || 0} family member{summary?.byMember?.length === 1 ? "" : "s"}
             </p>
           </div>
 
           {/* 2. Total Spent */}
-          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="rounded-[26px] bg-white border border-[#ECECE8] p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+              <span className="text-[11px] font-extrabold text-[#71717A] uppercase tracking-wider">
                 Total Spent
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -291,18 +291,18 @@ export default function BudgetsPage() {
                 />
               </div>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400 font-mono tracking-tight">
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-rose-600 font-mono tracking-tight">
               -{formatINR(totalSpent)}
             </div>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+            <p className="text-xs text-[#71717A] mt-0.5 font-medium">
               {spendPercent}% of received funds utilized
             </p>
           </div>
 
           {/* 3. Money Left / Balance */}
-          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border-2 border-[#E2F937]/50 dark:border-[#E2F937]/30 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="rounded-[26px] bg-white border-2 border-[#C5A3FF]/60 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-emerald-600 dark:text-[#E2F937] uppercase tracking-wider">
+              <span className="text-[11px] font-extrabold text-[#6E4CA8] uppercase tracking-wider">
                 Remaining Pool
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -315,22 +315,22 @@ export default function BudgetsPage() {
                 />
               </div>
             </div>
-            <div className={`mt-3 text-2xl sm:text-3xl font-black font-mono tracking-tight ${moneyLeft >= 0 ? "text-[#E2F937] text-slate-950 dark:text-[#E2F937]" : "text-rose-400"}`}>
+            <div className={`mt-3 text-2xl sm:text-3xl font-black font-mono tracking-tight ${moneyLeft >= 0 ? "text-[#2D2D2D]" : "text-rose-500"}`}>
               {formatINR(moneyLeft)}
             </div>
-            <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden mt-2">
+            <div className="h-2 w-full rounded-full bg-[#F4F4F2] overflow-hidden mt-2">
               <div
-                className={`h-full rounded-full transition-all duration-500 ${moneyLeft >= 0 ? "bg-[#E2F937]" : "bg-rose-500"}`}
+                className={`h-full rounded-full transition-all duration-500 ${moneyLeft >= 0 ? "bg-[#C5A3FF]" : "bg-rose-500"}`}
                 style={{ width: `${Math.min(remainingPercent, 100)}%` }}
               />
             </div>
           </div>
 
           {/* 4. Safe Daily Spend */}
-          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="rounded-[26px] bg-white border border-[#ECECE8] p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-900 dark:text-[#E2F937] uppercase tracking-wider flex items-center gap-1">
-                <Sparkles className="h-3 w-3 text-[#E2F937]" />
+              <span className="text-[11px] font-extrabold text-[#2D2D2D] uppercase tracking-wider flex items-center gap-1">
+                <Sparkles className="h-3 w-3 text-[#C5A3FF]" />
                 <span>Safe Daily Spend</span>
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -343,29 +343,29 @@ export default function BudgetsPage() {
                 />
               </div>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white font-mono tracking-tight">
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-[#2D2D2D] font-mono tracking-tight">
               {formatINR(safeDailySpend)}/day
             </div>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-semibold">
+            <p className="text-xs text-[#71717A] mt-0.5 font-semibold">
               {remainingPercent}% available surplus
             </p>
           </div>
         </div>
 
         {/* Section 1: Family Contributors Breakdown ("Who gave money & how much") */}
-        <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-6 sm:p-8 shadow-xs space-y-5">
+        <div className="rounded-[26px] bg-white border border-[#ECECE8] p-6 sm:p-8 shadow-sm space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                  <User className="h-5 w-5 text-[#E2F937]" />
+                <h3 className="text-lg font-bold tracking-tight text-[#2D2D2D] flex items-center gap-2">
+                  <User className="h-5 w-5 text-[#C5A3FF]" />
                   <span>Family Money Contributions</span>
                 </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#EEE5FF] text-[#6E4CA8]">
                   {summary?.byMember?.length || 0} Members
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs text-[#71717A] mt-0.5">
                 Breakdown of allowances and pocket money received from Father, Mother, and siblings
               </p>
             </div>
@@ -373,7 +373,7 @@ export default function BudgetsPage() {
             <button
               type="button"
               onClick={() => setIsReceiveModalOpen(true)}
-              className="px-4 py-2 rounded-full bg-[#16171B] dark:bg-zinc-800 text-[#E2F937] hover:bg-zinc-800 text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto shadow-xs border border-white/10"
+              className="px-4 py-2 rounded-full bg-[#2D2D2D] hover:bg-[#1a1a1a] text-white text-xs font-bold transition-all cursor-pointer self-start sm:self-auto shadow-xs active:scale-95"
             >
               + Record Inflow
             </button>
@@ -383,11 +383,11 @@ export default function BudgetsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {summary.byMember.map((m, idx) => {
                 const colorPalette = [
-                  "bg-amber-400 text-black",
-                  "bg-[#E2F937] text-black",
-                  "bg-blue-500 text-white",
-                  "bg-purple-500 text-white",
-                  "bg-emerald-500 text-white",
+                  "bg-[#EEE5FF] text-[#6E4CA8]",
+                  "bg-[#F7F2FF] text-[#6E4CA8]",
+                  "bg-[#F0F9FF] text-[#0284C7]",
+                  "bg-[#FDF4FF] text-[#C026D3]",
+                  "bg-[#ECFDF5] text-[#059669]",
                 ];
                 const avatarBg = colorPalette[idx % colorPalette.length];
                 const memberAvatar = getMemberAvatar(m.memberId, m.memberName);
@@ -395,7 +395,7 @@ export default function BudgetsPage() {
                 return (
                   <div
                     key={m.memberId || idx}
-                    className="p-4.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 hover:border-[#E2F937]/60 transition-all space-y-3 relative group"
+                    className="p-4.5 rounded-[20px] bg-[#F9F9F8] border border-[#ECECE8] hover:border-[#C5A3FF]/60 transition-all space-y-3 relative group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -411,9 +411,9 @@ export default function BudgetsPage() {
                           ) : (
                             <span>{m.memberName.charAt(0).toUpperCase()}</span>
                           )}
-                          <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-white dark:bg-[#16171B] rounded-full p-0.5 border border-slate-200 dark:border-white/10 shadow-2xs flex items-center justify-center">
+                          <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-white rounded-full p-0.5 border border-[#ECECE8] shadow-2xs flex items-center justify-center">
                             {m.memberName === "Amit" ? (
-                              <Shield className="h-2.5 w-2.5 text-[#E2F937]" />
+                              <Shield className="h-2.5 w-2.5 text-[#C5A3FF]" />
                             ) : m.memberName === "Ajay" ? (
                               <Star className="h-2.5 w-2.5 text-emerald-500" />
                             ) : (
@@ -422,31 +422,31 @@ export default function BudgetsPage() {
                           </span>
                         </div>
                         <div>
-                          <p className="font-extrabold text-sm text-slate-900 dark:text-white">
+                          <p className="font-extrabold text-sm text-[#2D2D2D]">
                             {m.memberName}
                           </p>
-                          <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+                          <span className="text-[11px] font-semibold text-[#71717A]">
                             {m.relationship || "Family Member"}
                           </span>
                         </div>
                       </div>
 
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#E2F937]/25 text-slate-900 dark:text-[#E2F937] text-xs font-black">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#EEE5FF] text-[#6E4CA8] text-xs font-black">
                         {Math.round(m.percentage)}%
                       </span>
                     </div>
 
                     <div className="pt-1 flex items-baseline justify-between">
-                      <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Given This Month</span>
-                      <span className="text-base sm:text-lg font-black text-slate-900 dark:text-white font-mono">
+                      <span className="text-xs font-semibold text-[#71717A]">Given This Month</span>
+                      <span className="text-base sm:text-lg font-black text-[#2D2D2D] font-mono">
                         +{formatINR(m.amount)}
                       </span>
                     </div>
 
                     {/* Progress track */}
-                    <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
+                    <div className="h-2 w-full rounded-full bg-[#ECECE8] overflow-hidden">
                       <div
-                        className="h-full bg-[#E2F937] rounded-full transition-all duration-700"
+                        className="h-full bg-[#C5A3FF] rounded-full transition-all duration-700"
                         style={{ width: `${Math.min(m.percentage, 100)}%` }}
                       />
                     </div>
@@ -455,7 +455,7 @@ export default function BudgetsPage() {
               })}
             </div>
           ) : (
-            <div className="p-8 rounded-2xl bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 text-center space-y-3 flex flex-col items-center">
+            <div className="p-8 rounded-[20px] bg-[#F9F9F8] border border-dashed border-[#ECECE8] text-center space-y-3 flex flex-col items-center">
               <div className="w-24 h-20 relative flex items-center justify-center mb-1">
                 <Image
                   src={EMPTY_STATE_IMAGES.inflow}
@@ -466,17 +466,17 @@ export default function BudgetsPage() {
                 />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-slate-900 dark:text-white">
+                <p className="font-extrabold text-sm text-[#2D2D2D]">
                   No Family Money Inflow Recorded Yet
                 </p>
-                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
+                <p className="text-xs text-[#71717A] mt-1 max-w-sm mx-auto">
                   Click the button below to record funds or an allowance from Amit, Ajay, or Chhotu. Cash is set as default!
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsReceiveModalOpen(true)}
-                className="px-5 py-2.5 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black font-extrabold text-xs transition-colors cursor-pointer shadow-xs active:scale-95"
+                className="px-5 py-2.5 rounded-full bg-[#2D2D2D] hover:bg-[#1a1a1a] text-white font-extrabold text-xs transition-colors cursor-pointer shadow-xs active:scale-95"
               >
                 + Record Received Money
               </button>
@@ -485,19 +485,19 @@ export default function BudgetsPage() {
         </div>
 
         {/* Section 2: Category Money Allocation & Remaining Report */}
-        <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-6 sm:p-8 shadow-xs space-y-6">
+        <div className="rounded-[26px] bg-white border border-[#ECECE8] p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-[#E2F937]" />
+                <h3 className="text-lg font-bold tracking-tight text-[#2D2D2D] flex items-center gap-2">
+                  <Tag className="h-5 w-5 text-[#C5A3FF]" />
                   <span>Category Allocation &amp; Remaining Balance</span>
                 </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#EEE5FF] text-[#6E4CA8]">
                   {summary?.byCategory?.length || 0} Categories
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs text-[#71717A] mt-0.5">
                 Select a category to view allocated funds vs. actual expenses and money left
               </p>
             </div>
@@ -505,9 +505,9 @@ export default function BudgetsPage() {
             <button
               type="button"
               onClick={() => setIsBudgetModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto border border-slate-200 dark:border-zinc-700"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white hover:bg-[#F4F4F2] text-[#2D2D2D] text-xs font-bold transition-all cursor-pointer self-start sm:self-auto border border-[#ECECE8] shadow-xs"
             >
-              <SlidersHorizontal className="h-3.5 w-3.5 text-[#E2F937]" />
+              <SlidersHorizontal className="h-3.5 w-3.5 text-[#C5A3FF]" />
               <span>Adjust Category Budget</span>
             </button>
           </div>
@@ -518,8 +518,8 @@ export default function BudgetsPage() {
               type="button"
               onClick={() => setSelectedCategoryFilter("all")}
               className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${selectedCategoryFilter === "all"
-                ? "bg-[#E2F937] text-black shadow-xs font-black"
-                : "bg-slate-100 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700"
+                ? "bg-[#2D2D2D] text-white shadow-xs font-bold"
+                : "bg-white border border-[#ECECE8] text-[#71717A] hover:text-[#2D2D2D] hover:border-[#D4D4D8]"
                 }`}
             >
               All Categories ({summary?.byCategory?.length || 0})
@@ -531,13 +531,13 @@ export default function BudgetsPage() {
                 type="button"
                 onClick={() => setSelectedCategoryFilter(cat.categoryId)}
                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${selectedCategoryFilter === cat.categoryId
-                  ? "bg-[#E2F937] text-black shadow-xs font-black"
-                  : "bg-slate-100 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700"
+                  ? "bg-[#2D2D2D] text-white shadow-xs font-bold"
+                  : "bg-white border border-[#ECECE8] text-[#71717A] hover:text-[#2D2D2D] hover:border-[#D4D4D8]"
                   }`}
               >
                 <span
                   className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: cat.color || "#3b82f6" }}
+                  style={{ backgroundColor: cat.color || "#C5A3FF" }}
                 />
                 <span>{cat.categoryName}</span>
               </button>
@@ -556,15 +556,15 @@ export default function BudgetsPage() {
               return (
                 <div
                   key={c.categoryId}
-                  className="p-5.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 hover:border-[#E2F937]/70 transition-all space-y-4"
+                  className="p-5.5 rounded-[22px] bg-[#F9F9F8] border border-[#ECECE8] hover:border-[#C5A3FF]/70 transition-all space-y-4"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className="h-11 w-11 rounded-2xl flex items-center justify-center font-bold text-lg shadow-2xs overflow-hidden border border-slate-200/80 dark:border-white/10 bg-white dark:bg-zinc-800 shrink-0 relative"
+                        className="h-11 w-11 rounded-2xl flex items-center justify-center font-bold text-lg shadow-2xs overflow-hidden border border-[#ECECE8] bg-white shrink-0 relative"
                         style={{
-                          backgroundColor: `${c.color || "#3b82f6"}25`,
-                          color: c.color || "#3b82f6",
+                          backgroundColor: `${c.color || "#C5A3FF"}20`,
+                          color: c.color || "#6E4CA8",
                         }}
                       >
                         {CATEGORY_IMAGES[c.categoryId] ? (
@@ -576,14 +576,14 @@ export default function BudgetsPage() {
                             className="object-contain p-0.5"
                           />
                         ) : (
-                          <Tag className="h-5 w-5 text-slate-400" />
+                          <Tag className="h-5 w-5 text-[#71717A]" />
                         )}
                       </div>
                       <div>
-                        <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                        <h4 className="font-extrabold text-sm text-[#2D2D2D]">
                           {c.categoryName}
                         </h4>
-                        <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
+                        <span className="text-[11px] text-[#71717A] font-medium">
                           {allocated > 0 ? `${percentUsed}% utilized` : "No specific limit"}
                         </span>
                       </div>
@@ -592,10 +592,10 @@ export default function BudgetsPage() {
                     {/* Status Badge */}
                     <span
                       className={`px-3 py-1 rounded-full text-[11px] font-black ${isOver
-                        ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+                        ? "bg-rose-50 text-rose-600 border border-rose-200"
                         : left > 0
-                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                          : "bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400"
+                          ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                          : "bg-[#F4F4F2] text-[#71717A]"
                         }`}
                     >
                       {isOver ? "Over Budget" : left > 0 ? `${formatINR(left)} Left` : "Zero Balance"}
@@ -603,18 +603,18 @@ export default function BudgetsPage() {
                   </div>
 
                   {/* Numbers Grid: Allocated | Spent | Left */}
-                  <div className="grid grid-cols-3 gap-2 p-3.5 rounded-2xl bg-white dark:bg-[#16171B] border border-slate-200/70 dark:border-white/10 text-center shadow-2xs">
+                  <div className="grid grid-cols-3 gap-2 p-3.5 rounded-2xl bg-white border border-[#ECECE8] text-center shadow-2xs">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#71717A]">
                         Allocated
                       </p>
-                      <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-mono mt-0.5">
+                      <p className="text-xs sm:text-sm font-black text-[#2D2D2D] font-mono mt-0.5">
                         {formatINR(allocated)}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#71717A]">
                         Spent
                       </p>
                       <p className="text-xs sm:text-sm font-black text-rose-500 font-mono mt-0.5">
@@ -623,11 +623,11 @@ export default function BudgetsPage() {
                     </div>
 
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#71717A]">
                         Money Left
                       </p>
                       <p
-                        className={`text-xs sm:text-sm font-black font-mono mt-0.5 ${left >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"
+                        className={`text-xs sm:text-sm font-black font-mono mt-0.5 ${left >= 0 ? "text-emerald-600" : "text-rose-500"
                           }`}
                       >
                         {formatINR(left)}
@@ -637,14 +637,14 @@ export default function BudgetsPage() {
 
                   {/* Dual Segmented Progress Bar */}
                   <div className="space-y-1">
-                    <div className="h-2.5 w-full rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden flex">
+                    <div className="h-2.5 w-full rounded-full bg-[#ECECE8] overflow-hidden flex">
                       <div
-                        className={`h-full transition-all duration-500 ${isOver ? "bg-rose-500" : percentUsed > 80 ? "bg-amber-400" : "bg-[#E2F937]"
+                        className={`h-full transition-all duration-500 ${isOver ? "bg-rose-500" : percentUsed > 80 ? "bg-amber-400" : "bg-[#C5A3FF]"
                           }`}
                         style={{ width: `${percentUsed}%` }}
                       />
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-zinc-400 font-semibold">
+                    <div className="flex items-center justify-between text-[10px] text-[#71717A] font-semibold">
                       <span>Spent: {formatINR(spent)}</span>
                       <span>Target: {formatINR(allocated)}</span>
                     </div>
@@ -655,7 +655,7 @@ export default function BudgetsPage() {
           </div>
 
           {filteredCategories.length === 0 && (
-            <div className="p-10 rounded-2xl bg-secondary/20 border border-dashed border-border text-center flex flex-col items-center justify-center gap-2">
+            <div className="p-10 rounded-[20px] bg-[#F9F9F8] border border-dashed border-[#ECECE8] text-center flex flex-col items-center justify-center gap-2">
               <div className="w-24 h-20 relative flex items-center justify-center mb-1">
                 <Image
                   src={EMPTY_STATE_IMAGES.budgets}
@@ -665,8 +665,8 @@ export default function BudgetsPage() {
                   className="object-contain drop-shadow-md"
                 />
               </div>
-              <p className="font-bold text-sm text-foreground">No category budget targets found</p>
-              <p className="text-xs text-muted-foreground max-w-sm">
+              <p className="font-bold text-sm text-[#2D2D2D]">No category budget targets found</p>
+              <p className="text-xs text-[#71717A] max-w-sm">
                 No budget allocation is configured for this selection. Adjust or create category budget targets above.
               </p>
             </div>
@@ -674,33 +674,33 @@ export default function BudgetsPage() {
         </div>
 
         {/* Section 3: Recent Money Received History Ledger with Filter Tabs */}
-        <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-6 sm:p-8 shadow-xs space-y-5">
+        <div className="rounded-[26px] bg-white border border-[#ECECE8] p-6 sm:p-8 shadow-sm space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                  <Banknote className="h-5 w-5 text-emerald-500" />
+                <h3 className="text-lg font-bold tracking-tight text-[#2D2D2D] flex items-center gap-2">
+                  <Banknote className="h-5 w-5 text-emerald-600" />
                   <span>Recent Inflow History • Received Ledger</span>
                 </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#EEE5FF] text-[#6E4CA8]">
                   {allReceived.length} Records
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs text-[#71717A] mt-0.5">
                 Every allowance or fund received from family members with payment method and notes
               </p>
             </div>
 
             {/* Filter Tabs for History */}
-            <div className="flex items-center gap-1.5 self-start sm:self-auto bg-slate-100 dark:bg-zinc-800/80 rounded-full p-1 border border-slate-200/70 dark:border-white/10">
+            <div className="flex items-center gap-1.5 self-start sm:self-auto bg-[#F4F4F2] rounded-full p-1 border border-[#ECECE8]">
               {(["all", "Cash", "UPI", "Bank Transfer"] as const).map((filterVal) => (
                 <button
                   key={filterVal}
                   type="button"
                   onClick={() => setHistoryFilter(filterVal)}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${historyFilter === filterVal
-                    ? "bg-[#E2F937] text-black shadow-xs font-black"
-                    : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
+                    ? "bg-[#2D2D2D] text-white shadow-xs font-bold"
+                    : "text-[#71717A] hover:text-[#2D2D2D]"
                     }`}
                 >
                   {filterVal === "all" ? "All" : filterVal}
@@ -718,10 +718,10 @@ export default function BudgetsPage() {
                 return (
                   <div
                     key={entry.id}
-                    className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-100/70 dark:hover:bg-white/10 transition-all group"
+                    className="p-4 rounded-[18px] bg-[#F9F9F8] border border-[#ECECE8] flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F4F4F2] transition-all group"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="h-11 w-11 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg shrink-0 shadow-2xs overflow-hidden relative">
+                      <div className="h-11 w-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-lg shrink-0 shadow-2xs overflow-hidden relative">
                         {senderAvatar?.image ? (
                           <Image
                             src={senderAvatar.image}
@@ -731,21 +731,21 @@ export default function BudgetsPage() {
                             className="object-cover w-full h-full"
                           />
                         ) : (
-                          <User className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                          <User className="h-5 w-5 text-emerald-600" />
                         )}
                       </div>
 
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold text-sm text-foreground">
+                          <span className="font-extrabold text-sm text-[#2D2D2D]">
                             {entry.from_member_name}
                           </span>
-                          <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary font-semibold text-muted-foreground">
+                          <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#ECECE8] font-semibold text-[#71717A]">
                             {entry.relationship || "Family Member"}
                           </span>
                           <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1 ${isCash
-                            ? "bg-[#E2F937]/20 text-black dark:text-[#E2F937]"
-                            : "bg-blue-500/15 text-blue-500"
+                            ? "bg-[#EEE5FF] text-[#6E4CA8]"
+                            : "bg-blue-50 text-blue-600"
                             }`}>
                             {isCash ? (
                               <>
@@ -758,18 +758,18 @@ export default function BudgetsPage() {
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                        <div className="flex items-center gap-3 text-xs text-[#71717A] mt-1">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             <span>{entry.date}</span>
                           </span>
                           {entry.notes && (
-                            <span className="truncate max-w-xs text-foreground/80 font-medium">
+                            <span className="truncate max-w-xs text-[#2D2D2D] font-medium">
                               • {entry.notes}
                             </span>
                           )}
                           {entry.category && (
-                            <span className="text-primary font-bold">
+                            <span className="text-[#6E4CA8] font-bold">
                               [{entry.category.name}]
                             </span>
                           )}
@@ -778,9 +778,9 @@ export default function BudgetsPage() {
                     </div>
 
                     {/* Amount and Delete Action */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40">
+                    <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#ECECE8]">
                       <div className="text-right">
-                        <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                        <span className="text-base sm:text-lg font-black text-emerald-600 font-mono">
                           +{formatINR(entry.amount)}
                         </span>
                       </div>
@@ -788,7 +788,7 @@ export default function BudgetsPage() {
                       <button
                         type="button"
                         onClick={() => handleDeleteReceived(entry.id)}
-                        className="p-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                        className="p-2 rounded-xl text-[#71717A] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                         title="Delete entry"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -799,7 +799,7 @@ export default function BudgetsPage() {
               })}
             </div>
           ) : (
-            <div className="p-10 text-center text-muted-foreground text-xs rounded-2xl bg-secondary/20 border border-dashed border-border flex flex-col items-center justify-center gap-2">
+            <div className="p-10 text-center text-[#71717A] text-xs rounded-[20px] bg-[#F9F9F8] border border-dashed border-[#ECECE8] flex flex-col items-center justify-center gap-2">
               <div className="w-24 h-20 relative flex items-center justify-center mb-1">
                 <Image
                   src={EMPTY_STATE_IMAGES.inflow}
@@ -809,8 +809,8 @@ export default function BudgetsPage() {
                   className="object-contain drop-shadow-md"
                 />
               </div>
-              <p className="font-bold text-sm text-foreground">No inflow records matching this filter</p>
-              <p className="text-xs text-muted-foreground">Switch payment filters or record money received from family members.</p>
+              <p className="font-bold text-sm text-[#2D2D2D]">No inflow records matching this filter</p>
+              <p className="text-xs text-[#71717A]">Switch payment filters or record money received from family members.</p>
             </div>
           )}
         </div>
@@ -823,19 +823,19 @@ export default function BudgetsPage() {
           onClose={() => setIsReceiveModalOpen(false)}
           maxWidth="md"
           hideCloseButton={true}
-          className="p-6 sm:p-8 rounded-[32px] bg-card border-0 shadow-2xl relative"
+          className="p-6 sm:p-8 rounded-[32px] bg-white border border-[#ECECE8] shadow-2xl relative"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-border/60 mb-5">
+          <div className="flex items-center justify-between pb-4 border-b border-[#ECECE8] mb-5">
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-2xl bg-[#E2F937] text-black flex items-center justify-center font-bold shadow-xs">
+              <div className="h-11 w-11 rounded-2xl bg-[#EEE5FF] text-[#6E4CA8] flex items-center justify-center font-bold shadow-xs">
                 <ArrowDownLeft className="h-6 w-6 stroke-[2.5]" />
               </div>
               <div>
-                <h3 className="text-lg font-extrabold text-foreground">
+                <h3 className="text-lg font-extrabold text-[#2D2D2D]">
                   Receive Money / Family Inflow
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[#71717A]">
                   Record funds received into the household pool
                 </p>
               </div>
@@ -844,7 +844,7 @@ export default function BudgetsPage() {
             <button
               type="button"
               onClick={() => setIsReceiveModalOpen(false)}
-              className="h-8 w-8 rounded-full bg-secondary hover:bg-secondary/80 text-foreground flex items-center justify-center transition-colors cursor-pointer"
+              className="h-8 w-8 rounded-full bg-[#F4F4F2] hover:bg-[#ECECE8] text-[#2D2D2D] flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -853,13 +853,13 @@ export default function BudgetsPage() {
           <form onSubmit={handleReceiveMoneySubmit} className="space-y-4.5">
             {/* Sender Selection */}
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
+              <label className="block text-xs font-bold text-[#2D2D2D] mb-1.5">
                 Who gave this money? (Family Contributor)
               </label>
               <select
                 value={fromMemberId}
                 onChange={(e) => setFromMemberId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+                className="w-full px-4 py-2.5 rounded-2xl bg-[#F9F9F8] border border-[#ECECE8] text-xs sm:text-sm font-semibold text-[#2D2D2D] focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.user_id || m.id}>
@@ -872,9 +872,9 @@ export default function BudgetsPage() {
 
             {/* Custom Sender Fields if selected */}
             {fromMemberId === "other" && (
-              <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-secondary/50 border border-border/60 animate-in fade-in">
+              <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-[#F4F4F2] border border-[#ECECE8] animate-in fade-in">
                 <div>
-                  <label className="block text-[11px] font-bold text-muted-foreground mb-1">
+                  <label className="block text-[11px] font-bold text-[#71717A] mb-1">
                     Name
                   </label>
                   <input
@@ -883,11 +883,11 @@ export default function BudgetsPage() {
                     placeholder="e.g. Papa, Chacha"
                     value={customSenderName}
                     onChange={(e) => setCustomSenderName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-card border border-border text-xs font-semibold text-foreground"
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-[#ECECE8] text-xs font-semibold text-[#2D2D2D]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-muted-foreground mb-1">
+                  <label className="block text-[11px] font-bold text-[#71717A] mb-1">
                     Relationship
                   </label>
                   <input
@@ -896,7 +896,7 @@ export default function BudgetsPage() {
                     placeholder="e.g. Father, Uncle"
                     value={customRelationship}
                     onChange={(e) => setCustomRelationship(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-card border border-border text-xs font-semibold text-foreground"
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-[#ECECE8] text-xs font-semibold text-[#2D2D2D]"
                   />
                 </div>
               </div>
@@ -904,11 +904,11 @@ export default function BudgetsPage() {
 
             {/* Amount with Quick Preset Pills */}
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
+              <label className="block text-xs font-bold text-[#2D2D2D] mb-1.5">
                 Amount Received (₹)
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-3 text-base font-black text-muted-foreground">
+                <span className="absolute left-4 top-3 text-base font-black text-[#71717A]">
                   ₹
                 </span>
                 <input
@@ -918,7 +918,7 @@ export default function BudgetsPage() {
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-secondary border border-border text-lg font-black text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+                  className="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-[#F9F9F8] border border-[#ECECE8] text-lg font-black text-[#2D2D2D] focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
                 />
               </div>
 
@@ -929,7 +929,7 @@ export default function BudgetsPage() {
                     key={val}
                     type="button"
                     onClick={() => setAmount(val.toString())}
-                    className="px-3 py-1 rounded-full bg-secondary hover:bg-secondary/80 border border-border text-[11px] font-bold text-muted-foreground hover:text-foreground whitespace-nowrap cursor-pointer transition-colors"
+                    className="px-3 py-1 rounded-full bg-[#F4F4F2] hover:bg-[#ECECE8] border border-[#ECECE8] text-[11px] font-bold text-[#71717A] hover:text-[#2D2D2D] whitespace-nowrap cursor-pointer transition-colors"
                   >
                     +₹{val >= 1000 ? `${val / 1000}k` : val}
                   </button>
@@ -939,7 +939,7 @@ export default function BudgetsPage() {
 
             {/* Payment Method Selector (DEFAULT TO "Cash") */}
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
+              <label className="block text-xs font-bold text-[#2D2D2D] mb-1.5">
                 Payment Method (Default: Cash)
               </label>
               <div className="grid grid-cols-4 gap-2">
@@ -951,8 +951,8 @@ export default function BudgetsPage() {
                       type="button"
                       onClick={() => setPaymentMethod(method)}
                       className={`py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center gap-1 border ${isSelected
-                        ? "bg-[#E2F937] text-black border-[#E2F937] shadow-xs"
-                        : "bg-secondary text-muted-foreground border-border hover:text-foreground"
+                        ? "bg-[#C5A3FF] text-[#2D2D2D] border-[#C5A3FF] shadow-xs"
+                        : "bg-[#F9F9F8] text-[#71717A] border-[#ECECE8] hover:text-[#2D2D2D]"
                         }`}
                     >
                       {method === "Cash" && <Banknote className="h-4 w-4" />}
@@ -968,13 +968,13 @@ export default function BudgetsPage() {
 
             {/* Category Tagging */}
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1.5">
+              <label className="block text-xs font-bold text-[#2D2D2D] mb-1.5">
                 Intended Category (Optional)
               </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-border text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+                className="w-full px-4 py-2.5 rounded-2xl bg-[#F9F9F8] border border-[#ECECE8] text-xs sm:text-sm font-semibold text-[#2D2D2D] focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
               >
                 <option value="general">General Family Pool (No specific category)</option>
                 {categories.map((c) => (
@@ -988,7 +988,7 @@ export default function BudgetsPage() {
             {/* Date & Notes */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1.5">
+                <label className="block text-xs font-bold text-[#2D2D2D] mb-1.5">
                   Date Received
                 </label>
                 <input
@@ -996,12 +996,12 @@ export default function BudgetsPage() {
                   required
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold text-foreground"
+                  className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F9F8] border border-[#ECECE8] text-xs font-semibold text-[#2D2D2D]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1.5">
+                <label className="block text-xs font-bold text-[#2D2D2D] mb-1.5">
                   Notes / Reason
                 </label>
                 <input
@@ -1009,7 +1009,7 @@ export default function BudgetsPage() {
                   placeholder="e.g. Monthly allowance, grocery share"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold text-foreground"
+                  className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F9F8] border border-[#ECECE8] text-xs font-semibold text-[#2D2D2D]"
                 />
               </div>
             </div>
@@ -1019,14 +1019,14 @@ export default function BudgetsPage() {
               <button
                 type="button"
                 onClick={() => setIsReceiveModalOpen(false)}
-                className="flex-1 py-3 rounded-full border border-border text-xs sm:text-sm font-bold text-foreground hover:bg-secondary cursor-pointer"
+                className="flex-1 py-3 rounded-full border border-[#ECECE8] text-xs sm:text-sm font-bold text-[#2D2D2D] hover:bg-[#F4F4F2] cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 py-3 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer disabled:opacity-50"
+                className="flex-1 py-3 rounded-full bg-[#2D2D2D] hover:bg-[#1a1a1a] text-white font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer disabled:opacity-50 active:scale-95"
               >
                 {isSubmitting ? "Saving..." : "Record Received Money"}
               </button>
@@ -1042,16 +1042,16 @@ export default function BudgetsPage() {
           onClose={() => setIsBudgetModalOpen(false)}
           maxWidth="sm"
           hideCloseButton={true}
-          className="p-6 rounded-[28px] bg-card border-0 shadow-2xl relative"
+          className="p-6 rounded-[28px] bg-white border border-[#ECECE8] shadow-2xl relative"
         >
-          <div className="flex items-center justify-between pb-3 border-b border-border/60 mb-4">
-            <h3 className="text-lg font-bold text-foreground">
+          <div className="flex items-center justify-between pb-3 border-b border-[#ECECE8] mb-4">
+            <h3 className="text-lg font-bold text-[#2D2D2D]">
               Set Category Budget Target
             </h3>
             <button
               type="button"
               onClick={() => setIsBudgetModalOpen(false)}
-              className="h-8 w-8 rounded-full bg-secondary hover:bg-secondary/80 text-foreground flex items-center justify-center transition-colors cursor-pointer"
+              className="h-8 w-8 rounded-full bg-[#F4F4F2] hover:bg-[#ECECE8] text-[#2D2D2D] flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -1059,13 +1059,13 @@ export default function BudgetsPage() {
 
           <form onSubmit={handleBudgetSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+              <label className="block text-xs font-semibold text-[#71717A] mb-1.5">
                 Target Category
               </label>
               <select
                 value={targetCategory}
                 onChange={(e) => setTargetCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F9F8] border border-[#ECECE8] text-xs font-semibold text-[#2D2D2D] focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
               >
                 <option value="all">Overall Household Target</option>
                 {categories.map((c) => (
@@ -1077,7 +1077,7 @@ export default function BudgetsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+              <label className="block text-xs font-semibold text-[#71717A] mb-1.5">
                 Monthly Spending Limit (₹)
               </label>
               <input
@@ -1086,7 +1086,7 @@ export default function BudgetsPage() {
                 onChange={(e) => setTargetBudgetAmount(e.target.value)}
                 placeholder="e.g. 25000"
                 required
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[#E2F937]"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F9F8] border border-[#ECECE8] text-sm font-bold text-[#2D2D2D] focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
               />
             </div>
 
@@ -1094,14 +1094,14 @@ export default function BudgetsPage() {
               <button
                 type="button"
                 onClick={() => setIsBudgetModalOpen(false)}
-                className="flex-1 py-2.5 rounded-full border border-border text-xs font-bold text-foreground hover:bg-secondary cursor-pointer"
+                className="flex-1 py-2.5 rounded-full border border-[#ECECE8] text-xs font-bold text-[#2D2D2D] hover:bg-[#F4F4F2] cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSavingBudget}
-                className="flex-1 py-2.5 rounded-full bg-[#E2F937] hover:bg-[#c6ea27] text-black text-xs font-bold shadow-xs cursor-pointer"
+                className="flex-1 py-2.5 rounded-full bg-[#2D2D2D] hover:bg-[#1a1a1a] text-white text-xs font-bold shadow-xs cursor-pointer active:scale-95"
               >
                 {isSavingBudget ? "Saving..." : "Save Target"}
               </button>

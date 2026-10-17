@@ -348,8 +348,8 @@ export default function ExpensesPage() {
       <div className="space-y-6 select-none max-w-7xl mx-auto pb-12">
         {/* Floating Notification Toast */}
         {toastMessage && (
-          <div className="fixed top-20 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#16171B] text-[#E2F937] border border-[#E2F937]/40 shadow-2xl text-xs font-black tracking-wide animate-in fade-in slide-in-from-top-4 duration-300">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#E2F937]" />
+          <div className="fixed top-20 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#2D2D2D] text-white border border-[#C5A3FF]/40 shadow-2xl text-xs font-bold tracking-wide animate-in fade-in slide-in-from-top-4 duration-300">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#C5A3FF]" />
             <span>{toastMessage}</span>
           </div>
         )}
@@ -357,9 +357,9 @@ export default function ExpensesPage() {
         {/* 2. 4 Metric Cards: Total Spent, Cash Spent, This Month, Average Per Expense */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Spent */}
-          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="rounded-[26px] bg-white border border-[#ECECE8] p-6 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#7A807D]">
                 Total Expenses
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -374,24 +374,24 @@ export default function ExpensesPage() {
             </div>
 
             <div className="mt-3">
-              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-[#17201D] tracking-tight">
                 {formatINR(stats.totalSpent)}
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+              <p className="text-xs text-[#7A807D] mt-0.5 font-medium">
                 {stats.totalTransactions} recorded transaction{stats.totalTransactions === 1 ? "" : "s"}
               </p>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+            <div className="mt-3 pt-2.5 border-t border-[#ECECE8] flex items-center justify-between text-[11px] font-semibold text-rose-600">
               <span>Lifetime Outflow</span>
               <span>All Members</span>
             </div>
           </div>
 
           {/* Card 2: Cash Expenses (Default Focus) */}
-          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border-2 border-[#E2F937]/50 dark:border-[#E2F937]/30 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="rounded-[26px] bg-[#EEE5FF]/30 border border-[#C5A3FF]/50 p-6 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-[#E2F937]">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6E4CA8]">
                 Cash Spent (Default)
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -406,26 +406,26 @@ export default function ExpensesPage() {
             </div>
 
             <div className="mt-3">
-              <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-[#E2F937] tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-[#6E4CA8] tracking-tight">
                 {formatINR(stats.cashSpent)}
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+              <p className="text-xs text-[#7A807D] mt-0.5 font-medium">
                 {stats.totalSpent > 0
                   ? `${Math.round((stats.cashSpent / stats.totalSpent) * 100)}% of household outflows`
                   : "0% of outflows"}
               </p>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <div className="mt-3 pt-2.5 border-t border-[#C5A3FF]/30 flex items-center justify-between text-[11px] font-semibold text-[#6E4CA8]">
               <span>Physical Cash</span>
               <span>Verified Ledger</span>
             </div>
           </div>
 
           {/* Card 3: This Month Outflow */}
-          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="rounded-[26px] bg-white border border-[#ECECE8] p-6 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#7A807D]">
                 This Month
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -440,10 +440,10 @@ export default function ExpensesPage() {
             </div>
 
             <div className="mt-3">
-              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-[#17201D] tracking-tight">
                 {formatINR(stats.thisMonthSpent)}
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+              <p className="text-xs text-[#7A807D] mt-0.5 font-medium">
                 Current billing cycle
               </p>
             </div>
@@ -457,9 +457,9 @@ export default function ExpensesPage() {
           </div>
 
           {/* Card 4: Average Per Transaction */}
-          <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="rounded-[26px] bg-white border border-[#ECECE8] p-6 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#7A807D]">
                 Avg. Ticket Size
               </span>
               <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
@@ -474,15 +474,15 @@ export default function ExpensesPage() {
             </div>
 
             <div className="mt-3">
-              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-[#17201D] tracking-tight">
                 {formatINR(stats.avgSpent)}
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+              <p className="text-xs text-[#7A807D] mt-0.5 font-medium">
                 Per expense transaction
               </p>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+            <div className="mt-3 pt-2.5 border-t border-[#ECECE8] flex items-center justify-between text-[11px] font-semibold text-[#7A807D]">
               <span>Normal Distribution</span>
               <span>Smart Safe Zone</span>
             </div>
@@ -502,8 +502,8 @@ export default function ExpensesPage() {
                   setPage(1);
                 }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${isSelected
-                  ? "bg-[#E2F937] text-black shadow-md shadow-[#E2F937]/20 border-transparent font-extrabold scale-102"
-                  : "bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800"
+                  ? "bg-[#C5A3FF] text-[#2D2D2D] shadow-xs font-bold scale-102"
+                  : "bg-white border border-[#ECECE8] text-[#7A807D] hover:bg-slate-50"
                   }`}
               >
                 {tab.image && (
@@ -525,7 +525,7 @@ export default function ExpensesPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Search Bar */}
           <div className="relative flex-1 max-w-lg">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#7A807D]" />
             <input
               type="text"
               value={search}
@@ -534,7 +534,7 @@ export default function ExpensesPage() {
                 setPage(1);
               }}
               placeholder="Search merchant, notes, or amount..."
-              className="w-full pl-11 pr-10 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-xs"
+              className="w-full pl-11 pr-10 py-2.5 rounded-full bg-white border border-[#ECECE8] text-sm text-[#17201D] placeholder:text-[#969792] focus:outline-none focus:ring-2 focus:ring-[#C5A3FF] shadow-xs"
             />
             {search && (
               <button
@@ -543,7 +543,7 @@ export default function ExpensesPage() {
                   setSearch("");
                   setPage(1);
                 }}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-slate-100 flex items-center justify-center text-[#7A807D] hover:text-[#17201D] cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -560,7 +560,7 @@ export default function ExpensesPage() {
                   setSelectedCategory(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-xs font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-xs"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white border border-[#ECECE8] text-xs font-bold text-[#17201D] hover:bg-slate-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C5A3FF] shadow-xs"
               >
                 <option value="all">All Categories</option>
                 {categories.map((c) => (
@@ -580,7 +580,7 @@ export default function ExpensesPage() {
                   setSelectedMember(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-xs font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-xs"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white border border-[#ECECE8] text-xs font-bold text-[#17201D] hover:bg-slate-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C5A3FF] shadow-xs"
               >
                 <option value="all">All Family Members</option>
                 {members.map((m) => (
@@ -600,7 +600,7 @@ export default function ExpensesPage() {
                   setSortBy(e.target.value as any);
                   setPage(1);
                 }}
-                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 text-xs font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#E2F937] shadow-xs"
+                className="appearance-none pl-4 pr-8 py-2.5 rounded-full bg-white border border-[#ECECE8] text-xs font-bold text-[#17201D] hover:bg-slate-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C5A3FF] shadow-xs"
               >
                 <option value="date_desc">Newest First</option>
                 <option value="date_asc">Oldest First</option>
@@ -615,7 +615,7 @@ export default function ExpensesPage() {
               <button
                 type="button"
                 onClick={resetAllFilters}
-                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-slate-100 text-[#7A807D] hover:text-[#17201D] text-xs font-bold transition-colors cursor-pointer shadow-xs"
               >
                 <X className="h-3.5 w-3.5" />
                 <span>Reset</span>
@@ -625,11 +625,11 @@ export default function ExpensesPage() {
         </div>
 
         {/* 5. Desktop Ledger Table (md:block) */}
-        <div className="hidden md:block rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 shadow-xs overflow-hidden">
+        <div className="hidden md:block rounded-[26px] bg-white border border-[#ECECE8] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-200/80 dark:border-white/10 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-zinc-400 bg-slate-50 dark:bg-zinc-900/60">
+                <tr className="border-b border-[#ECECE8] text-[11px] font-black uppercase tracking-wider text-[#7A807D] bg-[#FAF9F7]">
                   <th className="py-4 px-6">DATE</th>
                   <th className="py-4 px-6">MERCHANT &amp; DETAILS</th>
                   <th className="py-4 px-6">CATEGORY</th>
@@ -644,7 +644,7 @@ export default function ExpensesPage() {
                   <tr>
                     <td colSpan={7} className="py-16 text-center text-sm text-muted-foreground">
                       <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="h-6 w-6 rounded-full border-2 border-[#E2F937] border-t-transparent animate-spin" />
+                        <div className="h-6 w-6 rounded-full border-2 border-[#C5A3FF] border-t-transparent animate-spin" />
                         <span>Loading transactions from Supabase...</span>
                       </div>
                     </td>
@@ -670,7 +670,7 @@ export default function ExpensesPage() {
                           <button
                             type="button"
                             onClick={resetAllFilters}
-                            className="mt-2 px-4 py-1.5 rounded-full bg-[#E2F937] text-black text-xs font-bold"
+                            className="mt-2 px-4 py-1.5 rounded-full bg-[#C5A3FF] text-[#2D2D2D] text-xs font-bold"
                           >
                             Reset All Filters
                           </button>
@@ -687,7 +687,7 @@ export default function ExpensesPage() {
                     return (
                       <tr
                         key={expense.id}
-                        className="group hover:bg-secondary/30 transition-colors"
+                        className="group hover:bg-[#F7F2FF] transition-colors"
                       >
                         {/* Date */}
                         <td className="py-4 px-6 whitespace-nowrap">
@@ -696,7 +696,7 @@ export default function ExpensesPage() {
                               {formatDate(expense.expense_date)}
                             </span>
                             {relativeBadge && (
-                              <span className="text-[10px] font-extrabold text-[#E2F937] bg-black/60 dark:bg-black/90 px-2 py-0.5 rounded-full w-fit mt-1">
+                              <span className="text-[10px] font-bold text-[#6E4CA8] bg-[#EEE5FF] px-2 py-0.5 rounded-full w-fit mt-1">
                                 {relativeBadge}
                               </span>
                             )}
@@ -752,7 +752,7 @@ export default function ExpensesPage() {
                         {/* Paid By */}
                         <td className="py-4 px-6 whitespace-nowrap">
                           <div className="flex items-center gap-2.5">
-                            <div className="h-7 w-7 rounded-full overflow-hidden bg-[#E2F937] text-black font-black text-xs flex items-center justify-center shrink-0 shadow-xs relative">
+                            <div className="h-7 w-7 rounded-full overflow-hidden bg-[#EEE5FF] text-[#2D2D2D] font-black text-xs flex items-center justify-center shrink-0 shadow-xs relative">
                               {MEMBER_AVATARS[expense.paid_by?.user_id || ""]?.image ? (
                                 <Image
                                   src={MEMBER_AVATARS[expense.paid_by?.user_id || ""].image}
@@ -836,7 +836,7 @@ export default function ExpensesPage() {
           </div>
 
           {/* Pagination Footer */}
-          <div className="py-4 px-6 border-t border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500 dark:text-zinc-400 bg-slate-50/50 dark:bg-zinc-900/30">
+          <div className="py-4 px-6 border-t border-[#ECECE8] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-[#7A807D] bg-white">
             <div>
               Showing {expenses.length > 0 ? (page - 1) * pageSize + 1 : 0}-
               {Math.min(page * pageSize, totalCount)} of {totalCount} transactions
@@ -847,7 +847,7 @@ export default function ExpensesPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 cursor-pointer transition-colors"
+                className="p-2 rounded-full hover:bg-slate-100 disabled:opacity-30 cursor-pointer transition-colors"
                 title="Previous Page"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -862,8 +862,8 @@ export default function ExpensesPage() {
                     type="button"
                     onClick={() => setPage(pageNum)}
                     className={`h-8 w-8 rounded-full flex items-center justify-center font-black text-xs transition-all cursor-pointer ${isActive
-                      ? "bg-[#E2F937] text-black shadow-md shadow-[#E2F937]/20 scale-105"
-                      : "hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-800 dark:text-zinc-200"
+                      ? "bg-[#C5A3FF] text-[#2D2D2D] shadow-xs scale-105"
+                      : "hover:bg-slate-100 text-[#17201D]"
                       }`}
                   >
                     {pageNum}
@@ -875,7 +875,7 @@ export default function ExpensesPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 cursor-pointer transition-colors"
+                className="p-2 rounded-full hover:bg-slate-100 disabled:opacity-30 cursor-pointer transition-colors"
                 title="Next Page"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -887,12 +887,12 @@ export default function ExpensesPage() {
         {/* 6. Mobile Cards View (md:hidden) */}
         <div className="md:hidden space-y-3">
           {isLoading ? (
-            <div className="py-12 text-center text-sm text-slate-500 dark:text-zinc-400">
-              <div className="h-6 w-6 rounded-full border-2 border-[#E2F937] border-t-transparent animate-spin mx-auto mb-2" />
+            <div className="py-12 text-center text-sm text-[#7A807D]">
+              <div className="h-6 w-6 rounded-full border-2 border-[#C5A3FF] border-t-transparent animate-spin mx-auto mb-2" />
               Loading expenses...
             </div>
           ) : expenses.length === 0 ? (
-            <div className="rounded-[28px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-8 text-center text-sm text-slate-500 dark:text-zinc-400 flex flex-col items-center justify-center">
+            <div className="rounded-[26px] bg-white border border-[#ECECE8] p-8 text-center text-sm text-[#7A807D] flex flex-col items-center justify-center">
               <div className="w-24 h-18 relative mb-2 flex items-center justify-center">
                 <Image
                   src={EMPTY_STATE_IMAGES.expenses}
@@ -902,7 +902,7 @@ export default function ExpensesPage() {
                   className="object-contain drop-shadow-md"
                 />
               </div>
-              <p className="font-bold text-slate-900 dark:text-white text-xs">No matching expenses found</p>
+              <p className="font-bold text-[#17201D] text-xs">No matching expenses found</p>
             </div>
           ) : (
             expenses.map((expense) => {
@@ -913,7 +913,7 @@ export default function ExpensesPage() {
               return (
                 <div
                   key={expense.id}
-                  className="rounded-[24px] bg-white dark:bg-[#16171B] border border-slate-200/80 dark:border-white/10 p-4.5 shadow-xs space-y-3.5"
+                  className="rounded-[22px] bg-white border border-[#ECECE8] p-4 shadow-sm space-y-3.5"
                 >
                   {/* Top row: Category icon, merchant & amount */}
                   <div className="flex items-start justify-between gap-3">

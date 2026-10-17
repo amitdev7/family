@@ -89,8 +89,8 @@ export default function WelcomeEntryPage() {
 
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-[#E5EDF4] dark:bg-[#090A0C] flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-2 border-[#E2F937] border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-[#E7DDF5] flex items-center justify-center">
+        <div className="h-8 w-8 rounded-full border-2 border-[#C5A3FF] border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -100,9 +100,9 @@ export default function WelcomeEntryPage() {
     members.find((m) => m.user_id === selectedUserId)?.display_name || "Amit";
 
   return (
-    <div className="min-h-screen bg-[#E5EDF4] dark:bg-[#090A0C] p-2 sm:p-4 md:p-6 flex flex-col justify-center select-none font-sans antialiased">
-      {/* Double-Bezel Inner Shell */}
-      <div className="w-full max-w-2xl mx-auto bg-[#EEF3F8] dark:bg-[#111317] rounded-[28px] sm:rounded-[36px] p-5 sm:p-8 shadow-2xl border border-slate-200/80 dark:border-white/5 relative">
+    <div className="min-h-screen bg-[#E7DDF5] p-2 sm:p-4 md:p-6 flex flex-col justify-center select-none font-sans antialiased">
+      {/* Figma Make Canvas Shell */}
+      <div className="w-full max-w-2xl mx-auto bg-[#F5F5F4] sm:rounded-[32px] sm:border sm:border-white p-5 sm:p-8 sm:shadow-[0_22px_70px_rgba(0,0,0,.08)] relative">
         <div className="absolute top-6 right-6">
           <ThemeToggle />
         </div>
@@ -110,7 +110,7 @@ export default function WelcomeEntryPage() {
         {/* 3D Hero House Art & Header */}
         <div className="text-center space-y-2 mb-6">
           <div className="flex items-center justify-center gap-2 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-[#111827] flex items-center justify-center shadow-md p-1 border border-white/10">
+            <div className="w-9 h-9 rounded-xl bg-[#2D2D2D] flex items-center justify-center shadow-md p-1 border border-white/10">
               <Image
                 src="/logo.svg"
                 alt="Family Logo"
@@ -120,7 +120,7 @@ export default function WelcomeEntryPage() {
                 className="object-contain"
               />
             </div>
-            <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+            <span className="text-xl font-black tracking-tight text-[#2D2D2D]">
               Family
             </span>
           </div>
@@ -136,26 +136,26 @@ export default function WelcomeEntryPage() {
             />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E2F937]/35 text-slate-900 dark:text-[#E2F937] text-xs font-black border border-[#E2F937]/60 shadow-2xs">
-            <Sparkles className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EEE5FF] text-[#6E4CA8] text-xs font-black border border-[#C5A3FF]/40 shadow-2xs">
+            <Sparkles className="h-3.5 w-3.5 text-[#C5A3FF]" />
             <span>{t.welcome}</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#2D2D2D]">
             {t.whoAreYou}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium max-w-sm mx-auto">
+          <p className="text-xs sm:text-sm text-[#71717A] font-medium max-w-sm mx-auto">
             {t.selectProfile}
           </p>
         </div>
 
         {/* Main Selection Bento Card */}
-        <div className="rounded-[24px] sm:rounded-[28px] border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16171B] p-5 sm:p-6 shadow-sm space-y-5">
+        <div className="rounded-[26px] border border-[#ECECE8] bg-white p-5 sm:p-6 shadow-sm space-y-5">
           {/* 1. Language Selection Pills with 3D Flags */}
-          <div className="space-y-2 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-zinc-400">
-              <span className="flex items-center gap-1.5 text-slate-900 dark:text-white font-extrabold">
-                <Globe className="h-3.5 w-3.5 text-[#E2F937]" />
+          <div className="space-y-2 p-3 rounded-2xl bg-[#F9F9F8] border border-[#ECECE8]">
+            <div className="flex items-center justify-between text-xs font-bold text-[#71717A]">
+              <span className="flex items-center gap-1.5 text-[#2D2D2D] font-extrabold">
+                <Globe className="h-3.5 w-3.5 text-[#C5A3FF]" />
                 <span>{t.selectLanguage}</span>
               </span>
               <span className="text-[11px] font-bold">Step 1 of 2</span>
@@ -172,8 +172,8 @@ export default function WelcomeEntryPage() {
                     type="button"
                     onClick={() => handleSelectLanguage(lang.id)}
                     className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer border ${isSelected
-                      ? "bg-[#E2F937] text-black border-transparent shadow-md scale-102 font-extrabold"
-                      : "bg-white dark:bg-zinc-800/80 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 border-slate-200 dark:border-zinc-700"
+                      ? "bg-[#2D2D2D] text-white border-transparent shadow-md scale-102 font-extrabold"
+                      : "bg-white hover:bg-[#F4F4F2] text-[#71717A] hover:text-[#2D2D2D] border-[#ECECE8]"
                       }`}
                   >
                     {flagSrc ? (
@@ -187,7 +187,7 @@ export default function WelcomeEntryPage() {
                         />
                       </div>
                     ) : (
-                      <span className="text-[10px] uppercase font-bold text-slate-400">{lang.id}</span>
+                      <span className="text-[10px] uppercase font-bold text-[#71717A]">{lang.id}</span>
                     )}
                     <span>{lang.label}</span>
                   </button>
@@ -198,8 +198,8 @@ export default function WelcomeEntryPage() {
 
           {/* 2. Strictly 3 Members (Amit, Ajay, Chhotu) with 3D Pixar Avatars */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-zinc-400 px-1">
-              <span className="text-slate-900 dark:text-white font-extrabold">
+            <div className="flex items-center justify-between text-xs font-bold text-[#71717A] px-1">
+              <span className="text-[#2D2D2D] font-extrabold">
                 Select Your Member Profile
               </span>
               <span className="text-[11px] font-bold">Step 2 of 2</span>
@@ -222,12 +222,12 @@ export default function WelcomeEntryPage() {
                     type="button"
                     onClick={() => setSelectedUserId(member.user_id)}
                     className={`relative flex flex-col items-center justify-between p-4 rounded-2xl transition-all duration-200 text-center cursor-pointer border ${isSelected
-                      ? "bg-slate-50 dark:bg-white/10 border-slate-950 dark:border-white ring-3 ring-[#E2F937] ring-offset-2 ring-offset-white dark:ring-offset-[#16171B] scale-103 shadow-lg"
-                      : "bg-slate-50/60 dark:bg-white/5 border-slate-200/80 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/10 opacity-90 hover:opacity-100"
+                      ? "bg-[#F7F2FF] border-[#C5A3FF] ring-3 ring-[#C5A3FF]/40 scale-103 shadow-md"
+                      : "bg-white border-[#ECECE8] hover:border-[#D4D4D8] hover:bg-[#F9F9F8] opacity-90 hover:opacity-100"
                       }`}
                   >
                     {isSelected && (
-                      <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#E2F937] text-black flex items-center justify-center shadow-xs">
+                      <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#C5A3FF] text-[#2D2D2D] flex items-center justify-center shadow-xs">
                         <Check className="h-3.5 w-3.5 stroke-[3]" />
                       </div>
                     )}
@@ -243,12 +243,12 @@ export default function WelcomeEntryPage() {
                           className="rounded-2xl object-cover drop-shadow-md hover:scale-105 transition-transform"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-2xl bg-[#E2F937] text-black font-black text-xl flex items-center justify-center">
+                        <div className="w-14 h-14 rounded-2xl bg-[#EEE5FF] text-[#6E4CA8] font-black text-xl flex items-center justify-center">
                           {member.display_name.slice(0, 1)}
                         </div>
                       )}
                       {avatarData?.roleBadge && (
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 p-0.5 shadow-xs flex items-center justify-center">
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white border border-[#ECECE8] p-0.5 shadow-xs flex items-center justify-center">
                           <Image
                             src={avatarData.roleBadge}
                             alt="Role Badge"
@@ -261,10 +261,10 @@ export default function WelcomeEntryPage() {
                     </div>
 
                     <div className="mt-2 text-center w-full">
-                      <span className="text-[10px] uppercase font-black tracking-wider text-slate-400 block">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#71717A] block">
                         Member {idx + 1}
                       </span>
-                      <h3 className="font-extrabold text-base tracking-tight leading-tight text-slate-900 dark:text-white mt-0.5">
+                      <h3 className="font-extrabold text-base tracking-tight leading-tight text-[#2D2D2D] mt-0.5">
                         {member.display_name}
                       </h3>
                       <div className="mt-1">
@@ -287,14 +287,14 @@ export default function WelcomeEntryPage() {
               type="button"
               onClick={handleEnterHousehold}
               disabled={isEntering}
-              className="w-full py-3.5 px-6 rounded-full bg-[#E2F937] text-slate-950 font-black text-sm shadow-[0_4px_20px_rgba(226,249,55,0.45)] hover:bg-[#d6ed2f] hover:shadow-[0_6px_25px_rgba(226,249,55,0.6)] active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer border border-black/10 disabled:opacity-50"
+              className="w-full py-3.5 px-6 rounded-full bg-[#2D2D2D] text-white font-bold text-sm shadow-md hover:bg-[#1a1a1a] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <span>
                 {t.continueAs} {selectedMemberName}
               </span>
-              <ArrowRight className="w-4 h-4 stroke-[3]" />
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
-            <p className="text-[11px] text-center text-slate-400 dark:text-zinc-500 font-medium mt-2.5">
+            <p className="text-[11px] text-center text-[#71717A] font-medium mt-2.5">
               Direct access • Your selection is saved permanently for this device
             </p>
           </div>
